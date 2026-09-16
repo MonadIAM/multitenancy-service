@@ -56,4 +56,4 @@ import { QUERIES } from "./application/queries";
     ],
     controllers: [...HTTP_CONTROLLERS, ...CONSUMERS],
 })
-export class TemplateModule {}
+export class MultitenancyModule {}

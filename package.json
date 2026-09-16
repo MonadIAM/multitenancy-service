@@ -1,6 +1,6 @@
 {
-  "name": "@monadiam/template-service",
-  "description": "Universal NestJS service boilerplate for MonadIAM — authn/permission guards wired against identity-service and access-control-service, audit/change-log capture with outbox-based ClickHouse archival, and BullMQ retention cleanup, ready to grow a real domain on top.",
+  "name": "@monadiam/multitenancy-service",
+  "description": "MonadIAM service for organizations, projects, departments, teams, memberships, scoped assignments, and invitations.",
   "author": "Daniil Egorov (https://github.com/Lambdius)",
   "license": "SEE LICENSE IN LICENSE",
   "version": "0.0.1",
@@ -31,12 +31,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MonadIAM/template-service.git"
+    "url": "git+https://github.com/MonadIAM/multitenancy-service.git"
   },
   "bugs": {
-    "url": "https://github.com/MonadIAM/template-service/issues"
+    "url": "https://github.com/MonadIAM/multitenancy-service/issues"
   },
-  "homepage": "https://github.com/MonadIAM/template-service#readme",
+  "homepage": "https://github.com/MonadIAM/multitenancy-service#readme",
   "mikro-orm": {
     "preferTs": true,
     "tsLoader": "tsx",

@@ -1,7 +1,7 @@
 export const POSTGRES_IMAGE = "postgres:17-alpine";
-export const DATABASE_NAME = "template_test";
-export const DATABASE_USER = "template";
-export const DATABASE_PASSWORD = "template";
+export const DATABASE_NAME = "multitenancy_test";
+export const DATABASE_USER = "multitenancy";
+export const DATABASE_PASSWORD = "multitenancy";
 
 export const CONNECTION_ENV_KEYS = {
     database: "MONADIAM_TEST_POSTGRES_DATABASE",

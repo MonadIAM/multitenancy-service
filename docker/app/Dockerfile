@@ -18,5 +18,5 @@ RUN pnpm run build
 # --- Stage 2: Runtime ---
 FROM builder AS runner
 
-EXPOSE 4000
+EXPOSE 4004
 CMD ["node", "dist/src/main.js"]
