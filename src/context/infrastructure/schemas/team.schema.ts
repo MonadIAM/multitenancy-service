@@ -19,6 +19,10 @@ export const TeamSchema = new EntitySchema<Team>({
     ],
 
     indexes: [
+        {
+            name: "team_name_trgm_idx",
+            expression: 'CREATE INDEX "team_name_trgm_idx" ON "multitenancy"."team" USING gin ("name" gin_trgm_ops)',
+        },
         { name: "team_organization_idx", properties: ["organization"] },
         { name: "team_department_idx", properties: ["department"] },
         { name: "team_lead_idx", columns: [{ name: "lead_id" }] },

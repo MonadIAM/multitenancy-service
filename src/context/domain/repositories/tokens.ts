@@ -1,2 +1,11 @@
+export const PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY = Symbol("Repositories.ProjectAccountAssignment.Contract");
+export const DEPT_ACCOUNT_ASSIGNMENT_REPOSITORY = Symbol("Repositories.DeptAccountAssignment.Contract");
+export const TEAM_ACCOUNT_ASSIGNMENT_REPOSITORY = Symbol("Repositories.TeamAccountAssignment.Contract");
+export const ORG_MEMBERSHIP_REPOSITORY = Symbol("Repositories.OrgMembership.Contract");
+export const ORGANIZATION_REPOSITORY = Symbol("Repositories.Organization.Contract");
+export const DEPARTMENT_REPOSITORY = Symbol("Repositories.Department.Contract");
+export const PROJECT_REPOSITORY = Symbol("Repositories.Project.Contract");
+export const INVITE_REPOSITORY = Symbol("Repositories.Invite.Contract");
+export const TEAM_REPOSITORY = Symbol("Repositories.Team.Contract");
 export const CHANGE_LOG_REPOSITORY = Symbol("Repositories.ChangeLog.Contract");
 export const AUDIT_LOG_REPOSITORY = Symbol("Repositories.AuditLog.Contract");

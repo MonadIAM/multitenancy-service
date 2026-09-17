@@ -11,7 +11,14 @@ export const OrganizationSchema = new EntitySchema<Organization>({
 
     uniques: [{ name: "organization_realm_unique", properties: ["realm"] }],
 
-    indexes: [{ name: "organization_owner_idx", columns: [{ name: "owner_id" }] }],
+    indexes: [
+        {
+            name: "organization_title_trgm_idx",
+            expression:
+                'CREATE INDEX "organization_title_trgm_idx" ON "multitenancy"."organization" USING gin ("title" gin_trgm_ops)',
+        },
+        { name: "organization_owner_idx", columns: [{ name: "owner_id" }] },
+    ],
 
     properties: {
         id: { primary: true, type: "uuid" },

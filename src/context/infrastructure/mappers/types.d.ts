@@ -62,6 +62,231 @@ declare global {
                     Sort: Sort;
                 }
             }
+
+            namespace Organization {
+                type Filters = {
+                    updatedAt?: OrdinalFilterDTO<Date>;
+                    createdAt?: OrdinalFilterDTO<Date>;
+                    revokedAt?: OrdinalFilterDTO<Date>;
+                    status?: StringFilterDTO;
+                    owner?: LinkFilterDTO;
+                    realm?: LinkFilterDTO;
+                    title?: StringFilterDTO;
+                    id?: StringFilterDTO;
+                };
+
+                type Sort = {
+                    updatedAt?: QueryOrder;
+                    createdAt?: QueryOrder;
+                    revokedAt?: QueryOrder;
+                    title?: QueryOrder;
+                };
+
+                interface Types {
+                    Filters: Filters;
+                    Sort: Sort;
+                }
+            }
+
+            namespace OrgMembership {
+                type Filters = {
+                    suspendedAt?: OrdinalFilterDTO<Date>;
+                    blockedAt?: OrdinalFilterDTO<Date>;
+                    updatedAt?: OrdinalFilterDTO<Date>;
+                    createdAt?: OrdinalFilterDTO<Date>;
+                    joinedAt?: OrdinalFilterDTO<Date>;
+                    leftAt?: OrdinalFilterDTO<Date>;
+                    organization?: LinkFilterDTO;
+                    account?: LinkFilterDTO;
+                    status?: StringFilterDTO;
+                    id?: StringFilterDTO;
+                };
+
+                type Sort = {
+                    suspendedAt?: QueryOrder;
+                    blockedAt?: QueryOrder;
+                    updatedAt?: QueryOrder;
+                    createdAt?: QueryOrder;
+                    joinedAt?: QueryOrder;
+                    leftAt?: QueryOrder;
+                };
+
+                interface Types {
+                    Filters: Filters;
+                    Sort: Sort;
+                }
+            }
+
+            namespace Invite {
+                type Filters = {
+                    updatedAt?: OrdinalFilterDTO<Date>;
+                    createdAt?: OrdinalFilterDTO<Date>;
+                    expiresAt?: OrdinalFilterDTO<Date>;
+                    organization?: LinkFilterDTO;
+                    invitee?: LinkFilterDTO;
+                    inviter?: LinkFilterDTO;
+                    role?: LinkFilterDTO;
+                    status?: StringFilterDTO;
+                    id?: StringFilterDTO;
+                };
+
+                type Sort = {
+                    updatedAt?: QueryOrder;
+                    createdAt?: QueryOrder;
+                    expiresAt?: QueryOrder;
+                };
+
+                interface Types {
+                    Filters: Filters;
+                    Sort: Sort;
+                }
+            }
+
+            namespace Project {
+                type Filters = {
+                    archivedAt?: OrdinalFilterDTO<Date>;
+                    updatedAt?: OrdinalFilterDTO<Date>;
+                    createdAt?: OrdinalFilterDTO<Date>;
+                    organization?: LinkFilterDTO;
+                    manager?: LinkFilterDTO;
+                    status?: StringFilterDTO;
+                    realm?: LinkFilterDTO;
+                    name?: StringFilterDTO;
+                    id?: StringFilterDTO;
+                };
+
+                type Sort = {
+                    archivedAt?: QueryOrder;
+                    updatedAt?: QueryOrder;
+                    createdAt?: QueryOrder;
+                    name?: QueryOrder;
+                };
+
+                interface Types {
+                    Filters: Filters;
+                    Sort: Sort;
+                }
+            }
+
+            namespace ProjectAccountAssignment {
+                type Filters = {
+                    assignedAt?: OrdinalFilterDTO<Date>;
+                    updatedAt?: OrdinalFilterDTO<Date>;
+                    organization?: LinkFilterDTO;
+                    project?: LinkFilterDTO;
+                    assignedBy?: LinkFilterDTO;
+                    account?: LinkFilterDTO;
+                    status?: StringFilterDTO;
+                    id?: StringFilterDTO;
+                };
+
+                type Sort = {
+                    assignedAt?: QueryOrder;
+                    updatedAt?: QueryOrder;
+                };
+
+                interface Types {
+                    Filters: Filters;
+                    Sort: Sort;
+                }
+            }
+
+            namespace Department {
+                type Filters = {
+                    archivedAt?: OrdinalFilterDTO<Date>;
+                    updatedAt?: OrdinalFilterDTO<Date>;
+                    createdAt?: OrdinalFilterDTO<Date>;
+                    organization?: LinkFilterDTO;
+                    manager?: LinkFilterDTO;
+                    status?: StringFilterDTO;
+                    name?: StringFilterDTO;
+                    id?: StringFilterDTO;
+                };
+
+                type Sort = {
+                    archivedAt?: QueryOrder;
+                    updatedAt?: QueryOrder;
+                    createdAt?: QueryOrder;
+                    name?: QueryOrder;
+                };
+
+                interface Types {
+                    Filters: Filters;
+                    Sort: Sort;
+                }
+            }
+
+            namespace DeptAccountAssignment {
+                type Filters = {
+                    assignedAt?: OrdinalFilterDTO<Date>;
+                    updatedAt?: OrdinalFilterDTO<Date>;
+                    organization?: LinkFilterDTO;
+                    department?: LinkFilterDTO;
+                    assignedBy?: LinkFilterDTO;
+                    account?: LinkFilterDTO;
+                    status?: StringFilterDTO;
+                    id?: StringFilterDTO;
+                };
+
+                type Sort = {
+                    assignedAt?: QueryOrder;
+                    updatedAt?: QueryOrder;
+                };
+
+                interface Types {
+                    Filters: Filters;
+                    Sort: Sort;
+                }
+            }
+
+            namespace Team {
+                type Filters = {
+                    archivedAt?: OrdinalFilterDTO<Date>;
+                    updatedAt?: OrdinalFilterDTO<Date>;
+                    createdAt?: OrdinalFilterDTO<Date>;
+                    organization?: LinkFilterDTO;
+                    department?: LinkFilterDTO;
+                    status?: StringFilterDTO;
+                    lead?: LinkFilterDTO;
+                    name?: StringFilterDTO;
+                    id?: StringFilterDTO;
+                };
+
+                type Sort = {
+                    archivedAt?: QueryOrder;
+                    updatedAt?: QueryOrder;
+                    createdAt?: QueryOrder;
+                    name?: QueryOrder;
+                };
+
+                interface Types {
+                    Filters: Filters;
+                    Sort: Sort;
+                }
+            }
+
+            namespace TeamAccountAssignment {
+                type Filters = {
+                    assignedAt?: OrdinalFilterDTO<Date>;
+                    updatedAt?: OrdinalFilterDTO<Date>;
+                    organization?: LinkFilterDTO;
+                    assignedBy?: LinkFilterDTO;
+                    account?: LinkFilterDTO;
+                    status?: StringFilterDTO;
+                    team?: LinkFilterDTO;
+                    id?: StringFilterDTO;
+                };
+
+                type Sort = {
+                    assignedAt?: QueryOrder;
+                    updatedAt?: QueryOrder;
+                };
+
+                interface Types {
+                    Filters: Filters;
+                    Sort: Sort;
+                }
+            }
         }
     }
 }

@@ -18,6 +18,11 @@ export const DepartmentSchema = new EntitySchema<Department>({
     ],
 
     indexes: [
+        {
+            name: "department_name_trgm_idx",
+            expression:
+                'CREATE INDEX "department_name_trgm_idx" ON "multitenancy"."department" USING gin ("name" gin_trgm_ops)',
+        },
         { name: "department_organization_idx", properties: ["organization"] },
         { name: "department_manager_idx", columns: [{ name: "manager_id" }] },
     ],

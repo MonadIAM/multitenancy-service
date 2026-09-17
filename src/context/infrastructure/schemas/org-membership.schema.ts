@@ -1,7 +1,7 @@
-import { EntitySchema } from "@mikro-orm/postgresql";
+import { DeferMode, EntitySchema } from "@mikro-orm/postgresql";
 
-import { Organization } from "~context/domain/entities/organization.entity";
 import { OrgMembership } from "~context/domain/entities/org-membership.entity";
+import { Organization } from "~context/domain/entities/organization.entity";
 import { OrgMembershipStatus } from "~context/enums";
 
 export const OrgMembershipSchema = new EntitySchema<OrgMembership>({
@@ -33,6 +33,7 @@ export const OrgMembershipSchema = new EntitySchema<OrgMembership>({
             entity: () => Organization,
             fieldName: "organization_id",
             deleteRule: "restrict",
+            deferMode: DeferMode.INITIALLY_DEFERRED,
         },
         account: { type: "uuid", fieldName: "account_id" },
         status: {

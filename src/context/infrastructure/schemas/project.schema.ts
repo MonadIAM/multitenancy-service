@@ -19,6 +19,10 @@ export const ProjectSchema = new EntitySchema<Project>({
     ],
 
     indexes: [
+        {
+            name: "project_name_trgm_idx",
+            expression: 'CREATE INDEX "project_name_trgm_idx" ON "multitenancy"."project" USING gin ("name" gin_trgm_ops)',
+        },
         { name: "project_organization_idx", properties: ["organization"] },
         { name: "project_manager_idx", columns: [{ name: "manager_id" }] },
     ],
