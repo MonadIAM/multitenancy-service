@@ -15,6 +15,69 @@ export type I18nTranslations = {
         "CONNECTION_LOST": string;
         "INTERNAL_DRIVER_ERROR": string;
     };
+    "entities": {
+        "organization": {
+            "NO_CHANGES_DETECTED": string;
+            "EMPTY_UPDATE_PATCH": string;
+            "CANNOT_PURGE_ACTIVE": string;
+            "ALREADY_REVOKED": string;
+            "ALREADY_ACTIVE": string;
+        };
+        "org-membership": {
+            "CANNOT_SUSPEND": string;
+            "CANNOT_ACTIVATE": string;
+            "CANNOT_LEAVE": string;
+            "CANNOT_BLOCK": string;
+        };
+        "project": {
+            "NO_CHANGES_DETECTED": string;
+            "EMPTY_UPDATE_PATCH": string;
+            "CANNOT_PURGE_ACTIVE": string;
+            "ALREADY_ARCHIVED": string;
+            "ALREADY_ACTIVE": string;
+        };
+        "department": {
+            "NO_CHANGES_DETECTED": string;
+            "EMPTY_UPDATE_PATCH": string;
+            "CANNOT_PURGE_ACTIVE": string;
+            "ALREADY_ARCHIVED": string;
+            "ALREADY_ACTIVE": string;
+        };
+        "team": {
+            "NO_CHANGES_DETECTED": string;
+            "EMPTY_UPDATE_PATCH": string;
+            "CANNOT_PURGE_ACTIVE": string;
+            "ALREADY_ARCHIVED": string;
+            "ALREADY_ACTIVE": string;
+        };
+        "invite": {
+            "CANNOT_ACCEPT_INACTIVE": string;
+            "CANNOT_ACCEPT_EXPIRED": string;
+            "CANNOT_DECLINE_INACTIVE": string;
+            "CANNOT_DECLINE_EXPIRED": string;
+            "CANNOT_CANCEL_INACTIVE": string;
+            "CANNOT_CANCEL_EXPIRED": string;
+            "CANNOT_INVALIDATE_INACTIVE": string;
+            "CANNOT_INVALIDATE_EXPIRED": string;
+            "CANNOT_EXPIRE_INACTIVE": string;
+            "CANNOT_EXPIRE_UNDUE": string;
+        };
+        "project-account-assignment": {
+            "ALREADY_REVOKED": string;
+            "ALREADY_ACTIVE": string;
+            "CANNOT_PURGE_ACTIVE": string;
+        };
+        "dept-account-assignment": {
+            "ALREADY_REVOKED": string;
+            "ALREADY_ACTIVE": string;
+            "CANNOT_PURGE_ACTIVE": string;
+        };
+        "team-account-assignment": {
+            "ALREADY_REVOKED": string;
+            "ALREADY_ACTIVE": string;
+            "CANNOT_PURGE_ACTIVE": string;
+        };
+    };
     "global": {
         "throttle": string;
     };

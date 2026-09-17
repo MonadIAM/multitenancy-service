@@ -1,1 +1,63 @@
-{}
+{
+  "organization": {
+    "NO_CHANGES_DETECTED": "No organization changes were detected",
+    "EMPTY_UPDATE_PATCH": "Organization update patch is empty",
+    "CANNOT_PURGE_ACTIVE": "An active organization cannot be deleted",
+    "ALREADY_REVOKED": "Organization is already revoked",
+    "ALREADY_ACTIVE": "Organization is already active"
+  },
+  "org-membership": {
+    "CANNOT_SUSPEND": "Only an active membership can be suspended",
+    "CANNOT_ACTIVATE": "Only a suspended or left membership can be activated",
+    "CANNOT_LEAVE": "Only an active or suspended membership can be left",
+    "CANNOT_BLOCK": "Only an active, suspended or left membership can be blocked"
+  },
+  "project": {
+    "NO_CHANGES_DETECTED": "No project changes were detected",
+    "EMPTY_UPDATE_PATCH": "Project update patch is empty",
+    "CANNOT_PURGE_ACTIVE": "An active project cannot be deleted",
+    "ALREADY_ARCHIVED": "Project is already archived",
+    "ALREADY_ACTIVE": "Project is already active"
+  },
+  "department": {
+    "NO_CHANGES_DETECTED": "No department changes were detected",
+    "EMPTY_UPDATE_PATCH": "Department update patch is empty",
+    "CANNOT_PURGE_ACTIVE": "An active department cannot be deleted",
+    "ALREADY_ARCHIVED": "Department is already archived",
+    "ALREADY_ACTIVE": "Department is already active"
+  },
+  "team": {
+    "NO_CHANGES_DETECTED": "No team changes were detected",
+    "EMPTY_UPDATE_PATCH": "Team update patch is empty",
+    "CANNOT_PURGE_ACTIVE": "An active team cannot be deleted",
+    "ALREADY_ARCHIVED": "Team is already archived",
+    "ALREADY_ACTIVE": "Team is already active"
+  },
+  "invite": {
+    "CANNOT_ACCEPT_INACTIVE": "Only a pending invite can be accepted",
+    "CANNOT_ACCEPT_EXPIRED": "An expired invite cannot be accepted",
+    "CANNOT_DECLINE_INACTIVE": "Only a pending invite can be declined",
+    "CANNOT_DECLINE_EXPIRED": "An expired invite cannot be declined",
+    "CANNOT_CANCEL_INACTIVE": "Only a pending invite can be cancelled",
+    "CANNOT_CANCEL_EXPIRED": "An expired invite cannot be cancelled",
+    "CANNOT_INVALIDATE_INACTIVE": "Only a pending invite can be invalidated",
+    "CANNOT_INVALIDATE_EXPIRED": "An expired invite cannot be invalidated",
+    "CANNOT_EXPIRE_INACTIVE": "Only a pending invite can expire",
+    "CANNOT_EXPIRE_UNDUE": "Invite expiration deadline has not been reached"
+  },
+  "project-account-assignment": {
+    "ALREADY_REVOKED": "Project assignment is already revoked",
+    "ALREADY_ACTIVE": "Project assignment is already active",
+    "CANNOT_PURGE_ACTIVE": "An active project assignment cannot be deleted"
+  },
+  "dept-account-assignment": {
+    "ALREADY_REVOKED": "Department assignment is already revoked",
+    "ALREADY_ACTIVE": "Department assignment is already active",
+    "CANNOT_PURGE_ACTIVE": "An active department assignment cannot be deleted"
+  },
+  "team-account-assignment": {
+    "ALREADY_REVOKED": "Team assignment is already revoked",
+    "ALREADY_ACTIVE": "Team assignment is already active",
+    "CANNOT_PURGE_ACTIVE": "An active team assignment cannot be deleted"
+  }
+}

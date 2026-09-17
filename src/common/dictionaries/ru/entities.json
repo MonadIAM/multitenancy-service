@@ -1,1 +1,63 @@
-{}
+{
+  "organization": {
+    "NO_CHANGES_DETECTED": "Изменения организации не обнаружены",
+    "EMPTY_UPDATE_PATCH": "Набор изменений организации пуст",
+    "CANNOT_PURGE_ACTIVE": "Активную организацию нельзя удалить",
+    "ALREADY_REVOKED": "Организация уже отозвана",
+    "ALREADY_ACTIVE": "Организация уже активна"
+  },
+  "org-membership": {
+    "CANNOT_SUSPEND": "Приостановить можно только активное членство",
+    "CANNOT_ACTIVATE": "Активировать можно только приостановленное или завершённое членство",
+    "CANNOT_LEAVE": "Завершить можно только активное или приостановленное членство",
+    "CANNOT_BLOCK": "Заблокировать можно только активное, приостановленное или завершённое членство"
+  },
+  "project": {
+    "NO_CHANGES_DETECTED": "Изменения проекта не обнаружены",
+    "EMPTY_UPDATE_PATCH": "Набор изменений проекта пуст",
+    "CANNOT_PURGE_ACTIVE": "Активный проект нельзя удалить",
+    "ALREADY_ARCHIVED": "Проект уже архивирован",
+    "ALREADY_ACTIVE": "Проект уже активен"
+  },
+  "department": {
+    "NO_CHANGES_DETECTED": "Изменения подразделения не обнаружены",
+    "EMPTY_UPDATE_PATCH": "Набор изменений подразделения пуст",
+    "CANNOT_PURGE_ACTIVE": "Активное подразделение нельзя удалить",
+    "ALREADY_ARCHIVED": "Подразделение уже архивировано",
+    "ALREADY_ACTIVE": "Подразделение уже активно"
+  },
+  "team": {
+    "NO_CHANGES_DETECTED": "Изменения команды не обнаружены",
+    "EMPTY_UPDATE_PATCH": "Набор изменений команды пуст",
+    "CANNOT_PURGE_ACTIVE": "Активную команду нельзя удалить",
+    "ALREADY_ARCHIVED": "Команда уже архивирована",
+    "ALREADY_ACTIVE": "Команда уже активна"
+  },
+  "invite": {
+    "CANNOT_ACCEPT_INACTIVE": "Принять можно только ожидающее приглашение",
+    "CANNOT_ACCEPT_EXPIRED": "Истёкшее приглашение нельзя принять",
+    "CANNOT_DECLINE_INACTIVE": "Отклонить можно только ожидающее приглашение",
+    "CANNOT_DECLINE_EXPIRED": "Истёкшее приглашение нельзя отклонить",
+    "CANNOT_CANCEL_INACTIVE": "Отменить можно только ожидающее приглашение",
+    "CANNOT_CANCEL_EXPIRED": "Истёкшее приглашение нельзя отменить",
+    "CANNOT_INVALIDATE_INACTIVE": "Инвалидировать можно только ожидающее приглашение",
+    "CANNOT_INVALIDATE_EXPIRED": "Истёкшее приглашение нельзя инвалидировать",
+    "CANNOT_EXPIRE_INACTIVE": "Завершить по сроку можно только ожидающее приглашение",
+    "CANNOT_EXPIRE_UNDUE": "Срок действия приглашения ещё не истёк"
+  },
+  "project-account-assignment": {
+    "ALREADY_REVOKED": "Назначение на проект уже отозвано",
+    "ALREADY_ACTIVE": "Назначение на проект уже активно",
+    "CANNOT_PURGE_ACTIVE": "Активное назначение на проект нельзя удалить"
+  },
+  "dept-account-assignment": {
+    "ALREADY_REVOKED": "Назначение в подразделение уже отозвано",
+    "ALREADY_ACTIVE": "Назначение в подразделение уже активно",
+    "CANNOT_PURGE_ACTIVE": "Активное назначение в подразделение нельзя удалить"
+  },
+  "team-account-assignment": {
+    "ALREADY_REVOKED": "Назначение в команду уже отозвано",
+    "ALREADY_ACTIVE": "Назначение в команду уже активно",
+    "CANNOT_PURGE_ACTIVE": "Активное назначение в команду нельзя удалить"
+  }
+}
