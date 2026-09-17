@@ -1,0 +1,11 @@
+export const PROJECT_ACCOUNT_ASSIGNMENT_QUERIES = Symbol("Queries.ProjectAccountAssignment.Contract");
+export const DEPT_ACCOUNT_ASSIGNMENT_QUERIES = Symbol("Queries.DeptAccountAssignment.Contract");
+export const TEAM_ACCOUNT_ASSIGNMENT_QUERIES = Symbol("Queries.TeamAccountAssignment.Contract");
+export const ORG_MEMBERSHIP_QUERIES = Symbol("Queries.OrgMembership.Contract");
+export const ORGANIZATION_QUERIES = Symbol("Queries.Organization.Contract");
+export const DEPARTMENT_QUERIES = Symbol("Queries.Department.Contract");
+export const CHANGE_LOG_QUERIES = Symbol("Queries.ChangeLog.Contract");
+export const AUDIT_LOG_QUERIES = Symbol("Queries.AuditLog.Contract");
+export const PROJECT_QUERIES = Symbol("Queries.Project.Contract");
+export const INVITE_QUERIES = Symbol("Queries.Invite.Contract");
+export const TEAM_QUERIES = Symbol("Queries.Team.Contract");

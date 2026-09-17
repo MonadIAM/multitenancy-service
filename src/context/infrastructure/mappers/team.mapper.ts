@@ -6,9 +6,9 @@ import { TeamStatus } from "~context/enums";
 export class TeamMapper implements Repositories.Mappers.Contract<Entities.Team, Repositories.Mappers.Team.Types> {
     public buildWhereORM(
         filters: Repositories.Mappers.Team.Filters,
-        basic: ORM.ObjectQuery<Entities.Team> = {},
-    ): ORM.ObjectQuery<Entities.Team> {
-        const where: ORM.ObjectQuery<Entities.Team> = basic;
+        basic: ORM.Prefilter<Entities.Team> = {},
+    ): ORM.Prefilter<Entities.Team> {
+        const where: ORM.Prefilter<Entities.Team> = basic;
 
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);

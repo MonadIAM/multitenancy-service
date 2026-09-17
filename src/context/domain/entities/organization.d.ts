@@ -12,11 +12,14 @@ declare global {
                 revokedAt?: Date;
                 version: number;
 
-                owner: Entities.OrgMembership;
+                status: OrganizationStatus;
+                description: string;
                 realm: string;
                 title: string;
-                description: string;
-                status: OrganizationStatus;
+
+                owner: Entities.OrgMembership;
+
+                memberships: ORM.Collection<Entities.OrgMembership>;
 
                 transferOwnership(props: TransferOwnership.Props): void;
                 update(props: ChangeDataProps): void;

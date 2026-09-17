@@ -25,7 +25,7 @@ export class ProjectRepository
 
     public async getLookupList(props: Repositories.Project.GetLookupList.Props): Repositories.Project.GetLookupList.Result {
         try {
-            const { organization, pagination, term } = props;
+            const { organization, pagination, prefilter, term } = props;
             const entityManager = this.readManager.fork();
             const builder = entityManager.createQueryBuilder(Project, "p");
 
@@ -34,8 +34,12 @@ export class ProjectRepository
                 .limit(pagination.elementsPerPage)
                 .offset((pagination.currentPage - 1) * pagination.elementsPerPage);
 
+            if (prefilter) {
+                builder.where(prefilter);
+            }
+
             if (organization) {
-                builder.where({ "p.organization": organization });
+                builder.andWhere({ "p.organization": organization });
             }
 
             if (term) {

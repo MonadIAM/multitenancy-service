@@ -6,9 +6,9 @@ import { ProjectStatus } from "~context/enums";
 export class ProjectMapper implements Repositories.Mappers.Contract<Entities.Project, Repositories.Mappers.Project.Types> {
     public buildWhereORM(
         filters: Repositories.Mappers.Project.Filters,
-        basic: ORM.ObjectQuery<Entities.Project> = {},
-    ): ORM.ObjectQuery<Entities.Project> {
-        const where: ORM.ObjectQuery<Entities.Project> = basic;
+        basic: ORM.Prefilter<Entities.Project> = {},
+    ): ORM.Prefilter<Entities.Project> {
+        const where: ORM.Prefilter<Entities.Project> = basic;
 
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);

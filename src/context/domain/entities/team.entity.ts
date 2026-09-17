@@ -1,3 +1,4 @@
+import { Collection } from "@mikro-orm/core";
 import { randomUUID } from "node:crypto";
 
 import { Exception } from "~common/exceptions";
@@ -12,12 +13,15 @@ export class Team implements Entities.Team.Contract {
     public archivedAt?: Date;
     public version: number = 1;
 
-    public lead?: Entities.TeamAccountAssignment;
-    public organization: Entities.Organization;
-    public department: Entities.Department;
     public description: string;
     public status: TeamStatus;
     public name: string;
+
+    public lead?: Entities.TeamAccountAssignment;
+    public organization: Entities.Organization;
+    public department: Entities.Department;
+
+    public assignments = new Collection<Entities.TeamAccountAssignment>(this);
 
     public constructor(props: Entities.Team.ConstructorProps) {
         this.createdAt = new Date();

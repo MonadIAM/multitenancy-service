@@ -9,9 +9,9 @@ export class OrgMembershipMapper implements Repositories.Mappers.Contract<
 > {
     public buildWhereORM(
         filters: Repositories.Mappers.OrgMembership.Filters,
-        basic: ORM.ObjectQuery<Entities.OrgMembership> = {},
-    ): ORM.ObjectQuery<Entities.OrgMembership> {
-        const where: ORM.ObjectQuery<Entities.OrgMembership> = basic;
+        basic: ORM.Prefilter<Entities.OrgMembership> = {},
+    ): ORM.Prefilter<Entities.OrgMembership> {
+        const where: ORM.Prefilter<Entities.OrgMembership> = basic;
 
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);

@@ -1,3 +1,4 @@
+import { Collection } from "@mikro-orm/core";
 import { randomUUID } from "node:crypto";
 
 import { ProjectStatus } from "~context/enums";
@@ -12,12 +13,15 @@ export class Project implements Entities.Project.Contract {
     public archivedAt?: Date;
     public version: number = 1;
 
-    public manager?: Entities.ProjectAccountAssignment;
-    public organization: Entities.Organization;
     public status: ProjectStatus;
     public description: string;
     public realm: string;
     public name: string;
+
+    public manager?: Entities.ProjectAccountAssignment;
+    public organization: Entities.Organization;
+
+    public assignments = new Collection<Entities.ProjectAccountAssignment>(this);
 
     public constructor(props: Entities.Project.ConstructorProps) {
         this.createdAt = new Date();

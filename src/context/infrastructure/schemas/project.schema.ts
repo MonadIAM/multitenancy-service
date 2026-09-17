@@ -30,6 +30,11 @@ export const ProjectSchema = new EntitySchema<Project>({
     properties: {
         id: { primary: true, type: "uuid" },
 
+        assignments: {
+            kind: "1:m",
+            entity: () => ProjectAccountAssignment,
+            mappedBy: "project",
+        },
         organization: {
             kind: "m:1",
             entity: () => Organization,

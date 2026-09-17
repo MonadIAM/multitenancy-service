@@ -30,6 +30,11 @@ export const DepartmentSchema = new EntitySchema<Department>({
     properties: {
         id: { primary: true, type: "uuid" },
 
+        assignments: {
+            kind: "1:m",
+            entity: () => DeptAccountAssignment,
+            mappedBy: "department",
+        },
         organization: {
             kind: "m:1",
             entity: () => Organization,

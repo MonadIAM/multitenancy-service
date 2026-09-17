@@ -27,7 +27,7 @@ export class OrganizationRepository
         props: Repositories.Organization.GetLookupList.Props,
     ): Repositories.Organization.GetLookupList.Result {
         try {
-            const { pagination, term } = props;
+            const { pagination, prefilter, term } = props;
             const entityManager = this.readManager.fork();
             const builder = entityManager.createQueryBuilder(Organization, "o");
 
@@ -36,9 +36,13 @@ export class OrganizationRepository
                 .limit(pagination.elementsPerPage)
                 .offset((pagination.currentPage - 1) * pagination.elementsPerPage);
 
+            if (prefilter) {
+                builder.where(prefilter);
+            }
+
             if (term) {
                 builder
-                    .where("o.title % ?", [term])
+                    .andWhere("o.title % ?", [term])
                     .orderBy([
                         { [raw("similarity(o.title, ?)", [term])]: "DESC" },
                         { "o.title": "ASC" },

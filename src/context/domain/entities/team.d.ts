@@ -12,12 +12,15 @@ declare global {
                 archivedAt?: Date;
                 version: number;
 
+                description: string;
+                status: TeamStatus;
+                name: string;
+
+                lead?: Entities.TeamAccountAssignment;
                 organization: Entities.Organization;
                 department: Entities.Department;
-                lead?: Entities.TeamAccountAssignment;
-                description: string;
-                name: string;
-                status: TeamStatus;
+
+                assignments: ORM.Collection<Entities.TeamAccountAssignment>;
 
                 assignLead(props: AssignLead.Props): void;
                 update(props: ChangeDataProps): void;
@@ -35,7 +38,9 @@ declare global {
             };
 
             namespace AssignLead {
-                type Props = { assignment: Entities.TeamAccountAssignment };
+                type Props = {
+                    assignment: Entities.TeamAccountAssignment;
+                };
             }
 
             type MutableFields = Pick<Contract, "name" | "description">;

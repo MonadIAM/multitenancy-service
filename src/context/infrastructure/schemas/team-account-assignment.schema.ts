@@ -49,6 +49,7 @@ export const TeamAccountAssignmentSchema = new EntitySchema<TeamAccountAssignmen
             columnTypes: ["uuid", "uuid"],
             referencedColumnNames: ["id", "organization_id"],
             ownColumns: ["team_id"],
+            inversedBy: "assignments",
             deleteRule: "restrict",
             foreignKeyName: "team_assignment_team_organization_fk",
         },

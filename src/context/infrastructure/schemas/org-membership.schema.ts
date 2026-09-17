@@ -32,6 +32,7 @@ export const OrgMembershipSchema = new EntitySchema<OrgMembership>({
             kind: "m:1",
             entity: () => Organization,
             fieldName: "organization_id",
+            inversedBy: "memberships",
             deleteRule: "restrict",
             deferMode: DeferMode.INITIALLY_DEFERRED,
         },

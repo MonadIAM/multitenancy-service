@@ -7,9 +7,9 @@ import { AuditLog } from "~common/transaction-manager";
 export class AuditLogMapper implements Repositories.Mappers.Contract<AuditLog, Repositories.Mappers.AuditLog.Types> {
     public buildWhereORM(
         filters: Repositories.Mappers.AuditLog.Filters,
-        basic: ORM.ObjectQuery<AuditLog> = {},
-    ): ORM.ObjectQuery<AuditLog> {
-        const where: ORM.ObjectQuery<AuditLog> = basic;
+        basic: ORM.Prefilter<AuditLog> = {},
+    ): ORM.Prefilter<AuditLog> {
+        const where: ORM.Prefilter<AuditLog> = basic;
 
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);

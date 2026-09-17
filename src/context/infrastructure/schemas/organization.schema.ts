@@ -23,6 +23,11 @@ export const OrganizationSchema = new EntitySchema<Organization>({
     properties: {
         id: { primary: true, type: "uuid" },
 
+        memberships: {
+            kind: "1:m",
+            entity: () => OrgMembership,
+            mappedBy: "organization",
+        },
         owner: {
             kind: "m:1",
             entity: () => OrgMembership,

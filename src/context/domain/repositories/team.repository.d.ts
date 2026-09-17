@@ -10,6 +10,7 @@ declare namespace Repositories {
             type Props = {
                 organization?: string;
                 department?: string;
+                prefilter?: ORM.Prefilter<Entities.Team>;
                 pagination: Pagination;
                 term: string;
             };

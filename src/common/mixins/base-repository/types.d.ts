@@ -50,7 +50,7 @@ declare namespace Repositories {
               }
             | {
                   options?: ORM.FindOptions<E, P, F>;
-                  prefilter?: ORM.ObjectQuery<E>;
+                  prefilter?: ORM.Prefilter<E>;
                   pagination: Pagination;
                   filters: A["Filters"];
                   sort: A["Sort"];

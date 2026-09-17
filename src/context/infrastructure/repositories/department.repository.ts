@@ -27,7 +27,7 @@ export class DepartmentRepository
         props: Repositories.Department.GetLookupList.Props,
     ): Repositories.Department.GetLookupList.Result {
         try {
-            const { organization, pagination, term } = props;
+            const { organization, pagination, prefilter, term } = props;
             const entityManager = this.readManager.fork();
             const builder = entityManager.createQueryBuilder(Department, "d");
 
@@ -36,8 +36,12 @@ export class DepartmentRepository
                 .limit(pagination.elementsPerPage)
                 .offset((pagination.currentPage - 1) * pagination.elementsPerPage);
 
+            if (prefilter) {
+                builder.where(prefilter);
+            }
+
             if (organization) {
-                builder.where({ "d.organization": organization });
+                builder.andWhere({ "d.organization": organization });
             }
 
             if (term) {

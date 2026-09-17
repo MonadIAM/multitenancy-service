@@ -12,12 +12,15 @@ declare global {
                 archivedAt?: Date;
                 version: number;
 
-                manager?: Entities.ProjectAccountAssignment;
-                organization: Entities.Organization;
                 status: ProjectStatus;
                 description: string;
                 realm: string;
                 name: string;
+
+                manager?: Entities.ProjectAccountAssignment;
+                organization: Entities.Organization;
+
+                assignments: ORM.Collection<Entities.ProjectAccountAssignment>;
 
                 assignManager(props: AssignManager.Props): void;
                 update(props: ChangeDataProps): void;
@@ -35,7 +38,9 @@ declare global {
             };
 
             namespace AssignManager {
-                type Props = { assignment: Entities.ProjectAccountAssignment };
+                type Props = {
+                    assignment: Entities.ProjectAccountAssignment;
+                };
             }
 
             type MutableFields = Pick<Contract, "name" | "description">;

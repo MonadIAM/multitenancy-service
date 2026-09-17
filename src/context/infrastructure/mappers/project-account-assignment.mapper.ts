@@ -9,9 +9,9 @@ export class ProjectAccountAssignmentMapper implements Repositories.Mappers.Cont
 > {
     public buildWhereORM(
         filters: Repositories.Mappers.ProjectAccountAssignment.Filters,
-        basic: ORM.ObjectQuery<Entities.ProjectAccountAssignment> = {},
-    ): ORM.ObjectQuery<Entities.ProjectAccountAssignment> {
-        const where: ORM.ObjectQuery<Entities.ProjectAccountAssignment> = basic;
+        basic: ORM.Prefilter<Entities.ProjectAccountAssignment> = {},
+    ): ORM.Prefilter<Entities.ProjectAccountAssignment> {
+        const where: ORM.Prefilter<Entities.ProjectAccountAssignment> = basic;
 
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);

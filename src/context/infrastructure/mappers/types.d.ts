@@ -11,7 +11,7 @@ declare global {
             };
 
             interface Contract<E, A extends Meta> {
-                buildWhereORM(filters: A["Filters"], basic?: ORM.ObjectQuery<E>): ORM.FilterQuery<E>;
+                buildWhereORM(filters: A["Filters"], basic?: ORM.Prefilter<E>): ORM.Prefilter<E>;
                 buildOptionsORM<P extends string, F extends string>(
                     sort: A["Sort"],
                     pagination: Pagination,

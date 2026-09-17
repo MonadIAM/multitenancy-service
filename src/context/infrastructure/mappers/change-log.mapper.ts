@@ -7,9 +7,9 @@ import { EntityType } from "~context/enums";
 export class ChangeLogMapper implements Repositories.Mappers.Contract<ChangeLog, Repositories.Mappers.ChangeLog.Types> {
     public buildWhereORM(
         filters: Repositories.Mappers.ChangeLog.Filters,
-        basic: ORM.ObjectQuery<ChangeLog> = {},
-    ): ORM.ObjectQuery<ChangeLog> {
-        const where: ORM.ObjectQuery<ChangeLog> = basic;
+        basic: ORM.Prefilter<ChangeLog> = {},
+    ): ORM.Prefilter<ChangeLog> {
+        const where: ORM.Prefilter<ChangeLog> = basic;
 
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);

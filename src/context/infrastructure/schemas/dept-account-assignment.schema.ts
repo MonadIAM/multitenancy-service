@@ -54,6 +54,7 @@ export const DeptAccountAssignmentSchema = new EntitySchema<DeptAccountAssignmen
             columnTypes: ["uuid", "uuid"],
             referencedColumnNames: ["id", "organization_id"],
             ownColumns: ["department_id"],
+            inversedBy: "assignments",
             deleteRule: "restrict",
             foreignKeyName: "dept_assignment_department_organization_fk",
         },

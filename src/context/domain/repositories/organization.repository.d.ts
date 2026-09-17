@@ -11,6 +11,7 @@ declare namespace Repositories {
 
         namespace GetLookupList {
             type Props = {
+                prefilter?: ORM.Prefilter<Entities.Organization>;
                 pagination: Pagination;
                 term: string;
             };

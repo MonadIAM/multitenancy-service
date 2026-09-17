@@ -31,6 +31,11 @@ export const TeamSchema = new EntitySchema<Team>({
     properties: {
         id: { primary: true, type: "uuid" },
 
+        assignments: {
+            kind: "1:m",
+            entity: () => TeamAccountAssignment,
+            mappedBy: "team",
+        },
         organization: {
             kind: "m:1",
             entity: () => Organization,

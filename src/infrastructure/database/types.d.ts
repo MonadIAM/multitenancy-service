@@ -7,12 +7,12 @@ import {
     EventSubscriber as OriginEventSubscriber,
     FlushEventArgs as OriginFlushEventArgs,
     FindAllOptions as OriginFindAllOptions,
+    QBFilterQuery as OriginQBFilterQuery,
     QueryOrderMap as OriginQueryOrderMap,
     ChangeSetType as OriginChangeSetType,
     EntityManager as OriginEntityManager,
     FilterQuery as OriginFilterQuery,
     FindOptions as OriginFindOptions,
-    ObjectQuery as OriginObjectQuery,
     EntityClass as OriginEntityClass,
     UnknownType as OriginUnknownType,
     UnitOfWork as OriginUnitOfWork,
@@ -52,7 +52,7 @@ declare global {
 
         type FlushEventArgs = OriginFlushEventArgs;
 
-        type ObjectQuery<E> = OriginObjectQuery<E>;
+        type Prefilter<E> = OriginQBFilterQuery<E>;
 
         type EntityClass<E> = OriginEntityClass<E>;
 

@@ -6,9 +6,9 @@ import { InviteStatus } from "~context/enums";
 export class InviteMapper implements Repositories.Mappers.Contract<Entities.Invite, Repositories.Mappers.Invite.Types> {
     public buildWhereORM(
         filters: Repositories.Mappers.Invite.Filters,
-        basic: ORM.ObjectQuery<Entities.Invite> = {},
-    ): ORM.ObjectQuery<Entities.Invite> {
-        const where: ORM.ObjectQuery<Entities.Invite> = basic;
+        basic: ORM.Prefilter<Entities.Invite> = {},
+    ): ORM.Prefilter<Entities.Invite> {
+        const where: ORM.Prefilter<Entities.Invite> = basic;
 
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);

@@ -15,6 +15,11 @@ export enum QueryMode {
     /* eslint-enable prettier/prettier */
 }
 
+export enum InviteQueryScope {
+    AS_INVITER = "AS_INVITER",
+    AS_INVITEE = "AS_INVITEE",
+}
+
 export enum EntityType {
     /* eslint-disable prettier/prettier */
     PROJECT_ACCOUNT_ASSIGNMENT = "PROJECT_ACCOUNT_ASSIGNMENT",

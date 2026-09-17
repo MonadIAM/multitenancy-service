@@ -1,3 +1,4 @@
+import { Collection } from "@mikro-orm/core";
 import { randomUUID } from "node:crypto";
 
 import { OrganizationStatus } from "~context/enums";
@@ -12,11 +13,14 @@ export class Organization implements Entities.Organization.Contract {
     public revokedAt?: Date;
     public version: number = 1;
 
-    public owner!: Entities.OrgMembership;
+    public status: OrganizationStatus;
+    public description: string;
     public realm: string;
     public title: string;
-    public description: string;
-    public status: OrganizationStatus;
+
+    public owner!: Entities.OrgMembership;
+
+    public memberships = new Collection<Entities.OrgMembership>(this);
 
     public constructor(props: Entities.Organization.ConstructorProps) {
         this.createdAt = new Date();

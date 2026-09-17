@@ -9,9 +9,9 @@ export class TeamAccountAssignmentMapper implements Repositories.Mappers.Contrac
 > {
     public buildWhereORM(
         filters: Repositories.Mappers.TeamAccountAssignment.Filters,
-        basic: ORM.ObjectQuery<Entities.TeamAccountAssignment> = {},
-    ): ORM.ObjectQuery<Entities.TeamAccountAssignment> {
-        const where: ORM.ObjectQuery<Entities.TeamAccountAssignment> = basic;
+        basic: ORM.Prefilter<Entities.TeamAccountAssignment> = {},
+    ): ORM.Prefilter<Entities.TeamAccountAssignment> {
+        const where: ORM.Prefilter<Entities.TeamAccountAssignment> = basic;
 
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);

@@ -9,9 +9,9 @@ export class DepartmentMapper implements Repositories.Mappers.Contract<
 > {
     public buildWhereORM(
         filters: Repositories.Mappers.Department.Filters,
-        basic: ORM.ObjectQuery<Entities.Department> = {},
-    ): ORM.ObjectQuery<Entities.Department> {
-        const where: ORM.ObjectQuery<Entities.Department> = basic;
+        basic: ORM.Prefilter<Entities.Department> = {},
+    ): ORM.Prefilter<Entities.Department> {
+        const where: ORM.Prefilter<Entities.Department> = basic;
 
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);

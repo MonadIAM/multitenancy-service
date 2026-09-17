@@ -54,6 +54,7 @@ export const ProjectAccountAssignmentSchema = new EntitySchema<ProjectAccountAss
             columnTypes: ["uuid", "uuid"],
             referencedColumnNames: ["id", "organization_id"],
             ownColumns: ["project_id"],
+            inversedBy: "assignments",
             deleteRule: "cascade",
             foreignKeyName: "project_assignment_project_organization_fk",
         },
