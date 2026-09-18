@@ -52,6 +52,7 @@ declare namespace Services {
         namespace Leave {
             type Props = {
                 transaction: ORM.EntityManager;
+                account: string;
                 identifiers: string[];
                 realm: string;
             };

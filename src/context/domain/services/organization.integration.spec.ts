@@ -42,9 +42,11 @@ describe("OrganizationService integration", () => {
 
         await expect(
             suite.transaction((transaction) =>
-                suite
-                    .repository()
-                    .organizationService.revoke({ identifiers: [organization.id, randomUUID()], transaction }),
+                suite.repository().organizationService.revoke({
+                    realm: organization.realm,
+                    identifiers: [organization.id, randomUUID()],
+                    transaction,
+                }),
             ),
         ).rejects.toThrow("services.organization.ORGANIZATIONS_NOT_FOUND");
 

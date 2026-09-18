@@ -32,6 +32,7 @@ declare namespace Services {
 
         namespace Update {
             type Props = {
+                realm: string;
                 patch: Partial<Entities.Organization.MutableFields>;
                 transaction: ORM.EntityManager;
                 id: string;
@@ -44,6 +45,7 @@ declare namespace Services {
 
         namespace TransferOwnership {
             type Props = {
+                realm: string;
                 transaction: ORM.EntityManager;
                 membership: string;
                 id: string;
@@ -56,6 +58,7 @@ declare namespace Services {
 
         namespace Revoke {
             type Props = {
+                realm: string;
                 transaction: ORM.EntityManager;
                 identifiers: string[];
             };
@@ -67,6 +70,7 @@ declare namespace Services {
 
         namespace Restore {
             type Props = {
+                realm: string;
                 transaction: ORM.EntityManager;
                 identifiers: string[];
             };
@@ -78,6 +82,7 @@ declare namespace Services {
 
         namespace Purge {
             type Props = {
+                realm: string;
                 transaction: ORM.EntityManager;
                 identifiers: string[];
             };

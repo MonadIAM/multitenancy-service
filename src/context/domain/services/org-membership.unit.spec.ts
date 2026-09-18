@@ -129,7 +129,7 @@ describe("OrgMembershipService", () => {
             const teamAssignment = helpers.createTeamAccountAssignment({
                 membership,
             });
-            const { service, services, transaction } = helpers.service({
+            const { service, services, repositories, transaction } = helpers.service({
                 memberships: [membership],
             });
             services.projectAssignments.clean.mockImplementation(() => Promise.resolve([projectAssignment]));
@@ -137,12 +137,21 @@ describe("OrgMembershipService", () => {
             services.teamAssignments.clean.mockImplementation(() => Promise.resolve([teamAssignment]));
 
             const result = await service[operation]({
+                account: membership.account,
                 identifiers: [MEMBERSHIP_ID],
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
             });
 
             expect(membership.status).toBe(expectedStatus);
+            expect(repositories.memberships.find).toHaveBeenCalledWith({
+                where: {
+                    id: { $in: [MEMBERSHIP_ID] },
+                    organization: { realm: REALM_ID },
+                    ...(operation === "leave" ? { account: membership.account } : {}),
+                },
+                transaction: transaction.entityManager,
+            });
             expect(services.projectAssignments.clean).toHaveBeenCalledWith({
                 memberships: [MEMBERSHIP_ID],
                 transaction: transaction.entityManager,

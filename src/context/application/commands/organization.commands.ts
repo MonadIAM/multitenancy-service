@@ -43,7 +43,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
     }
 
     public async update(props: Commands.Organization.Update.Props): Commands.Organization.Update.Result {
-        const { input, id } = props;
+        const { input, realm, id } = props;
 
         await this.transactionalService.run({
             resource: this.resource,
@@ -54,7 +54,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                await this.organizationService.update({ patch: input.patch, transaction, id });
+                await this.organizationService.update({ patch: input.patch, transaction, realm, id });
             },
         });
 
@@ -64,7 +64,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
     public async transferOwnership(
         props: Commands.Organization.TransferOwnership.Props,
     ): Commands.Organization.TransferOwnership.Result {
-        const { input, id } = props;
+        const { input, realm, id } = props;
 
         await this.transactionalService.run({
             resource: this.resource,
@@ -78,6 +78,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
                 return await this.organizationService.transferOwnership({
                     membership: input.membership,
                     transaction,
+                    realm,
                     id,
                 });
             },
@@ -87,7 +88,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
     }
 
     public async revoke(props: Commands.Organization.Revoke.Props): Commands.Organization.Revoke.Result {
-        const { input } = props;
+        const { input, realm } = props;
 
         const organizations = await this.transactionalService.run({
             resource: this.resource,
@@ -98,7 +99,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.organizationService.revoke({ identifiers: input.identifiers, transaction });
+                return await this.organizationService.revoke({ identifiers: input.identifiers, transaction, realm });
             },
         });
 
@@ -110,7 +111,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
     }
 
     public async restore(props: Commands.Organization.Restore.Props): Commands.Organization.Restore.Result {
-        const { input } = props;
+        const { input, realm } = props;
 
         const organizations = await this.transactionalService.run({
             resource: this.resource,
@@ -121,7 +122,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.organizationService.restore({ identifiers: input.identifiers, transaction });
+                return await this.organizationService.restore({ identifiers: input.identifiers, transaction, realm });
             },
         });
 
@@ -133,7 +134,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
     }
 
     public async purge(props: Commands.Organization.Purge.Props): Commands.Organization.Purge.Result {
-        const { input } = props;
+        const { input, realm } = props;
 
         const organizations = await this.transactionalService.run({
             resource: this.resource,
@@ -144,7 +145,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.organizationService.purge({ identifiers: input.identifiers, transaction });
+                return await this.organizationService.purge({ identifiers: input.identifiers, transaction, realm });
             },
         });
 

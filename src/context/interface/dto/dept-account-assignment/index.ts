@@ -1,5 +1,9 @@
 export { ManageGetListQueryDTO, GetListQueryDTO, GetListBodyDTO } from "./req/get-list.dto";
 export { ManageGetByIdQueryDTO, GetByIdQueryDTO } from "./req/get-by-id.dto";
+export { RestoreQueryDTO, RestoreBodyDTO } from "./req/restore.dto";
+export { CreateQueryDTO, CreateBodyDTO } from "./req/create.dto";
+export { RevokeQueryDTO, RevokeBodyDTO } from "./req/revoke.dto";
+export { PurgeQueryDTO, PurgeBodyDTO } from "./req/purge.dto";
 
 export { DeptAccountAssignmentLookupDTO } from "./res/lookup-entity.dto";
 export { DeptAccountAssignmentDTO } from "./res/entity.dto";

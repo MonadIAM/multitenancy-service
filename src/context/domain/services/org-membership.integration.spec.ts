@@ -32,9 +32,12 @@ describe("OrgMembershipService integration", () => {
             await suite.fixtures().createTeamAccountAssignment({ membership, team });
 
             await suite.transaction((transaction) =>
-                suite
-                    .repository()
-                    .membershipService[operation]({ identifiers: [membership.id], realm: organization.realm, transaction }),
+                suite.repository().membershipService[operation]({
+                    account: membership.account,
+                    identifiers: [membership.id],
+                    realm: organization.realm,
+                    transaction,
+                }),
             );
 
             const [loaded, projectCount, departmentCount, teamCount] = await suite.transaction(

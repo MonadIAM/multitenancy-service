@@ -4,12 +4,12 @@ import { ORG_MEMBERSHIP_REPOSITORY, ORGANIZATION_REPOSITORY } from "~context/inf
 import { OrganizationStatus, OrgMembershipStatus } from "~context/enums";
 import { Exception } from "~common/exceptions";
 
+import { OrgMembership } from "../entities";
 import {
     PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
     DEPT_ACCOUNT_ASSIGNMENT_SERVICE,
     TEAM_ACCOUNT_ASSIGNMENT_SERVICE,
 } from "./tokens";
-import { OrgMembership } from "../entities";
 
 @Injectable({ scope: Scope.DEFAULT })
 export class OrgMembershipService implements Services.OrgMembership.Contract {
@@ -96,10 +96,10 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
     }
 
     public async leave(props: Services.OrgMembership.Leave.Props): Services.OrgMembership.Leave.Result {
-        const { transaction, identifiers, realm } = props;
+        const { transaction, identifiers, account, realm } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.membershipRepository.find({
-            where: { id: { $in: unique }, organization: { realm } },
+            where: { id: { $in: unique }, organization: { realm }, account },
             transaction,
         });
 

@@ -1,11 +1,25 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Query, Patch, Delete } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
-import { Extract, FormatResponse, RequirePermission, Swagger } from "~common/decorators";
+import { Extract, FormatResponse, RequirePermission, Reauthentication, Swagger } from "~common/decorators";
+import { PROJECT_COMMANDS } from "~context/application/commands";
+import { SuccessMessageDTO } from "~common/dto";
 import { PROJECT_QUERIES } from "~context/application/queries";
 import { PermissionCode } from "~context/enums";
 
 import {
+    CreateQueryDTO,
+    CreateBodyDTO,
+    UpdateQueryDTO,
+    UpdateBodyDTO,
+    ChangeManagerQueryDTO,
+    ChangeManagerBodyDTO,
+    ArchiveQueryDTO,
+    ArchiveBodyDTO,
+    RestoreQueryDTO,
+    RestoreBodyDTO,
+    PurgeQueryDTO,
+    PurgeBodyDTO,
     GetLookupListQueryDTO,
     GetLookupListBodyDTO,
     GetByIdQueryDTO,
@@ -22,6 +36,9 @@ const {
     SERVICE_UNAVAILABLE,
     REQUEST_TIMEOUT,
     UNAUTHORIZED,
+    BAD_REQUEST,
+    CONFLICT,
+    CREATED,
     FORBIDDEN,
     NOT_FOUND,
     OK,
@@ -31,6 +48,8 @@ const {
 @Controller("/project")
 export class ProjectController {
     public constructor(
+        @Inject(PROJECT_COMMANDS)
+        private readonly commands: Commands.Project.ControllerContract,
         @Inject(PROJECT_QUERIES)
         private readonly queries: Queries.Project.PublicContract,
     ) {}
@@ -140,5 +159,175 @@ export class ProjectController {
             term,
             mode,
         });
+    }
+
+    @Post("create")
+    @HttpCode(CREATED)
+    @RequirePermission(PermissionCode.PROJECT_CREATE)
+    @FormatResponse(SuccessMessageDTO)
+    @ApiResponse({ status: CREATED, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Creates project",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+        CONFLICT,
+    )
+    public create(
+        @Query() { realm }: CreateQueryDTO,
+        @Body() input: CreateBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.create({ context, actor, input: { ...input, realm } });
+    }
+
+    @Patch("update")
+    @HttpCode(OK)
+    @RequirePermission(PermissionCode.PROJECT_UPDATE)
+    @FormatResponse(SuccessMessageDTO)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Updates project",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public updateMetadata(
+        @Query() { id, realm }: UpdateQueryDTO,
+        @Body() input: UpdateBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.update({ context, actor, input, realm, id });
+    }
+
+    @Patch("change-manager")
+    @HttpCode(OK)
+    @RequirePermission(PermissionCode.PROJECT_CHANGE_MANAGER)
+    @FormatResponse(SuccessMessageDTO)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Changes the manager of project",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public changeManager(
+        @Query() { id, realm }: ChangeManagerQueryDTO,
+        @Body() input: ChangeManagerBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.changeManager({ context, actor, input, realm, id });
+    }
+
+    @Patch("archive")
+    @HttpCode(OK)
+    @RequirePermission(PermissionCode.PROJECT_ARCHIVE)
+    @FormatResponse(SuccessMessageDTO)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Archives project records",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public archive(
+        @Query() { realm }: ArchiveQueryDTO,
+        @Body() input: ArchiveBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.archive({ context, actor, input, realm });
+    }
+
+    @Patch("restore")
+    @HttpCode(OK)
+    @RequirePermission(PermissionCode.PROJECT_RESTORE)
+    @FormatResponse(SuccessMessageDTO)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Restores project records",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public restore(
+        @Query() { realm }: RestoreQueryDTO,
+        @Body() input: RestoreBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.restore({ context, actor, input, realm });
+    }
+
+    @Delete("purge")
+    @HttpCode(OK)
+    @Reauthentication()
+    @RequirePermission(PermissionCode.PROJECT_PURGE)
+    @FormatResponse(SuccessMessageDTO)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Permanently deletes project records",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public purge(
+        @Query() { realm }: PurgeQueryDTO,
+        @Body() input: PurgeBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.purge({ context, actor, input, realm });
     }
 }

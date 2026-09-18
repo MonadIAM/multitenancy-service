@@ -30,9 +30,9 @@ export class OrganizationService implements Services.Organization.Contract {
     }
 
     public async update(props: Services.Organization.Update.Props): Services.Organization.Update.Result {
-        const { transaction, patch, id } = props;
+        const { transaction, patch, realm, id } = props;
         const entity = await this.organizationRepository.findUniqueOrThrow({
-            where: { id },
+            where: { id, realm },
             transaction,
         });
 
@@ -42,10 +42,10 @@ export class OrganizationService implements Services.Organization.Contract {
     public async transferOwnership(
         props: Services.Organization.TransferOwnership.Props,
     ): Services.Organization.TransferOwnership.Result {
-        const { transaction, membership, id } = props;
+        const { transaction, membership, realm, id } = props;
         const [organization, owner] = await Promise.all([
             this.organizationRepository.findUniqueOrThrow({
-                where: { id },
+                where: { id, realm },
                 transaction,
             }),
             this.membershipRepository.findUniqueOrThrow({
@@ -60,10 +60,10 @@ export class OrganizationService implements Services.Organization.Contract {
     }
 
     public async revoke(props: Services.Organization.Revoke.Props): Services.Organization.Revoke.Result {
-        const { transaction, identifiers } = props;
+        const { transaction, identifiers, realm } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.organizationRepository.find({
-            where: { id: { $in: unique } },
+            where: { id: { $in: unique }, realm },
             transaction,
         });
 
@@ -79,10 +79,10 @@ export class OrganizationService implements Services.Organization.Contract {
     }
 
     public async restore(props: Services.Organization.Restore.Props): Services.Organization.Restore.Result {
-        const { transaction, identifiers } = props;
+        const { transaction, identifiers, realm } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.organizationRepository.find({
-            where: { id: { $in: unique } },
+            where: { id: { $in: unique }, realm },
             transaction,
         });
 
@@ -98,10 +98,10 @@ export class OrganizationService implements Services.Organization.Contract {
     }
 
     public async purge(props: Services.Organization.Purge.Props): Services.Organization.Purge.Result {
-        const { transaction, identifiers } = props;
+        const { transaction, identifiers, realm } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.organizationRepository.find({
-            where: { id: { $in: unique } },
+            where: { id: { $in: unique }, realm },
             transaction,
         });
 

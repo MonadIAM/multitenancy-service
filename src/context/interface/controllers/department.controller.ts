@@ -1,18 +1,32 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Query, Patch, Delete } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
-import { Extract, FormatResponse, RequirePermission, Swagger } from "~common/decorators";
+import { Extract, FormatResponse, RequirePermission, Reauthentication, Swagger } from "~common/decorators";
+import { DEPARTMENT_COMMANDS } from "~context/application/commands";
 import { DEPARTMENT_QUERIES } from "~context/application/queries";
+import { SuccessMessageDTO } from "~common/dto";
 import { PermissionCode } from "~context/enums";
 
 import {
+    ChangeManagerQueryDTO,
     GetLookupListQueryDTO,
+    ChangeManagerBodyDTO,
     GetLookupListBodyDTO,
     GetByIdQueryDTO,
     GetListQueryDTO,
+    ArchiveQueryDTO,
+    RestoreQueryDTO,
+    CreateQueryDTO,
+    UpdateQueryDTO,
+    ArchiveBodyDTO,
+    RestoreBodyDTO,
     GetListBodyDTO,
+    PurgeQueryDTO,
     DepartmentDTO,
     LookupListDTO,
+    UpdateBodyDTO,
+    CreateBodyDTO,
+    PurgeBodyDTO,
     ListDTO,
 } from "../dto/department";
 
@@ -22,8 +36,11 @@ const {
     SERVICE_UNAVAILABLE,
     REQUEST_TIMEOUT,
     UNAUTHORIZED,
+    BAD_REQUEST,
     FORBIDDEN,
     NOT_FOUND,
+    CONFLICT,
+    CREATED,
     OK,
 } = HttpStatus;
 
@@ -31,6 +48,8 @@ const {
 @Controller("/department")
 export class DepartmentController {
     public constructor(
+        @Inject(DEPARTMENT_COMMANDS)
+        private readonly commands: Commands.Department.ControllerContract,
         @Inject(DEPARTMENT_QUERIES)
         private readonly queries: Queries.Department.PublicContract,
     ) {}
@@ -140,5 +159,175 @@ export class DepartmentController {
             mode,
             term,
         });
+    }
+
+    @Post("create")
+    @HttpCode(CREATED)
+    @FormatResponse(SuccessMessageDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_CREATE)
+    @ApiResponse({ status: CREATED, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Creates department",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+        CONFLICT,
+    )
+    public create(
+        @Query() { realm }: CreateQueryDTO,
+        @Body() input: CreateBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.create({ context, actor, input, realm });
+    }
+
+    @HttpCode(OK)
+    @Patch("update")
+    @FormatResponse(SuccessMessageDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_UPDATE)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Updates department",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public updateMetadata(
+        @Query() { id, realm }: UpdateQueryDTO,
+        @Body() input: UpdateBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.update({ context, actor, input, realm, id });
+    }
+
+    @HttpCode(OK)
+    @Patch("change-manager")
+    @FormatResponse(SuccessMessageDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_CHANGE_MANAGER)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Changes the manager of department",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public changeManager(
+        @Query() { id, realm }: ChangeManagerQueryDTO,
+        @Body() input: ChangeManagerBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.changeManager({ context, actor, input, realm, id });
+    }
+
+    @HttpCode(OK)
+    @Patch("archive")
+    @FormatResponse(SuccessMessageDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_ARCHIVE)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Archives department records",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public archive(
+        @Query() { realm }: ArchiveQueryDTO,
+        @Body() input: ArchiveBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.archive({ context, actor, input, realm });
+    }
+
+    @HttpCode(OK)
+    @Patch("restore")
+    @FormatResponse(SuccessMessageDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_RESTORE)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Restores department records",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public restore(
+        @Query() { realm }: RestoreQueryDTO,
+        @Body() input: RestoreBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.restore({ context, actor, input, realm });
+    }
+
+    @HttpCode(OK)
+    @Delete("purge")
+    @Reauthentication()
+    @FormatResponse(SuccessMessageDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_PURGE)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Permanently deletes department records",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        NOT_FOUND,
+        FORBIDDEN,
+    )
+    public purge(
+        @Query() { realm }: PurgeQueryDTO,
+        @Body() input: PurgeBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Promise<MessageResult> {
+        return this.commands.purge({ context, actor, input, realm });
     }
 }

@@ -29,6 +29,7 @@ declare namespace Commands {
 
         namespace Update {
             type Props = {
+                realm: string;
                 input: {
                     patch: Partial<Entities.Organization.MutableFields>;
                     reason: string;
@@ -45,6 +46,7 @@ declare namespace Commands {
 
         namespace TransferOwnership {
             type Props = {
+                realm: string;
                 input: {
                     membership: string;
                     reason: string;
@@ -61,6 +63,7 @@ declare namespace Commands {
 
         namespace Revoke {
             type Props = {
+                realm: string;
                 input: {
                     identifiers: string[];
                     reason: string;
@@ -76,6 +79,7 @@ declare namespace Commands {
 
         namespace Restore {
             type Props = {
+                realm: string;
                 input: {
                     identifiers: string[];
                     reason: string;
@@ -91,6 +95,7 @@ declare namespace Commands {
 
         namespace Purge {
             type Props = {
+                realm: string;
                 input: {
                     identifiers: string[];
                     reason: string;

@@ -50,17 +50,23 @@ describe("OrganizationService", () => {
         const updateSpy = jest.spyOn(organization, "update");
 
         await service.update({
+            realm: organization.realm,
             id: ORGANIZATION_ID,
             patch: { title: "Updated" },
             transaction: transaction.entityManager,
         });
         const result = await service.transferOwnership({
+            realm: organization.realm,
             id: ORGANIZATION_ID,
             membership: MEMBERSHIP_ID,
             transaction: transaction.entityManager,
         });
 
         expect(updateSpy).toHaveBeenCalledWith({ patch: { title: "Updated" } });
+        expect(repositories.organizations.findUniqueOrThrow).toHaveBeenCalledWith({
+            where: { id: ORGANIZATION_ID, realm: organization.realm },
+            transaction: transaction.entityManager,
+        });
         expect(repositories.memberships.findUniqueOrThrow).toHaveBeenCalledWith({
             where: {
                 id: MEMBERSHIP_ID,
@@ -82,13 +88,14 @@ describe("OrganizationService", () => {
 
         await expect(
             service.revoke({
+                realm: organization.realm,
                 identifiers: [ORGANIZATION_ID, ORGANIZATION_ID],
                 transaction: transaction.entityManager,
             }),
         ).resolves.toEqual([organization]);
 
         expect(repositories.organizations.find).toHaveBeenCalledWith({
-            where: { id: { $in: [ORGANIZATION_ID] } },
+            where: { id: { $in: [ORGANIZATION_ID] }, realm: organization.realm },
             transaction: transaction.entityManager,
         });
 
@@ -96,6 +103,7 @@ describe("OrganizationService", () => {
 
         await expect(
             service.restore({
+                realm: organization.realm,
                 identifiers: [ORGANIZATION_ID],
                 transaction: transaction.entityManager,
             }),
@@ -114,6 +122,7 @@ describe("OrganizationService", () => {
 
         await expect(
             service.purge({
+                realm: organization.realm,
                 identifiers: [ORGANIZATION_ID],
                 transaction: transaction.entityManager,
             }),

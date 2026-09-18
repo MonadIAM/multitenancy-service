@@ -82,7 +82,7 @@ export class OrgMembershipCommands implements Commands.OrgMembership.Contract {
     }
 
     public async leave(props: Commands.OrgMembership.Leave.Props): Commands.OrgMembership.Leave.Result {
-        const { input, realm } = props;
+        const { input, actor, realm } = props;
 
         const { memberships } = await this.transactionalService.run({
             resource: this.resource,
@@ -95,6 +95,7 @@ export class OrgMembershipCommands implements Commands.OrgMembership.Contract {
             execute: async (transaction) => {
                 return await this.membershipService.leave({
                     identifiers: input.identifiers,
+                    account: actor,
                     transaction,
                     realm,
                 });
