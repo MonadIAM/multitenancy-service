@@ -1,0 +1,105 @@
+declare namespace Services {
+    namespace Team {
+        interface Contract extends CommandContract {}
+
+        interface CommandContract {
+            unassignLead: UnassignLead.Signature;
+            assignLead: AssignLead.Signature;
+            archive: Archive.Signature;
+            restore: Restore.Signature;
+            create: Create.Signature;
+            update: Update.Signature;
+            purge: Purge.Signature;
+        }
+
+        namespace Create {
+            type Props = {
+                transaction: ORM.EntityManager;
+                realm: string;
+                input: {
+                    description: string;
+                    department: string;
+                    name: string;
+                };
+            };
+
+            type Result = Promise<Entities.Team>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace Update {
+            type Props = {
+                patch: Partial<Entities.Team.MutableFields>;
+                transaction: ORM.EntityManager;
+                realm: string;
+                id: string;
+            };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace AssignLead {
+            type Props = {
+                transaction: ORM.EntityManager;
+                assignment: string;
+                realm: string;
+                id: string;
+            };
+
+            type Result = Promise<Entities.Team>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace UnassignLead {
+            type Props = {
+                transaction: ORM.EntityManager;
+                realm: string;
+                id: string;
+            };
+
+            type Result = Promise<Entities.Team>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace Archive {
+            type Props = {
+                transaction: ORM.EntityManager;
+                identifiers: string[];
+                realm: string;
+            };
+
+            type Result = Promise<Entities.Team[]>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace Restore {
+            type Props = {
+                transaction: ORM.EntityManager;
+                identifiers: string[];
+                realm: string;
+            };
+
+            type Result = Promise<Entities.Team[]>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace Purge {
+            type Props = {
+                transaction: ORM.EntityManager;
+                identifiers: string[];
+                realm: string;
+            };
+
+            type Result = Promise<Entities.Team[]>;
+
+            type Signature = (props: Props) => Result;
+        }
+    }
+}

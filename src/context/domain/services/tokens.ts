@@ -1,0 +1,11 @@
+export const PROJECT_ACCOUNT_ASSIGNMENT_SERVICE = Symbol("Services.ProjectAccountAssignment.Contract");
+export const DEPT_ACCOUNT_ASSIGNMENT_SERVICE = Symbol("Services.DeptAccountAssignment.Contract");
+export const TEAM_ACCOUNT_ASSIGNMENT_SERVICE = Symbol("Services.TeamAccountAssignment.Contract");
+export const ORG_MEMBERSHIP_SERVICE = Symbol("Services.OrgMembership.Contract");
+export const ORGANIZATION_SERVICE = Symbol("Services.Organization.Contract");
+export const DEPARTMENT_SERVICE = Symbol("Services.Department.Contract");
+export const CHANGE_LOG_SERVICE = Symbol("Services.ChangeLog.Contract");
+export const AUDIT_LOG_SERVICE = Symbol("Services.AuditLog.Contract");
+export const PROJECT_SERVICE = Symbol("Services.Project.Contract");
+export const INVITE_SERVICE = Symbol("Services.Invite.Contract");
+export const TEAM_SERVICE = Symbol("Services.Team.Contract");

@@ -5,6 +5,99 @@
 import type { Path } from "nestjs-i18n";
 /* prettier-ignore */
 export type I18nTranslations = {
+    "commands": {
+        "organization": {
+            "CREATED": string;
+            "UPDATED": string;
+            "OWNERSHIP_TRANSFERRED": string;
+            "REVOKED": string;
+            "RESTORED": string;
+            "PURGED": string;
+            "BULK_REVOKED_COUNT": string;
+            "BULK_RESTORED_COUNT": string;
+            "BULK_PURGED_COUNT": string;
+        };
+        "project": {
+            "CREATED": string;
+            "UPDATED": string;
+            "MANAGER_ASSIGNED": string;
+            "MANAGER_UNASSIGNED": string;
+            "ARCHIVED": string;
+            "RESTORED": string;
+            "PURGED": string;
+            "BULK_ARCHIVED_COUNT": string;
+            "BULK_RESTORED_COUNT": string;
+            "BULK_PURGED_COUNT": string;
+        };
+        "department": {
+            "CREATED": string;
+            "UPDATED": string;
+            "MANAGER_ASSIGNED": string;
+            "MANAGER_UNASSIGNED": string;
+            "ARCHIVED": string;
+            "RESTORED": string;
+            "PURGED": string;
+            "BULK_ARCHIVED_COUNT": string;
+            "BULK_RESTORED_COUNT": string;
+            "BULK_PURGED_COUNT": string;
+        };
+        "team": {
+            "CREATED": string;
+            "UPDATED": string;
+            "LEAD_ASSIGNED": string;
+            "LEAD_UNASSIGNED": string;
+            "ARCHIVED": string;
+            "RESTORED": string;
+            "PURGED": string;
+            "BULK_ARCHIVED_COUNT": string;
+            "BULK_RESTORED_COUNT": string;
+            "BULK_PURGED_COUNT": string;
+        };
+        "org-membership": {
+            "JOINED": string;
+            "SUSPENDED": string;
+            "RESUMED": string;
+            "LEFT": string;
+            "BLOCKED": string;
+            "BULK_SUSPENDED_COUNT": string;
+            "BULK_RESUMED_COUNT": string;
+            "BULK_LEFT_COUNT": string;
+            "BULK_BLOCKED_COUNT": string;
+        };
+        "project-account-assignment": {
+            "CREATED": string;
+            "REVOKED": string;
+            "RESTORED": string;
+            "PURGED": string;
+            "BULK_REVOKED_COUNT": string;
+            "BULK_RESTORED_COUNT": string;
+            "BULK_PURGED_COUNT": string;
+        };
+        "dept-account-assignment": {
+            "CREATED": string;
+            "REVOKED": string;
+            "RESTORED": string;
+            "PURGED": string;
+            "BULK_REVOKED_COUNT": string;
+            "BULK_RESTORED_COUNT": string;
+            "BULK_PURGED_COUNT": string;
+        };
+        "team-account-assignment": {
+            "CREATED": string;
+            "REVOKED": string;
+            "RESTORED": string;
+            "PURGED": string;
+            "BULK_REVOKED_COUNT": string;
+            "BULK_RESTORED_COUNT": string;
+            "BULK_PURGED_COUNT": string;
+        };
+        "invite": {
+            "CREATED": string;
+            "ACCEPTED": string;
+            "DECLINED": string;
+            "CANCELLED": string;
+        };
+    };
     "db": {
         "NOT_FOUND": string;
         "UNIQUE_VIOLATION": string;
@@ -113,6 +206,38 @@ export type I18nTranslations = {
         "vault": {
             "REQUEST_FAILED": string;
             "INVALID_SIGNATURE": string;
+        };
+        "organization": {
+            "ORGANIZATIONS_NOT_FOUND": string;
+        };
+        "project": {
+            "PROJECTS_NOT_FOUND": string;
+        };
+        "department": {
+            "DEPARTMENTS_NOT_FOUND": string;
+        };
+        "team": {
+            "TEAMS_NOT_FOUND": string;
+        };
+        "org-membership": {
+            "MEMBERSHIP_ALREADY_EXISTS": string;
+            "MEMBERSHIPS_NOT_FOUND": string;
+        };
+        "project-account-assignment": {
+            "ORGANIZATION_MISMATCH": string;
+            "ASSIGNMENTS_NOT_FOUND": string;
+        };
+        "dept-account-assignment": {
+            "ORGANIZATION_MISMATCH": string;
+            "ASSIGNMENTS_NOT_FOUND": string;
+        };
+        "team-account-assignment": {
+            "ORGANIZATION_MISMATCH": string;
+            "ASSIGNMENTS_NOT_FOUND": string;
+        };
+        "invite": {
+            "INVITEE_ALREADY_MEMBER": string;
+            "INVALIDATION_SCOPE_REQUIRED": string;
         };
     };
     "validator": {

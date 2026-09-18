@@ -1,1 +1,93 @@
-{}
+{
+  "organization": {
+    "CREATED": "Организация создана",
+    "UPDATED": "Организация обновлена",
+    "OWNERSHIP_TRANSFERRED": "Владелец организации изменён",
+    "REVOKED": "Организация отозвана",
+    "RESTORED": "Организация восстановлена",
+    "PURGED": "Организация удалена",
+    "BULK_REVOKED_COUNT": "Отозвано организаций: {count}",
+    "BULK_RESTORED_COUNT": "Восстановлено организаций: {count}",
+    "BULK_PURGED_COUNT": "Удалено организаций: {count}"
+  },
+  "project": {
+    "CREATED": "Проект создан",
+    "UPDATED": "Проект обновлён",
+    "MANAGER_ASSIGNED": "Менеджер проекта назначен",
+    "MANAGER_UNASSIGNED": "Менеджер проекта снят",
+    "ARCHIVED": "Проект архивирован",
+    "RESTORED": "Проект восстановлен",
+    "PURGED": "Проект удалён",
+    "BULK_ARCHIVED_COUNT": "Архивировано проектов: {count}",
+    "BULK_RESTORED_COUNT": "Восстановлено проектов: {count}",
+    "BULK_PURGED_COUNT": "Удалено проектов: {count}"
+  },
+  "department": {
+    "CREATED": "Подразделение создано",
+    "UPDATED": "Подразделение обновлено",
+    "MANAGER_ASSIGNED": "Менеджер подразделения назначен",
+    "MANAGER_UNASSIGNED": "Менеджер подразделения снят",
+    "ARCHIVED": "Подразделение архивировано",
+    "RESTORED": "Подразделение восстановлено",
+    "PURGED": "Подразделение удалено",
+    "BULK_ARCHIVED_COUNT": "Архивировано подразделений: {count}",
+    "BULK_RESTORED_COUNT": "Восстановлено подразделений: {count}",
+    "BULK_PURGED_COUNT": "Удалено подразделений: {count}"
+  },
+  "team": {
+    "CREATED": "Команда создана",
+    "UPDATED": "Команда обновлена",
+    "LEAD_ASSIGNED": "Руководитель команды назначен",
+    "LEAD_UNASSIGNED": "Руководитель команды снят",
+    "ARCHIVED": "Команда архивирована",
+    "RESTORED": "Команда восстановлена",
+    "PURGED": "Команда удалена",
+    "BULK_ARCHIVED_COUNT": "Архивировано команд: {count}",
+    "BULK_RESTORED_COUNT": "Восстановлено команд: {count}",
+    "BULK_PURGED_COUNT": "Удалено команд: {count}"
+  },
+  "org-membership": {
+    "JOINED": "Членство в организации создано",
+    "SUSPENDED": "Членство приостановлено",
+    "RESUMED": "Членство возобновлено",
+    "LEFT": "Членство в организации завершено",
+    "BLOCKED": "Членство заблокировано",
+    "BULK_SUSPENDED_COUNT": "Приостановлено членств: {count}",
+    "BULK_RESUMED_COUNT": "Возобновлено членств: {count}",
+    "BULK_LEFT_COUNT": "Завершено членств: {count}",
+    "BULK_BLOCKED_COUNT": "Заблокировано членств: {count}"
+  },
+  "project-account-assignment": {
+    "CREATED": "Участник назначен на проект",
+    "REVOKED": "Назначение на проект отозвано",
+    "RESTORED": "Назначение на проект восстановлено",
+    "PURGED": "Назначение на проект удалено",
+    "BULK_REVOKED_COUNT": "Отозвано назначений на проекты: {count}",
+    "BULK_RESTORED_COUNT": "Восстановлено назначений на проекты: {count}",
+    "BULK_PURGED_COUNT": "Удалено назначений на проекты: {count}"
+  },
+  "dept-account-assignment": {
+    "CREATED": "Участник назначен в подразделение",
+    "REVOKED": "Назначение в подразделение отозвано",
+    "RESTORED": "Назначение в подразделение восстановлено",
+    "PURGED": "Назначение в подразделение удалено",
+    "BULK_REVOKED_COUNT": "Отозвано назначений в подразделения: {count}",
+    "BULK_RESTORED_COUNT": "Восстановлено назначений в подразделения: {count}",
+    "BULK_PURGED_COUNT": "Удалено назначений в подразделения: {count}"
+  },
+  "team-account-assignment": {
+    "CREATED": "Участник назначен в команду",
+    "REVOKED": "Назначение в команду отозвано",
+    "RESTORED": "Назначение в команду восстановлено",
+    "PURGED": "Назначение в команду удалено",
+    "BULK_REVOKED_COUNT": "Отозвано назначений в команды: {count}",
+    "BULK_RESTORED_COUNT": "Восстановлено назначений в команды: {count}",
+    "BULK_PURGED_COUNT": "Удалено назначений в команды: {count}"
+  },
+  "invite": {
+    "CREATED": "Приглашение создано",
+    "ACCEPTED": "Приглашение принято",
+    "DECLINED": "Приглашение отклонено",
+    "CANCELLED": "Приглашение отменено"
+  }
+}

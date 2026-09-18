@@ -2,9 +2,9 @@ import { describe, expect, it } from "@jest/globals";
 import { QueryOrder } from "@mikro-orm/postgresql";
 import { randomUUID } from "node:crypto";
 
+import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import { PublicStringOperator } from "~infrastructure/database/enums";
 import { postgresSuite } from "~testing/integration/postgres.suite";
-import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import { ActionType, EntityType } from "~context/enums";
 
 import { AuditLogRepository } from "./audit-log.repository";
@@ -21,7 +21,7 @@ describe("AuditLogRepository", () => {
         const auditLog = await suite.fixtures().createAuditLog({
             context: { ip: "10.20.30.40", userAgent: "mapping-agent" },
             input: { field: "mapping-input" },
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
             actionType: ActionType.UPDATE,
             actor,
             realm,
@@ -30,7 +30,7 @@ describe("AuditLogRepository", () => {
         await expect(suite.repository().findUniqueOrThrow({ where: { id: auditLog.id } })).resolves.toMatchObject({
             input: { field: "mapping-input" },
             keyVersion: auditLog.keyVersion,
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
             signature: auditLog.signature,
             createdAt: auditLog.createdAt,
             actionType: ActionType.UPDATE,
@@ -44,11 +44,11 @@ describe("AuditLogRepository", () => {
 
     it("finds audit log entries by action and entity mapper filters", async () => {
         const matched = await suite.fixtures().createAuditLog({
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
             actionType: ActionType.CREATE,
         });
         await suite.fixtures().createAuditLog({
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
             actionType: ActionType.UPDATE,
         });
 
@@ -62,7 +62,7 @@ describe("AuditLogRepository", () => {
                 },
                 entityType: {
                     operator: PublicStringOperator.EQUAL,
-                    value: EntityType.EXAMPLE,
+                    value: EntityType.ORGANIZATION,
                 },
             },
         });

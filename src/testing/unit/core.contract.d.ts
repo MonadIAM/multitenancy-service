@@ -16,12 +16,19 @@ declare global {
                     readonly merge: Mock;
                 }
 
-                interface Contract {
-                    readonly createChangeLog: CreateChangeLog.Signature;
+                interface Contract extends ServiceMockBank.Contract {
                     readonly transaction: TransactionFactory.Signature;
-                    readonly createAuditLog: CreateAuditLog.Signature;
                     readonly createExample: CreateExample.Signature;
                     readonly config: Config.Signature;
+                }
+
+                namespace Service {
+                    type Context<TService> = {
+                        readonly repositories: RepositoryMocks.Contract;
+                        readonly services: ServiceMocks.Contract;
+                        readonly transaction: Transaction;
+                        readonly service: TService;
+                    };
                 }
 
                 namespace TransactionFactory {
@@ -44,22 +51,6 @@ declare global {
                     type Props = Partial<ORM.AnyEntity>;
 
                     type Result = ORM.AnyEntity;
-
-                    type Signature = (props?: Props) => Result;
-                }
-
-                namespace CreateAuditLog {
-                    type Props = Partial<SystemEntities.AuditLog>;
-
-                    type Result = SystemEntities.AuditLog;
-
-                    type Signature = (props?: Props) => Result;
-                }
-
-                namespace CreateChangeLog {
-                    type Props = Partial<SystemEntities.ChangeLog>;
-
-                    type Result = SystemEntities.ChangeLog;
 
                     type Signature = (props?: Props) => Result;
                 }

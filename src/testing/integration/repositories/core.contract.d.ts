@@ -121,6 +121,7 @@ declare namespace Fixtures {
         namespace CreateChangeLog {
             type Props = Omit<Partial<SystemEntities.ChangeLog.ConstructorProps>, "auditEntry"> & {
                 auditEntry?: SystemEntities.AuditLog;
+                createdAt?: Date;
             };
 
             type Result = Promise<SystemEntities.ChangeLog>;

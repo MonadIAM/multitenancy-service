@@ -78,15 +78,15 @@ describe("BaseRepository", () => {
 
     it("finds and counts entities using mapper filters, sort and pagination", async () => {
         await suite.fixtures().createAuditLog({
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
             actionType: ActionType.CREATE,
         });
         await suite.fixtures().createAuditLog({
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
             actionType: ActionType.CREATE,
         });
         await suite.fixtures().createAuditLog({
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
             actionType: ActionType.UPDATE,
         });
 
@@ -108,15 +108,15 @@ describe("BaseRepository", () => {
     it("finds and counts entities using mapper filters combined with prefilter", async () => {
         await suite.fixtures().createAuditLog({
             actionType: ActionType.CREATE,
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
         });
         await suite.fixtures().createAuditLog({
             actionType: ActionType.UPDATE,
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
         });
 
         const [entries, total] = await suite.repository().findMany({
-            prefilter: { entityType: EntityType.EXAMPLE },
+            prefilter: { entityType: EntityType.ORGANIZATION },
             filters: {
                 actionType: {
                     operator: PublicStringOperator.EQUAL,

@@ -3,10 +3,10 @@ import { QueryOrder } from "@mikro-orm/postgresql";
 import { ChangeSetType } from "@mikro-orm/core";
 import { randomUUID } from "node:crypto";
 
+import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import { DeltaChanges } from "~common/transaction-manager/value-objects";
 import { PublicStringOperator } from "~infrastructure/database/enums";
 import { postgresSuite } from "~testing/integration/postgres.suite";
-import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import { EntityType } from "~context/enums";
 
 import { ChangeLogRepository } from "./change-log.repository";
@@ -22,7 +22,7 @@ describe("ChangeLogRepository", () => {
         const changeLog = await suite.fixtures().createChangeLog({
             delta: new DeltaChanges({ name: { old: "Old Name", new: "New Name" } }),
             changeType: ChangeSetType.UPDATE,
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
             entity,
         });
 
@@ -33,7 +33,7 @@ describe("ChangeLogRepository", () => {
             signature: changeLog.signature,
             keyVersion: changeLog.keyVersion,
             createdAt: changeLog.createdAt,
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
             id: changeLog.id,
             entity,
         });
@@ -51,11 +51,11 @@ describe("ChangeLogRepository", () => {
     it("finds change log entries by change type and entity mapper filters", async () => {
         const matched = await suite.fixtures().createChangeLog({
             changeType: ChangeSetType.CREATE,
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
         });
         await suite.fixtures().createChangeLog({
             changeType: ChangeSetType.UPDATE,
-            entityType: EntityType.EXAMPLE,
+            entityType: EntityType.ORGANIZATION,
         });
 
         const [entries, total] = await suite.repository().findMany({
@@ -68,7 +68,7 @@ describe("ChangeLogRepository", () => {
                 },
                 entityType: {
                     operator: PublicStringOperator.EQUAL,
-                    value: EntityType.EXAMPLE,
+                    value: EntityType.ORGANIZATION,
                 },
             },
         });

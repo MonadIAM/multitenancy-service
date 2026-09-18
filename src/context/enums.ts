@@ -31,14 +31,28 @@ export enum EntityType {
     PROJECT                    = "PROJECT",
     INVITE                     = "INVITE",
     TEAM                       = "TEAM",
-    EXAMPLE                    = "EXAMPLE",
     /* eslint-enable prettier/prettier */
 }
 
 export enum ActionType {
-    CREATE = "CREATE",
-    UPDATE = "UPDATE",
-    DELETE = "DELETE",
+    /* eslint-disable prettier/prettier */
+    INVALIDATE = "INVALIDATE",
+    TRANSFER   = "TRANSFER",
+    SUSPEND    = "SUSPEND",
+    ARCHIVE    = "ARCHIVE",
+    RESTORE    = "RESTORE",
+    DECLINE    = "DECLINE",
+    ACCEPT     = "ACCEPT",
+    CANCEL     = "CANCEL",
+    EXPIRE     = "EXPIRE",
+    RESUME     = "RESUME",
+    REVOKE     = "REVOKE",
+    CREATE     = "CREATE",
+    UPDATE     = "UPDATE",
+    DELETE     = "DELETE",
+    LEAVE      = "LEAVE",
+    BLOCK      = "BLOCK",
+    /* eslint-enable prettier/prettier */
 }
 
 export enum CleanupJob {

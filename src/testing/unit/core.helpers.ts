@@ -1,10 +1,9 @@
-import { ChangeSetType } from "@mikro-orm/postgresql";
 import { ConfigService } from "@nestjs/config";
 import { jest } from "@jest/globals";
 
-import { AuditLog, ChangeLog } from "~common/transaction-manager/entities";
+import { ServiceMockBank } from "./service-mock-bank.helpers";
 
-export class DomainServiceCoreUnitHelpers implements Unit.Domain.Core.Contract {
+export class DomainServiceCoreUnitHelpers extends ServiceMockBank implements Unit.Domain.Core.Contract {
     public transaction(): Unit.Domain.Core.Transaction {
         const flush = jest.fn(() => Promise.resolve());
         const persist = jest.fn();
@@ -13,7 +12,13 @@ export class DomainServiceCoreUnitHelpers implements Unit.Domain.Core.Contract {
         const merge = jest.fn();
 
         return {
-            entityManager: this.contract<ORM.EntityManager>({ persist, remove, flush, clear, merge }),
+            entityManager: this.contract<ORM.EntityManager>({
+                persist,
+                remove,
+                flush,
+                clear,
+                merge,
+            }),
             persist,
             remove,
             flush,
@@ -33,32 +38,6 @@ export class DomainServiceCoreUnitHelpers implements Unit.Domain.Core.Contract {
             id: "00000000-0000-4000-8000-0000000000ff",
             ...props,
         });
-    }
-
-    public createAuditLog(props: Unit.Domain.Core.CreateAuditLog.Props = {}): SystemEntities.AuditLog {
-        const entity = new AuditLog({
-            context: { userAgent: "unit-agent", ip: "127.0.0.1" },
-            actionType: "CREATE",
-            entityType: "EXAMPLE",
-        });
-
-        Object.assign(entity, props);
-
-        return entity;
-    }
-
-    public createChangeLog(props: Unit.Domain.Core.CreateChangeLog.Props = {}): SystemEntities.ChangeLog {
-        const entity = new ChangeLog({
-            auditEntry: "00000000-0000-4000-8000-0000000000fe",
-            entity: "00000000-0000-4000-8000-0000000000fd",
-            changeType: ChangeSetType.CREATE,
-            entityType: "EXAMPLE",
-            delta: {},
-        });
-
-        Object.assign(entity, props);
-
-        return entity;
     }
 
     protected contract<T>(value: object): T {

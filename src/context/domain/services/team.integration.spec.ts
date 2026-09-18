@@ -1,0 +1,34 @@
+import { describe, expect, it } from "@jest/globals";
+
+import { TeamIntegrationHelpers } from "~testing/integration/domain-service/team.helpers";
+import { CoreFixture } from "~testing/integration/repositories/core.fixture";
+import { postgresSuite } from "~testing/integration/postgres.suite";
+import { Team } from "~context/domain/entities";
+
+const helpers = new TeamIntegrationHelpers();
+
+describe("TeamService integration", () => {
+    const suite = postgresSuite({
+        repository: (context) => helpers.service(context),
+        fixture: (manager) => new CoreFixture(manager),
+    });
+
+    it("creates and archives a team under an active department", async () => {
+        const organization = await suite.fixtures().createOrganization();
+        const department = await suite.fixtures().createDepartment({ organization });
+
+        const team = await suite.transaction((transaction) =>
+            suite.repository().teamService.create({
+                input: { department: department.id, name: "Created", description: "Description" },
+                realm: organization.realm,
+                transaction,
+            }),
+        );
+        await suite.transaction((transaction) =>
+            suite.repository().teamService.archive({ identifiers: [team.id], realm: organization.realm, transaction }),
+        );
+
+        const loaded = await suite.transaction((transaction) => transaction.findOneOrFail(Team, { id: team.id }));
+        expect(loaded.status).toBe("ARCHIVED");
+    });
+});
