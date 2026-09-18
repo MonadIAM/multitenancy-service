@@ -52,34 +52,28 @@ export class TeamService implements Services.Team.Contract {
         entity.update({ patch });
     }
 
-    public async assignLead(props: Services.Team.AssignLead.Props): Services.Team.AssignLead.Result {
+    public async changeLead(props: Services.Team.ChangeLead.Props): Services.Team.ChangeLead.Result {
         const { transaction, assignment, realm, id } = props;
         const [team, lead] = await Promise.all([
             this.teamRepository.findUniqueOrThrow({
                 where: { id, organization: { realm } },
                 transaction,
             }),
-            this.assignmentRepository.findUniqueOrThrow({
-                where: { id: assignment, team: id, status: AssignmentStatus.ACTIVE },
-                transaction,
-            }),
+            assignment
+                ? this.assignmentRepository.findUniqueOrThrow({
+                      where: { id: assignment, team: id, status: AssignmentStatus.ACTIVE },
+                      transaction,
+                  })
+                : null,
         ]);
 
-        team.assignLead({ assignment: lead });
+        if (lead) {
+            team.assignLead({ assignment: lead });
+        } else {
+            team.unassignLead();
+        }
 
         return team;
-    }
-
-    public async unassignLead(props: Services.Team.UnassignLead.Props): Services.Team.UnassignLead.Result {
-        const { transaction, realm, id } = props;
-        const entity = await this.teamRepository.findUniqueOrThrow({
-            where: { id, organization: { realm } },
-            transaction,
-        });
-
-        entity.unassignLead();
-
-        return entity;
     }
 
     public async archive(props: Services.Team.Archive.Props): Services.Team.Archive.Result {

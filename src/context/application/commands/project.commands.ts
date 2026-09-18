@@ -55,7 +55,7 @@ export class ProjectCommands implements Commands.Project.Contract {
         return { message: `${this.dictionaryPath}.UPDATED` };
     }
 
-    public async assignManager(props: Commands.Project.AssignManager.Props): Commands.Project.AssignManager.Result {
+    public async changeManager(props: Commands.Project.ChangeManager.Props): Commands.Project.ChangeManager.Result {
         const { input, realm, id } = props;
 
         await this.transactionalService.run({
@@ -67,7 +67,7 @@ export class ProjectCommands implements Commands.Project.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.projectService.assignManager({
+                return await this.projectService.changeManager({
                     assignment: input.assignment,
                     transaction,
                     realm,
@@ -76,26 +76,11 @@ export class ProjectCommands implements Commands.Project.Contract {
             },
         });
 
-        return { message: `${this.dictionaryPath}.MANAGER_ASSIGNED` };
-    }
-
-    public async unassignManager(props: Commands.Project.UnassignManager.Props): Commands.Project.UnassignManager.Result {
-        const { realm, id } = props;
-
-        await this.transactionalService.run({
-            resource: this.resource,
-            audit: {
-                actionType: ActionType.UPDATE,
-                entityType: EntityType.PROJECT,
-                ...props,
-            },
-            changeLog: true,
-            execute: async (transaction) => {
-                return await this.projectService.unassignManager({ transaction, realm, id });
-            },
-        });
-
-        return { message: `${this.dictionaryPath}.MANAGER_UNASSIGNED` };
+        if (input.assignment) {
+            return { message: `${this.dictionaryPath}.MANAGER_ASSIGNED` };
+        } else {
+            return { message: `${this.dictionaryPath}.MANAGER_UNASSIGNED` };
+        }
     }
 
     public async archive(props: Commands.Project.Archive.Props): Commands.Project.Archive.Result {

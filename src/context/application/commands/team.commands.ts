@@ -54,7 +54,7 @@ export class TeamCommands implements Commands.Team.Contract {
         return { message: `${this.dictionaryPath}.UPDATED` };
     }
 
-    public async assignLead(props: Commands.Team.AssignLead.Props): Commands.Team.AssignLead.Result {
+    public async changeLead(props: Commands.Team.ChangeLead.Props): Commands.Team.ChangeLead.Result {
         const { input, realm, id } = props;
 
         await this.transactionalService.run({
@@ -66,30 +66,15 @@ export class TeamCommands implements Commands.Team.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.teamService.assignLead({ assignment: input.assignment, transaction, realm, id });
+                return await this.teamService.changeLead({ assignment: input.assignment, transaction, realm, id });
             },
         });
 
-        return { message: `${this.dictionaryPath}.LEAD_ASSIGNED` };
-    }
-
-    public async unassignLead(props: Commands.Team.UnassignLead.Props): Commands.Team.UnassignLead.Result {
-        const { realm, id } = props;
-
-        await this.transactionalService.run({
-            resource: this.resource,
-            audit: {
-                actionType: ActionType.UPDATE,
-                entityType: EntityType.TEAM,
-                ...props,
-            },
-            changeLog: true,
-            execute: async (transaction) => {
-                return await this.teamService.unassignLead({ transaction, realm, id });
-            },
-        });
-
-        return { message: `${this.dictionaryPath}.LEAD_UNASSIGNED` };
+        if (input.assignment) {
+            return { message: `${this.dictionaryPath}.LEAD_ASSIGNED` };
+        } else {
+            return { message: `${this.dictionaryPath}.LEAD_UNASSIGNED` };
+        }
     }
 
     public async archive(props: Commands.Team.Archive.Props): Commands.Team.Archive.Result {

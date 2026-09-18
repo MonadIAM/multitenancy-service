@@ -54,7 +54,7 @@ export class DepartmentCommands implements Commands.Department.Contract {
         return { message: `${this.dictionaryPath}.UPDATED` };
     }
 
-    public async assignManager(props: Commands.Department.AssignManager.Props): Commands.Department.AssignManager.Result {
+    public async changeManager(props: Commands.Department.ChangeManager.Props): Commands.Department.ChangeManager.Result {
         const { input, realm, id } = props;
 
         await this.transactionalService.run({
@@ -66,7 +66,7 @@ export class DepartmentCommands implements Commands.Department.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.departmentService.assignManager({
+                return await this.departmentService.changeManager({
                     assignment: input.assignment,
                     transaction,
                     realm,
@@ -75,28 +75,11 @@ export class DepartmentCommands implements Commands.Department.Contract {
             },
         });
 
-        return { message: `${this.dictionaryPath}.MANAGER_ASSIGNED` };
-    }
-
-    public async unassignManager(
-        props: Commands.Department.UnassignManager.Props,
-    ): Commands.Department.UnassignManager.Result {
-        const { realm, id } = props;
-
-        await this.transactionalService.run({
-            resource: this.resource,
-            audit: {
-                actionType: ActionType.UPDATE,
-                entityType: EntityType.DEPARTMENT,
-                ...props,
-            },
-            changeLog: true,
-            execute: async (transaction) => {
-                return await this.departmentService.unassignManager({ transaction, realm, id });
-            },
-        });
-
-        return { message: `${this.dictionaryPath}.MANAGER_UNASSIGNED` };
+        if (input.assignment) {
+            return { message: `${this.dictionaryPath}.MANAGER_ASSIGNED` };
+        } else {
+            return { message: `${this.dictionaryPath}.MANAGER_UNASSIGNED` };
+        }
     }
 
     public async archive(props: Commands.Department.Archive.Props): Commands.Department.Archive.Result {

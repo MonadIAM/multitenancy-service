@@ -55,7 +55,7 @@ describe("DepartmentService", () => {
         });
         repositories.departmentAssignments.findUniqueOrThrow.mockImplementation(() => Promise.resolve(assignment));
 
-        await service.assignManager({
+        await service.changeManager({
             id: DEPARTMENT_ID,
             assignment: ASSIGNMENT_ID,
             realm: REALM_ID,
@@ -68,7 +68,7 @@ describe("DepartmentService", () => {
     it("updates department metadata and unassigns its manager", async () => {
         const department = helpers.createDepartment({ id: DEPARTMENT_ID });
         department.assignManager({ assignment: helpers.createDeptAccountAssignment({ department }) });
-        const { service, transaction } = helpers.service({ departments: [department] });
+        const { service, repositories, transaction } = helpers.service({ departments: [department] });
 
         await service.update({
             id: DEPARTMENT_ID,
@@ -76,10 +76,16 @@ describe("DepartmentService", () => {
             realm: REALM_ID,
             transaction: transaction.entityManager,
         });
-        await service.unassignManager({ id: DEPARTMENT_ID, realm: REALM_ID, transaction: transaction.entityManager });
+        await service.changeManager({
+            assignment: null,
+            id: DEPARTMENT_ID,
+            realm: REALM_ID,
+            transaction: transaction.entityManager,
+        });
 
         expect(department.name).toBe("Updated");
         expect(department.manager).toBeUndefined();
+        expect(repositories.departmentAssignments.findUniqueOrThrow).not.toHaveBeenCalled();
     });
 
     it("deduplicates archive identifiers and scopes them by organization realm", async () => {

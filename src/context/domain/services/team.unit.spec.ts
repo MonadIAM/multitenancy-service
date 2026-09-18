@@ -57,7 +57,7 @@ describe("TeamService", () => {
         });
         repositories.teamAssignments.findUniqueOrThrow.mockImplementation(() => Promise.resolve(assignment));
 
-        await service.assignLead({
+        await service.changeLead({
             id: TEAM_ID,
             assignment: ASSIGNMENT_ID,
             realm: REALM_ID,
@@ -70,7 +70,7 @@ describe("TeamService", () => {
     it("updates team metadata and unassigns its lead", async () => {
         const team = helpers.createTeam({ id: TEAM_ID });
         team.assignLead({ assignment: helpers.createTeamAccountAssignment({ team }) });
-        const { service, transaction } = helpers.service({ teams: [team] });
+        const { service, repositories, transaction } = helpers.service({ teams: [team] });
 
         await service.update({
             id: TEAM_ID,
@@ -78,10 +78,16 @@ describe("TeamService", () => {
             realm: REALM_ID,
             transaction: transaction.entityManager,
         });
-        await service.unassignLead({ id: TEAM_ID, realm: REALM_ID, transaction: transaction.entityManager });
+        await service.changeLead({
+            assignment: null,
+            id: TEAM_ID,
+            realm: REALM_ID,
+            transaction: transaction.entityManager,
+        });
 
         expect(team.name).toBe("Updated");
         expect(team.lead).toBeUndefined();
+        expect(repositories.teamAssignments.findUniqueOrThrow).not.toHaveBeenCalled();
     });
 
     it("deduplicates archive identifiers and rejects incomplete results", async () => {

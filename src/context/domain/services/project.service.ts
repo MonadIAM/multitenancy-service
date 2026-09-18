@@ -51,31 +51,25 @@ export class ProjectService implements Services.Project.Contract {
         entity.update({ patch });
     }
 
-    public async assignManager(props: Services.Project.AssignManager.Props): Services.Project.AssignManager.Result {
+    public async changeManager(props: Services.Project.ChangeManager.Props): Services.Project.ChangeManager.Result {
         const { transaction, assignment, realm, id } = props;
         const [project, manager] = await Promise.all([
             this.projectRepository.findUniqueOrThrow({ where: { id, realm }, transaction }),
-            this.assignmentRepository.findUniqueOrThrow({
-                where: { id: assignment, project: id, status: AssignmentStatus.ACTIVE },
-                transaction,
-            }),
+            assignment
+                ? this.assignmentRepository.findUniqueOrThrow({
+                      where: { id: assignment, project: id, status: AssignmentStatus.ACTIVE },
+                      transaction,
+                  })
+                : null,
         ]);
 
-        project.assignManager({ assignment: manager });
+        if (manager) {
+            project.assignManager({ assignment: manager });
+        } else {
+            project.unassignManager();
+        }
 
         return project;
-    }
-
-    public async unassignManager(props: Services.Project.UnassignManager.Props): Services.Project.UnassignManager.Result {
-        const { transaction, realm, id } = props;
-        const entity = await this.projectRepository.findUniqueOrThrow({
-            where: { id, realm },
-            transaction,
-        });
-
-        entity.unassignManager();
-
-        return entity;
     }
 
     public async archive(props: Services.Project.Archive.Props): Services.Project.Archive.Result {

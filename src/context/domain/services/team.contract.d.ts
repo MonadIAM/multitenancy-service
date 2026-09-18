@@ -3,8 +3,7 @@ declare namespace Services {
         interface Contract extends CommandContract {}
 
         interface CommandContract {
-            unassignLead: UnassignLead.Signature;
-            assignLead: AssignLead.Signature;
+            changeLead: ChangeLead.Signature;
             archive: Archive.Signature;
             restore: Restore.Signature;
             create: Create.Signature;
@@ -41,22 +40,10 @@ declare namespace Services {
             type Signature = (props: Props) => Result;
         }
 
-        namespace AssignLead {
+        namespace ChangeLead {
             type Props = {
                 transaction: ORM.EntityManager;
-                assignment: string;
-                realm: string;
-                id: string;
-            };
-
-            type Result = Promise<Entities.Team>;
-
-            type Signature = (props: Props) => Result;
-        }
-
-        namespace UnassignLead {
-            type Props = {
-                transaction: ORM.EntityManager;
+                assignment: Nullable<string>;
                 realm: string;
                 id: string;
             };

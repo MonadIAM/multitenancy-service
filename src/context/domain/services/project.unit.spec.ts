@@ -59,7 +59,7 @@ describe("ProjectService", () => {
         repositories.projectAssignments.findUniqueOrThrow.mockImplementation(() => Promise.resolve(assignment));
 
         await expect(
-            service.assignManager({
+            service.changeManager({
                 id: PROJECT_ID,
                 assignment: ASSIGNMENT_ID,
                 realm: REALM_ID,
@@ -73,7 +73,7 @@ describe("ProjectService", () => {
     it("updates project metadata and unassigns its manager", async () => {
         const project = helpers.createProject({ id: PROJECT_ID, realm: REALM_ID });
         project.assignManager({ assignment: helpers.createProjectAccountAssignment({ project }) });
-        const { service, transaction } = helpers.service({ projects: [project] });
+        const { service, repositories, transaction } = helpers.service({ projects: [project] });
 
         await service.update({
             id: PROJECT_ID,
@@ -81,10 +81,16 @@ describe("ProjectService", () => {
             realm: REALM_ID,
             transaction: transaction.entityManager,
         });
-        await service.unassignManager({ id: PROJECT_ID, realm: REALM_ID, transaction: transaction.entityManager });
+        await service.changeManager({
+            assignment: null,
+            id: PROJECT_ID,
+            realm: REALM_ID,
+            transaction: transaction.entityManager,
+        });
 
         expect(project.name).toBe("Updated");
         expect(project.manager).toBeUndefined();
+        expect(repositories.projectAssignments.findUniqueOrThrow).not.toHaveBeenCalled();
     });
 
     it("deduplicates archive identifiers and rejects incomplete results", async () => {

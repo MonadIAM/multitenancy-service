@@ -51,36 +51,28 @@ export class DepartmentService implements Services.Department.Contract {
         entity.update({ patch });
     }
 
-    public async assignManager(props: Services.Department.AssignManager.Props): Services.Department.AssignManager.Result {
+    public async changeManager(props: Services.Department.ChangeManager.Props): Services.Department.ChangeManager.Result {
         const { transaction, assignment, realm, id } = props;
         const [department, manager] = await Promise.all([
             this.departmentRepository.findUniqueOrThrow({
                 where: { id, organization: { realm } },
                 transaction,
             }),
-            this.assignmentRepository.findUniqueOrThrow({
-                where: { status: AssignmentStatus.ACTIVE, id: assignment, department: id },
-                transaction,
-            }),
+            assignment
+                ? this.assignmentRepository.findUniqueOrThrow({
+                      where: { status: AssignmentStatus.ACTIVE, id: assignment, department: id },
+                      transaction,
+                  })
+                : null,
         ]);
 
-        department.assignManager({ assignment: manager });
+        if (manager) {
+            department.assignManager({ assignment: manager });
+        } else {
+            department.unassignManager();
+        }
 
         return department;
-    }
-
-    public async unassignManager(
-        props: Services.Department.UnassignManager.Props,
-    ): Services.Department.UnassignManager.Result {
-        const { transaction, realm, id } = props;
-        const entity = await this.departmentRepository.findUniqueOrThrow({
-            where: { id, organization: { realm } },
-            transaction,
-        });
-
-        entity.unassignManager();
-
-        return entity;
     }
 
     public async archive(props: Services.Department.Archive.Props): Services.Department.Archive.Result {

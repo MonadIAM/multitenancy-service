@@ -3,8 +3,7 @@ declare namespace Commands {
         interface Contract extends ControllerContract {}
 
         interface ControllerContract {
-            unassignLead: UnassignLead.Signature;
-            assignLead: AssignLead.Signature;
+            changeLead: ChangeLead.Signature;
             archive: Archive.Signature;
             restore: Restore.Signature;
             create: Create.Signature;
@@ -46,26 +45,12 @@ declare namespace Commands {
             type Signature = (props: Props) => Result;
         }
 
-        namespace AssignLead {
+        namespace ChangeLead {
             type Props = {
                 input: {
-                    assignment: string;
+                    assignment: Nullable<string>;
                     reason: string;
                 };
-                context: Extract.Meta;
-                actor: string;
-                realm: string;
-                id: string;
-            };
-
-            type Result = Promise<MessageResult>;
-
-            type Signature = (props: Props) => Result;
-        }
-
-        namespace UnassignLead {
-            type Props = {
-                input: { reason: string };
                 context: Extract.Meta;
                 actor: string;
                 realm: string;
