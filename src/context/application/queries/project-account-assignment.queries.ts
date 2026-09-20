@@ -61,7 +61,7 @@ export class ProjectAccountAssignmentQueries implements Queries.ProjectAccountAs
             prefilter.$or = [];
 
             if (props.permissions.includes(PermissionCode.PROJECT_ACCOUNT_ASSIGNMENT_READ_COMMON)) {
-                prefilter.$or.push({ project: { realm: props.realm } });
+                prefilter.$or.push({ project: { realm: props.realm } }, { organization: { realm: props.realm } });
             }
 
             if (props.permissions.includes(PermissionCode.PROJECT_ACCOUNT_ASSIGNMENT_READ_PERSONAL)) {

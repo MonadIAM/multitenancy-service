@@ -33,7 +33,7 @@ export const OrgMembershipSchema = new EntitySchema<OrgMembership>({
             entity: () => Organization,
             fieldName: "organization_id",
             inversedBy: "memberships",
-            deleteRule: "restrict",
+            deleteRule: "no action",
             deferMode: DeferMode.INITIALLY_DEFERRED,
         },
         account: { type: "uuid", fieldName: "account_id" },
@@ -49,6 +49,8 @@ export const OrgMembershipSchema = new EntitySchema<OrgMembership>({
         createdAt: { type: "timestamptz", length: 3 },
         joinedAt: { type: "timestamptz", length: 3, nullable: true },
         leftAt: { type: "timestamptz", length: 3, nullable: true },
+        process: { type: "uuid", nullable: true },
+        failure: { type: "text", nullable: true },
         version: { type: "int", version: true },
     },
 });

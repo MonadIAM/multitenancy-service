@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, jest } from "@jest/globals";
+import { LockMode } from "@mikro-orm/core";
 
 import { ProjectUnitHelpers } from "~testing/unit/domain-service/project.helpers";
 import { ProjectStatus } from "~context/enums";
@@ -38,6 +39,12 @@ describe("ProjectService", () => {
 
         expect(repositories.organizations.findUniqueOrThrow).toHaveBeenCalledWith({
             where: { id: ORGANIZATION_ID, realm: REALM_ID, status: "ACTIVE" },
+            options: {
+                populate: ["owner"],
+                strategy: "select-in",
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                refresh: true,
+            },
             transaction: transaction.entityManager,
         });
         expect(result.organization).toBe(organization);
@@ -111,7 +118,7 @@ describe("ProjectService", () => {
         ).resolves.toEqual([project]);
 
         expect(repositories.projects.find).toHaveBeenCalledWith({
-            where: { id: { $in: [PROJECT_ID] }, realm: REALM_ID },
+            where: { id: { $in: [PROJECT_ID] }, $or: [{ realm: REALM_ID }, { organization: { realm: REALM_ID } }] },
             transaction: transaction.entityManager,
         });
 

@@ -92,7 +92,7 @@ describe("ProjectAccountAssignmentService", () => {
         expect(repositories.projectAssignments.find).toHaveBeenCalledWith({
             where: {
                 id: { $in: [ASSIGNMENT_ID] },
-                organization: { realm: REALM_ID },
+                $or: [{ organization: { realm: REALM_ID } }, { project: { realm: REALM_ID } }],
             },
             transaction: transaction.entityManager,
         });

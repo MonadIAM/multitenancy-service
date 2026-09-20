@@ -5,6 +5,26 @@ declare namespace Repositories {
             Repositories.Mappers.Organization.Types
         > {
             getLookupList: GetLookupList.Signature;
+            findDependents: FindDependents.Signature;
+        }
+
+        namespace FindDependents {
+            type Props = { identifiers: string[]; transaction: ORM.EntityManager };
+
+            type Result = Promise<
+                (
+                    | Entities.ProjectAccountAssignment
+                    | Entities.DeptAccountAssignment
+                    | Entities.TeamAccountAssignment
+                    | Entities.Invite
+                    | Entities.Team
+                    | Entities.Department
+                    | Entities.Project
+                    | Entities.OrgMembership
+                )[]
+            >;
+
+            type Signature = (props: Props) => Result;
         }
 
         interface QueryContract extends Pick<Contract, "getLookupList" | "findUniqueOrThrow" | "findMany"> {}

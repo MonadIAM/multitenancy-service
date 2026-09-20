@@ -1,17 +1,8 @@
 import { ClassProvider } from "@nestjs/common";
 
-import { ProjectAccountAssignmentService } from "./project-account-assignment.service";
-import { DeptAccountAssignmentService } from "./dept-account-assignment.service";
-import { TeamAccountAssignmentService } from "./team-account-assignment.service";
-import { OrgMembershipService } from "./org-membership.service";
-import { OrganizationService } from "./organization.service";
-import { DepartmentService } from "./department.service";
-import { ChangeLogService } from "./change-log.service";
-import { AuditLogService } from "./audit-log.service";
-import { ProjectService } from "./project.service";
-import { InviteService } from "./invite.service";
-import { TeamService } from "./team.service";
+import { AccountService } from "./account.service";
 import {
+    ACCOUNT_SERVICE,
     PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
     DEPT_ACCOUNT_ASSIGNMENT_SERVICE,
     TEAM_ACCOUNT_ASSIGNMENT_SERVICE,
@@ -24,8 +15,20 @@ import {
     INVITE_SERVICE,
     TEAM_SERVICE,
 } from "./tokens";
+import { ProjectAccountAssignmentService } from "./project-account-assignment.service";
+import { DeptAccountAssignmentService } from "./dept-account-assignment.service";
+import { TeamAccountAssignmentService } from "./team-account-assignment.service";
+import { OrgMembershipService } from "./org-membership.service";
+import { OrganizationService } from "./organization.service";
+import { DepartmentService } from "./department.service";
+import { ChangeLogService } from "./change-log.service";
+import { AuditLogService } from "./audit-log.service";
+import { ProjectService } from "./project.service";
+import { InviteService } from "./invite.service";
+import { TeamService } from "./team.service";
 
 export const DOMAIN_SERVICES: ClassProvider[] = [
+    { provide: ACCOUNT_SERVICE, useClass: AccountService },
     {
         provide: PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
         useClass: ProjectAccountAssignmentService,
@@ -73,6 +76,7 @@ export const DOMAIN_SERVICES: ClassProvider[] = [
 ];
 
 export {
+    ACCOUNT_SERVICE,
     PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
     DEPT_ACCOUNT_ASSIGNMENT_SERVICE,
     TEAM_ACCOUNT_ASSIGNMENT_SERVICE,

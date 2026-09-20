@@ -14,6 +14,8 @@ export class OrgMembership implements Entities.OrgMembership.Contract {
     public joinedAt?: Date;
     public leftAt?: Date;
     public version: number = 1;
+    public process?: string;
+    public failure?: string;
 
     public organization: Entities.Organization;
     public status: OrgMembershipStatus;
@@ -49,12 +51,6 @@ export class OrgMembership implements Entities.OrgMembership.Contract {
                 this.suspendedAt = undefined;
                 this.updatedAt = at;
                 break;
-            case OrgMembershipStatus.LEFT:
-                this.status = OrgMembershipStatus.ACTIVE;
-                this.joinedAt = at;
-                this.leftAt = undefined;
-                this.updatedAt = at;
-                break;
             default:
                 throw Exception.invariantViolation({
                     messageKey: `${OrgMembership.dictionaryPath}.CANNOT_ACTIVATE`,
@@ -85,6 +81,42 @@ export class OrgMembership implements Entities.OrgMembership.Contract {
             throw Exception.invariantViolation({
                 messageKey: `${OrgMembership.dictionaryPath}.CANNOT_BLOCK`,
             });
+        }
+    }
+
+    public beginJoin(process: string = randomUUID()): void {
+        if (this.process || ![OrgMembershipStatus.ACTIVE, OrgMembershipStatus.LEFT].includes(this.status)) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.status = OrgMembershipStatus.JOINING;
+            this.process = process;
+            this.failure = undefined;
+            this.joinedAt = undefined;
+            this.leftAt = undefined;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public confirmJoin(joinedAt: Date): void {
+        if (!this.process || this.status !== OrgMembershipStatus.JOINING) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.status = OrgMembershipStatus.ACTIVE;
+            this.process = undefined;
+            this.joinedAt = joinedAt;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public rejectJoin(reason: string): void {
+        if (!this.process || this.status !== OrgMembershipStatus.JOINING) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.status = OrgMembershipStatus.LEFT;
+            this.process = undefined;
+            this.failure = reason;
+            this.leftAt = new Date();
+            this.updatedAt = this.leftAt;
         }
     }
 }

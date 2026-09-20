@@ -5,6 +5,7 @@ import { InviteIntegrationHelpers } from "~testing/integration/domain-service/in
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import { postgresSuite } from "~testing/integration/postgres.suite";
 import { Invite, OrgMembership } from "~context/domain/entities";
+import { InviteStatus, OrgMembershipStatus } from "~context/enums";
 
 const helpers = new InviteIntegrationHelpers();
 
@@ -33,7 +34,34 @@ describe("InviteService integration", () => {
                 ]),
         );
 
-        expect(loadedInvite.status).toBe("ACCEPTED");
+        expect(loadedInvite.status).toBe("ACCEPTING");
         expect(membershipCount).toBe(1);
+
+        await suite.transaction((transaction) =>
+            suite.repository().inviteService.confirmJoin({
+                actor: invite.inviter,
+                realm: organization.realm,
+                input: {
+                    process: result.membership.process!,
+                    command: result.membership.process!,
+                    membership: result.membership.id,
+                    account: invitee,
+                    invite: invite.id,
+                    assignment: randomUUID(),
+                    role: invite.role!,
+                    joinedAt: Date.now(),
+                },
+                transaction,
+            }),
+        );
+
+        await expect(
+            suite.transaction((transaction) => transaction.count(Invite, { id: invite.id, status: InviteStatus.ACCEPTED })),
+        ).resolves.toBe(1);
+        await expect(
+            suite.transaction((transaction) =>
+                transaction.count(OrgMembership, { id: result.membership.id, status: OrgMembershipStatus.ACTIVE }),
+            ),
+        ).resolves.toBe(1);
     });
 });

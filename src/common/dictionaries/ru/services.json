@@ -28,7 +28,8 @@
   },
   "org-membership": {
     "MEMBERSHIP_ALREADY_EXISTS": "Членство в организации уже существует.",
-    "MEMBERSHIPS_NOT_FOUND": "Одно или несколько членств не существуют."
+    "MEMBERSHIPS_NOT_FOUND": "Одно или несколько членств не существуют.",
+    "OWNER_ACCESS_REQUIRED": "Владелец и кандидат на передачу владения должны сохранять активное членство"
   },
   "project-account-assignment": {
     "ORGANIZATION_MISMATCH": "Членство и проект принадлежат разным организациям.",
@@ -45,5 +46,13 @@
   "invite": {
     "INVITEE_ALREADY_MEMBER": "Приглашаемый уже состоит в организации.",
     "INVALIDATION_SCOPE_REQUIRED": "Для инвалидирования приглашений требуется аккаунт или организация."
+  },
+  "workflow": {
+    "OPERATION_CONFLICT": "Операция конфликтует с текущим состоянием ресурса.",
+    "OPERATION_PENDING": "Операция ещё не завершена или завершилась ошибкой",
+    "TRANSFER_NOT_ALLOWED": "Передача владения недоступна"
+  },
+  "account": {
+    "TRANSFER_PENDING": "Очистка ожидает завершения передачи владения"
   }
 }

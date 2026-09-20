@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, jest } from "@jest/globals";
+import { LockMode } from "@mikro-orm/core";
 
 import { OrganizationUnitHelpers } from "~testing/unit/domain-service/organization.helpers";
 import { OrganizationStatus } from "~context/enums";
@@ -21,7 +22,6 @@ describe("OrganizationService", () => {
 
         const result = service.create({
             input: {
-                realm: "realm",
                 title: "Organization",
                 description: "Description",
             },
@@ -73,9 +73,12 @@ describe("OrganizationService", () => {
                 organization: ORGANIZATION_ID,
                 status: "ACTIVE",
             },
+            options: { refresh: true },
             transaction: transaction.entityManager,
         });
-        expect(result.owner).toBe(membership);
+        expect(result.owner).toBe(membership.account);
+        expect(result.organization.pendingOwner).toBe(membership.id);
+        expect(result.organization.owner.id).not.toBe(membership.id);
     });
 
     it("deduplicates bulk identifiers and rejects incomplete repository results", async () => {
@@ -84,6 +87,7 @@ describe("OrganizationService", () => {
         });
         const { service, repositories, transaction } = helpers.service({
             organizations: [organization],
+            projects: [],
         });
 
         await expect(
@@ -92,10 +96,18 @@ describe("OrganizationService", () => {
                 identifiers: [ORGANIZATION_ID, ORGANIZATION_ID],
                 transaction: transaction.entityManager,
             }),
-        ).resolves.toEqual([organization]);
+        ).resolves.toEqual({
+            organizations: [organization],
+            realms: [{ realm: organization.realm }],
+        });
 
         expect(repositories.organizations.find).toHaveBeenCalledWith({
             where: { id: { $in: [ORGANIZATION_ID] }, realm: organization.realm },
+            options: {
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                orderBy: { id: "ASC" },
+                refresh: true,
+            },
             transaction: transaction.entityManager,
         });
 
@@ -126,9 +138,12 @@ describe("OrganizationService", () => {
                 identifiers: [ORGANIZATION_ID],
                 transaction: transaction.entityManager,
             }),
-        ).resolves.toEqual([organization]);
+        ).resolves.toEqual({
+            organizations: [organization],
+            realms: [{ realm: organization.realm }],
+        });
 
         expect(canPurgeSpy).toHaveBeenCalledTimes(1);
-        expect(transaction.remove).toHaveBeenCalledWith(organization);
+        expect(transaction.remove).toHaveBeenCalledWith([organization]);
     });
 });

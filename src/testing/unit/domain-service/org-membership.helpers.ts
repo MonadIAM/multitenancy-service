@@ -8,6 +8,7 @@ export class OrgMembershipUnitHelpers extends DomainServiceCoreUnitHelpers imple
         const services = this.services();
         return {
             service: new OrgMembershipService(
+                this.contract<Repositories.Project.Contract>(repositories.projects),
                 this.contract<Services.ProjectAccountAssignment.InternalContract>(services.projectAssignments),
                 this.contract<Services.DeptAccountAssignment.InternalContract>(services.departmentAssignments),
                 this.contract<Services.TeamAccountAssignment.InternalContract>(services.teamAssignments),

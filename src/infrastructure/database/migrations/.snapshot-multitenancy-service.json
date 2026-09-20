@@ -146,8 +146,8 @@
             "ACTIVE",
             "ARCHIVED"
           ],
-          "mappedType": "enum",
-          "nativeEnumName": "department_status"
+          "mappedType": "unknown",
+          "nativeEnumName": "multitenancy.department_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -204,21 +204,18 @@
           "constraint": false,
           "keyName": "department_manager_idx",
           "primary": false,
-          "unique": false,
-          "columns": [
-            {
-              "name": "manager_id"
-            }
-          ]
+          "unique": false
         },
         {
-          "columnNames": [],
+          "columnNames": [
+            "name"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "department_name_trgm_idx",
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX \"department_name_trgm_idx\" ON \"multitenancy\".\"department\" USING gin (\"name\" gin_trgm_ops)"
+          "type": "gin"
         },
         {
           "columnNames": [
@@ -256,7 +253,7 @@
             "department_id"
           ],
           "referencedTableName": "multitenancy.dept_account_assignment",
-          "deleteRule": "set null (\"manager_id\")"
+          "deleteRule": "set null (manager_id)"
         },
         "department_organization_id_foreign": {
           "columnNames": [
@@ -397,8 +394,8 @@
             "ACTIVE",
             "REVOKED"
           ],
-          "mappedType": "enum",
-          "nativeEnumName": "assignment_status"
+          "mappedType": "unknown",
+          "nativeEnumName": "multitenancy.assignment_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -444,12 +441,7 @@
           "constraint": false,
           "keyName": "dept_account_assignment_department_idx",
           "primary": false,
-          "unique": false,
-          "columns": [
-            {
-              "name": "department_id"
-            }
-          ]
+          "unique": false
         },
         {
           "columnNames": [
@@ -460,15 +452,7 @@
           "constraint": true,
           "keyName": "dept_account_assignment_id_department_unique",
           "primary": false,
-          "unique": true,
-          "columns": [
-            {
-              "name": "id"
-            },
-            {
-              "name": "department_id"
-            }
-          ]
+          "unique": true
         },
         {
           "columnNames": [
@@ -479,15 +463,7 @@
           "constraint": true,
           "keyName": "dept_account_assignment_membership_department_unique",
           "primary": false,
-          "unique": true,
-          "columns": [
-            {
-              "name": "membership_id"
-            },
-            {
-              "name": "department_id"
-            }
-          ]
+          "unique": true
         },
         {
           "columnNames": [
@@ -584,6 +560,23 @@
           "enumItems": [],
           "mappedType": "datetime"
         },
+        "failure": {
+          "name": "failure",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
         "id": {
           "name": "id",
           "type": "uuid",
@@ -652,13 +645,30 @@
           "enumItems": [],
           "mappedType": "uuid"
         },
+        "process": {
+          "name": "process",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
         "role_id": {
           "name": "role_id",
           "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "unique": false,
           "length": null,
           "precision": null,
@@ -685,14 +695,15 @@
           "collation": null,
           "enumItems": [
             "INVALIDATED",
+            "ACCEPTING",
             "CANCELLED",
             "ACCEPTED",
             "DECLINED",
             "EXPIRED",
             "PENDING"
           ],
-          "mappedType": "enum",
-          "nativeEnumName": "invite_status"
+          "mappedType": "unknown",
+          "nativeEnumName": "multitenancy.invite_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -750,7 +761,7 @@
           "keyName": "invite_pending_invitee_organization_unique",
           "primary": false,
           "unique": true,
-          "where": "status = 'PENDING'"
+          "where": "status = ANY (ARRAY['PENDING'::multitenancy.invite_status, 'ACCEPTING'::multitenancy.invite_status])"
         },
         {
           "columnNames": [
@@ -847,6 +858,23 @@
           "enumItems": [],
           "mappedType": "datetime"
         },
+        "failure": {
+          "name": "failure",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
         "id": {
           "name": "id",
           "type": "uuid",
@@ -915,6 +943,23 @@
           "enumItems": [],
           "mappedType": "uuid"
         },
+        "process": {
+          "name": "process",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
         "status": {
           "name": "status",
           "type": "multitenancy.org_membership_status",
@@ -932,11 +977,12 @@
           "enumItems": [
             "SUSPENDED",
             "BLOCKED",
+            "JOINING",
             "ACTIVE",
             "LEFT"
           ],
-          "mappedType": "enum",
-          "nativeEnumName": "org_membership_status"
+          "mappedType": "unknown",
+          "nativeEnumName": "multitenancy.org_membership_status"
         },
         "suspended_at": {
           "name": "suspended_at",
@@ -1057,7 +1103,6 @@
             "id"
           ],
           "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict",
           "deferMode": "deferred"
         }
       },
@@ -1101,6 +1146,23 @@
           "enumItems": [],
           "mappedType": "text"
         },
+        "failure": {
+          "name": "failure",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
         "id": {
           "name": "id",
           "type": "uuid",
@@ -1125,6 +1187,40 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "pending_owner": {
+          "name": "pending_owner",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "process": {
+          "name": "process",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "unique": false,
           "length": null,
           "precision": null,
@@ -1184,11 +1280,13 @@
           "comment": null,
           "collation": null,
           "enumItems": [
+            "PROVISIONING",
+            "FAILED",
             "ACTIVE",
             "REVOKED"
           ],
-          "mappedType": "enum",
-          "nativeEnumName": "organization_status"
+          "mappedType": "unknown",
+          "nativeEnumName": "multitenancy.organization_status"
         },
         "title": {
           "name": "title",
@@ -1251,12 +1349,7 @@
           "constraint": false,
           "keyName": "organization_owner_idx",
           "primary": false,
-          "unique": false,
-          "columns": [
-            {
-              "name": "owner_id"
-            }
-          ]
+          "unique": false
         },
         {
           "columnNames": [
@@ -1279,13 +1372,15 @@
           "unique": true
         },
         {
-          "columnNames": [],
+          "columnNames": [
+            "title"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "organization_title_trgm_idx",
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX \"organization_title_trgm_idx\" ON \"multitenancy\".\"organization\" USING gin (\"title\" gin_trgm_ops)"
+          "type": "gin"
         }
       ],
       "checks": [],
@@ -1303,7 +1398,6 @@
             "organization_id"
           ],
           "referencedTableName": "multitenancy.org_membership",
-          "deleteRule": "restrict",
           "deferMode": "deferred"
         }
       },
@@ -1354,6 +1448,23 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "failure": {
+          "name": "failure",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "unique": false,
           "length": null,
           "precision": null,
@@ -1432,6 +1543,23 @@
           "enumItems": [],
           "mappedType": "uuid"
         },
+        "process": {
+          "name": "process",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
         "realm_id": {
           "name": "realm_id",
           "type": "uuid",
@@ -1464,11 +1592,13 @@
           "comment": null,
           "collation": null,
           "enumItems": [
+            "PROVISIONING",
             "ACTIVE",
-            "ARCHIVED"
+            "ARCHIVED",
+            "FAILED"
           ],
-          "mappedType": "enum",
-          "nativeEnumName": "project_status"
+          "mappedType": "unknown",
+          "nativeEnumName": "multitenancy.project_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -1525,21 +1655,18 @@
           "constraint": false,
           "keyName": "project_manager_idx",
           "primary": false,
-          "unique": false,
-          "columns": [
-            {
-              "name": "manager_id"
-            }
-          ]
+          "unique": false
         },
         {
-          "columnNames": [],
+          "columnNames": [
+            "name"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "project_name_trgm_idx",
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX \"project_name_trgm_idx\" ON \"multitenancy\".\"project\" USING gin (\"name\" gin_trgm_ops)"
+          "type": "gin"
         },
         {
           "columnNames": [
@@ -1587,7 +1714,7 @@
             "project_id"
           ],
           "referencedTableName": "multitenancy.project_account_assignment",
-          "deleteRule": "set null (\"manager_id\")"
+          "deleteRule": "set null (manager_id)"
         },
         "project_organization_id_foreign": {
           "columnNames": [
@@ -1728,8 +1855,8 @@
             "ACTIVE",
             "REVOKED"
           ],
-          "mappedType": "enum",
-          "nativeEnumName": "assignment_status"
+          "mappedType": "unknown",
+          "nativeEnumName": "multitenancy.assignment_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -1776,15 +1903,7 @@
           "constraint": true,
           "keyName": "project_account_assignment_id_project_unique",
           "primary": false,
-          "unique": true,
-          "columns": [
-            {
-              "name": "id"
-            },
-            {
-              "name": "project_id"
-            }
-          ]
+          "unique": true
         },
         {
           "columnNames": [
@@ -1795,15 +1914,7 @@
           "constraint": true,
           "keyName": "project_account_assignment_membership_project_unique",
           "primary": false,
-          "unique": true,
-          "columns": [
-            {
-              "name": "membership_id"
-            },
-            {
-              "name": "project_id"
-            }
-          ]
+          "unique": true
         },
         {
           "columnNames": [
@@ -1823,12 +1934,7 @@
           "constraint": false,
           "keyName": "project_account_assignment_project_idx",
           "primary": false,
-          "unique": false,
-          "columns": [
-            {
-              "name": "project_id"
-            }
-          ]
+          "unique": false
         }
       ],
       "checks": [],
@@ -2035,8 +2141,8 @@
             "ACTIVE",
             "ARCHIVED"
           ],
-          "mappedType": "enum",
-          "nativeEnumName": "team_status"
+          "mappedType": "unknown",
+          "nativeEnumName": "multitenancy.team_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -2104,21 +2210,18 @@
           "constraint": false,
           "keyName": "team_lead_idx",
           "primary": false,
-          "unique": false,
-          "columns": [
-            {
-              "name": "lead_id"
-            }
-          ]
+          "unique": false
         },
         {
-          "columnNames": [],
+          "columnNames": [
+            "name"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "team_name_trgm_idx",
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX \"team_name_trgm_idx\" ON \"multitenancy\".\"team\" USING gin (\"name\" gin_trgm_ops)"
+          "type": "gin"
         },
         {
           "columnNames": [
@@ -2170,7 +2273,7 @@
             "team_id"
           ],
           "referencedTableName": "multitenancy.team_account_assignment",
-          "deleteRule": "set null (\"lead_id\")"
+          "deleteRule": "set null (lead_id)"
         },
         "team_organization_id_foreign": {
           "columnNames": [
@@ -2294,8 +2397,8 @@
             "ACTIVE",
             "REVOKED"
           ],
-          "mappedType": "enum",
-          "nativeEnumName": "assignment_status"
+          "mappedType": "unknown",
+          "nativeEnumName": "multitenancy.assignment_status"
         },
         "team_id": {
           "name": "team_id",
@@ -2359,15 +2462,7 @@
           "constraint": true,
           "keyName": "team_account_assignment_id_team_unique",
           "primary": false,
-          "unique": true,
-          "columns": [
-            {
-              "name": "id"
-            },
-            {
-              "name": "team_id"
-            }
-          ]
+          "unique": true
         },
         {
           "columnNames": [
@@ -2378,15 +2473,7 @@
           "constraint": true,
           "keyName": "team_account_assignment_membership_team_unique",
           "primary": false,
-          "unique": true,
-          "columns": [
-            {
-              "name": "membership_id"
-            },
-            {
-              "name": "team_id"
-            }
-          ]
+          "unique": true
         },
         {
           "columnNames": [
@@ -2406,12 +2493,7 @@
           "constraint": false,
           "keyName": "team_account_assignment_team_idx",
           "primary": false,
-          "unique": false,
-          "columns": [
-            {
-              "name": "team_id"
-            }
-          ]
+          "unique": false
         }
       ],
       "checks": [],
@@ -3207,6 +3289,7 @@
       "schema": "multitenancy",
       "items": [
         "INVALIDATED",
+        "ACCEPTING",
         "CANCELLED",
         "ACCEPTED",
         "DECLINED",
@@ -3220,6 +3303,7 @@
       "items": [
         "SUSPENDED",
         "BLOCKED",
+        "JOINING",
         "ACTIVE",
         "LEFT"
       ]
@@ -3228,6 +3312,8 @@
       "name": "organization_status",
       "schema": "multitenancy",
       "items": [
+        "PROVISIONING",
+        "FAILED",
         "ACTIVE",
         "REVOKED"
       ]
@@ -3236,8 +3322,10 @@
       "name": "project_status",
       "schema": "multitenancy",
       "items": [
+        "PROVISIONING",
         "ACTIVE",
-        "ARCHIVED"
+        "ARCHIVED",
+        "FAILED"
       ]
     },
     "multitenancy.team_status": {

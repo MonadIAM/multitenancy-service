@@ -1,11 +1,14 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 
+import { ActionType, EntityType, RealmTopicAction, KafkaTopic } from "~context/enums";
 import { TRANSACTIONAL_SERVICE } from "~common/transaction-manager";
 import { ORG_MEMBERSHIP_SERVICE } from "~context/domain/services";
-import { ActionType, EntityType } from "~context/enums";
+
+import { OrgMembershipMapper } from "../mappers/org-membership.mapper";
 
 @Injectable({ scope: Scope.DEFAULT })
 export class OrgMembershipCommands implements Commands.OrgMembership.Contract {
+    private readonly mapper: Commands.Mappers.OrgMembership.Contract;
     private readonly dictionaryPath = "commands.org-membership";
     private readonly resource = "OrgMembership";
 
@@ -14,40 +17,56 @@ export class OrgMembershipCommands implements Commands.OrgMembership.Contract {
         private readonly transactionalService: TransactionManager.Service.PublicContract,
         @Inject(ORG_MEMBERSHIP_SERVICE)
         private readonly membershipService: Services.OrgMembership.CommandContract,
-    ) {}
+    ) {
+        this.mapper = new OrgMembershipMapper();
+    }
 
     public async join(props: Commands.OrgMembership.Join.Props): Commands.OrgMembership.Join.Result {
-        const { input, realm } = props;
+        const { input, actor, realm } = props;
 
         await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.joinPayload,
+                actionType: RealmTopicAction.MEMBERSHIP_JOIN_REQUESTED,
+                destinationTopic: KafkaTopic.REALM,
+            },
             audit: {
-                actionType: ActionType.CREATE,
                 entityType: EntityType.ORG_MEMBERSHIP,
+                actionType: ActionType.CREATE,
                 ...props,
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.membershipService.join({ input, transaction, realm });
+                const membership = await this.membershipService.join({ input, transaction, realm });
+
+                return { membership, actor };
             },
         });
 
-        return { message: `${this.dictionaryPath}.JOINED` };
+        return { message: `${this.dictionaryPath}.JOIN_REQUESTED` };
     }
 
     public async suspend(props: Commands.OrgMembership.Suspend.Props): Commands.OrgMembership.Suspend.Result {
-        const { input, realm } = props;
+        const { input, realm, actor } = props;
 
-        const memberships = await this.transactionalService.run({
+        const { memberships } = await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.accessPayload,
+                actionType: RealmTopicAction.ACCOUNT_ACCESS_REVOKE,
+                destinationTopic: KafkaTopic.REALM,
+            },
             audit: {
-                actionType: ActionType.SUSPEND,
                 entityType: EntityType.ORG_MEMBERSHIP,
+                actionType: ActionType.SUSPEND,
                 ...props,
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.membershipService.suspend({ identifiers: input.identifiers, transaction, realm });
+                const result = await this.membershipService.suspend({ identifiers: input.identifiers, transaction, realm });
+
+                return { ...result, actor };
             },
         });
 
@@ -59,18 +78,25 @@ export class OrgMembershipCommands implements Commands.OrgMembership.Contract {
     }
 
     public async resume(props: Commands.OrgMembership.Resume.Props): Commands.OrgMembership.Resume.Result {
-        const { input, realm } = props;
+        const { input, realm, actor } = props;
 
-        const memberships = await this.transactionalService.run({
+        const { memberships } = await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.accessPayload,
+                actionType: RealmTopicAction.ACCOUNT_ACCESS_RESTORE,
+                destinationTopic: KafkaTopic.REALM,
+            },
             audit: {
-                actionType: ActionType.RESUME,
                 entityType: EntityType.ORG_MEMBERSHIP,
+                actionType: ActionType.RESUME,
                 ...props,
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.membershipService.resume({ identifiers: input.identifiers, transaction, realm });
+                const result = await this.membershipService.resume({ identifiers: input.identifiers, transaction, realm });
+
+                return { ...result, actor };
             },
         });
 
@@ -86,19 +112,26 @@ export class OrgMembershipCommands implements Commands.OrgMembership.Contract {
 
         const { memberships } = await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.accessPayload,
+                actionType: RealmTopicAction.ACCOUNT_ACCESS_PURGE,
+                destinationTopic: KafkaTopic.REALM,
+            },
             audit: {
-                actionType: ActionType.LEAVE,
                 entityType: EntityType.ORG_MEMBERSHIP,
+                actionType: ActionType.LEAVE,
                 ...props,
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.membershipService.leave({
+                const result = await this.membershipService.leave({
                     identifiers: input.identifiers,
                     account: actor,
                     transaction,
                     realm,
                 });
+
+                return { ...result, actor };
             },
         });
 
@@ -110,22 +143,29 @@ export class OrgMembershipCommands implements Commands.OrgMembership.Contract {
     }
 
     public async block(props: Commands.OrgMembership.Block.Props): Commands.OrgMembership.Block.Result {
-        const { input, realm } = props;
+        const { input, realm, actor } = props;
 
         const { memberships } = await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.accessPayload,
+                actionType: RealmTopicAction.ACCOUNT_ACCESS_PURGE,
+                destinationTopic: KafkaTopic.REALM,
+            },
             audit: {
-                actionType: ActionType.BLOCK,
                 entityType: EntityType.ORG_MEMBERSHIP,
+                actionType: ActionType.BLOCK,
                 ...props,
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.membershipService.block({
+                const result = await this.membershipService.block({
                     identifiers: input.identifiers,
                     transaction,
                     realm,
                 });
+
+                return { ...result, actor };
             },
         });
 

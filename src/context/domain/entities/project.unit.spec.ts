@@ -102,4 +102,25 @@ describe("Project Entity", () => {
         expect(project.status).toBe(ProjectStatus.ACTIVE);
         expect(project.archivedAt).toBeUndefined();
     });
+
+    it("rejects a competing bootstrap without replacing the current process", () => {
+        const project = createProject();
+        project.beginBootstrap();
+        const process = project.process;
+
+        expect(() => project.beginBootstrap()).toThrow("OPERATION_CONFLICT");
+
+        expect(project.process).toBe(process);
+        expect(project.status).toBe(ProjectStatus.PROVISIONING);
+    });
+
+    it("rejects a late bootstrap refusal after activation", () => {
+        const project = createProject();
+        project.beginBootstrap();
+        project.confirmBootstrap();
+
+        expect(() => project.rejectBootstrap("late rejection")).toThrow("OPERATION_CONFLICT");
+
+        expect(project.status).toBe(ProjectStatus.ACTIVE);
+    });
 });

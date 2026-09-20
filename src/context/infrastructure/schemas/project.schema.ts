@@ -65,6 +65,8 @@ export const ProjectSchema = new EntitySchema<Project>({
         archivedAt: { type: "timestamptz", length: 3, nullable: true },
         updatedAt: { type: "timestamptz", length: 3, nullable: true },
         createdAt: { type: "timestamptz", length: 3 },
+        process: { type: "uuid", nullable: true },
+        failure: { type: "text", nullable: true },
         version: { type: "int", version: true },
     },
 });

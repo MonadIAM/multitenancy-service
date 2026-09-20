@@ -2,9 +2,19 @@ import { InjectEntityManager } from "@mikro-orm/nestjs";
 import { Injectable, Scope } from "@nestjs/common";
 import { raw } from "@mikro-orm/postgresql";
 
-import { Organization } from "~context/domain/entities";
 import { ExceptionMapper } from "~common/exceptions";
 import { BaseRepository } from "~common/mixins";
+import {
+    ProjectAccountAssignment,
+    DeptAccountAssignment,
+    TeamAccountAssignment,
+    OrgMembership,
+    Organization,
+    Department,
+    Project,
+    Invite,
+    Team,
+} from "~context/domain/entities";
 
 import { OrganizationMapper } from "../mappers";
 
@@ -21,6 +31,25 @@ export class OrganizationRepository
         protected readonly readManager: ORM.EntityManager,
     ) {
         super();
+    }
+
+    public async findDependents(
+        props: Repositories.Organization.FindDependents.Props,
+    ): Repositories.Organization.FindDependents.Result {
+        const { identifiers, transaction } = props;
+        const where = { organization: { $in: identifiers } };
+        const groups = await Promise.all([
+            transaction.find(ProjectAccountAssignment, where),
+            transaction.find(DeptAccountAssignment, where),
+            transaction.find(TeamAccountAssignment, where),
+            transaction.find(Invite, where),
+            transaction.find(Team, where),
+            transaction.find(Department, where),
+            transaction.find(Project, where),
+            transaction.find(OrgMembership, where),
+        ]);
+
+        return groups.flat();
     }
 
     public async getLookupList(

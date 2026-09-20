@@ -3,12 +3,30 @@ declare namespace Services {
         interface Contract extends CommandContract {}
 
         interface CommandContract {
+            confirmJoin: ConfirmJoin.Signature;
+            rejectJoin: RejectJoin.Signature;
             invalidate: Invalidate.Signature;
             decline: Decline.Signature;
             accept: Accept.Signature;
             cancel: Cancel.Signature;
             create: Create.Signature;
             expire: Expire.Signature;
+        }
+
+        namespace ConfirmJoin {
+            type Props = Topics.Realm.MembershipJoinConfirmedMessage["payload"] & { transaction: ORM.EntityManager };
+
+            type Result = Services.OrgMembership.ConfirmJoin.Result;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace RejectJoin {
+            type Props = Topics.Realm.MembershipJoinRejectedMessage["payload"] & { transaction: ORM.EntityManager };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
         }
 
         namespace Create {
@@ -19,7 +37,7 @@ declare namespace Services {
                     expiresAt?: Date;
                     invitee: string;
                     inviter: string;
-                    role: string;
+                    role?: string;
                 };
                 realm: string;
             };

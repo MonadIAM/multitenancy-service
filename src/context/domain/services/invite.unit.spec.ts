@@ -70,6 +70,7 @@ describe("InviteService", () => {
         });
         const { service, repositories, services, transaction } = helpers.service({ invites: [invite] });
         repositories.invites.findUniqueOrThrow.mockImplementation(() => Promise.resolve(invite));
+        membership.beginJoin();
         services.memberships.join.mockImplementation(() => Promise.resolve(membership));
 
         await expect(
@@ -80,7 +81,7 @@ describe("InviteService", () => {
             }),
         ).resolves.toEqual({ invite, membership });
 
-        expect(invite.status).toBe(InviteStatus.ACCEPTED);
+        expect(invite.status).toBe(InviteStatus.ACCEPTING);
         expect(services.memberships.join).toHaveBeenCalledWith({
             input: {
                 organization: invite.organization.id,

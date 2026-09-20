@@ -91,4 +91,22 @@ describe("Invite Entity", () => {
         expect(() => invite.cancel(BEFORE_EXPIRATION)).toThrow("CANNOT_CANCEL_INACTIVE");
         expect(() => invite.expire(EXPIRES_AT)).toThrow("CANNOT_EXPIRE_INACTIVE");
     });
+
+    it("rejects completion of an invitation that is not being accepted", () => {
+        const invite = createInvite();
+
+        expect(() => invite.confirmAccept()).toThrow("OPERATION_CONFLICT");
+
+        expect(invite.status).toBe(InviteStatus.PENDING);
+    });
+
+    it("rejects late acceptance failure after confirmation", () => {
+        const invite = createInvite();
+        invite.beginAccept("process");
+        invite.confirmAccept();
+
+        expect(() => invite.rejectAccept("late rejection")).toThrow("OPERATION_CONFLICT");
+
+        expect(invite.status).toBe(InviteStatus.ACCEPTED);
+    });
 });

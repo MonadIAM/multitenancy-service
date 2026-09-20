@@ -19,18 +19,22 @@ export class OrgMembershipIntegrationHelpers implements Integration.Domain.OrgMe
             memberships,
             new ProjectRepository(context.readManager),
         );
+
         const departmentAssignments = new DeptAccountAssignmentService(
             new DeptAccountAssignmentRepository(context.readManager),
             memberships,
             new DepartmentRepository(context.readManager),
         );
+
         const teamAssignments = new TeamAccountAssignmentService(
             new TeamAccountAssignmentRepository(context.readManager),
             memberships,
             new TeamRepository(context.readManager),
         );
+
         return {
             membershipService: new OrgMembershipService(
+                new ProjectRepository(context.readManager),
                 projectAssignments,
                 departmentAssignments,
                 teamAssignments,

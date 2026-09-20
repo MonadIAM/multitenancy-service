@@ -31,13 +31,12 @@ export class ProjectAccountAssignmentService implements Services.ProjectAccountA
             this.membershipRepository.findUniqueOrThrow({
                 where: {
                     id: input.membership,
-                    organization: { realm },
                     status: OrgMembershipStatus.ACTIVE,
                 },
                 transaction,
             }),
             this.projectRepository.findUniqueOrThrow({
-                where: { id: input.project, realm, status: ProjectStatus.ACTIVE },
+                where: { id: input.project, $or: [{ realm }, { organization: { realm } }], status: ProjectStatus.ACTIVE },
                 transaction,
             }),
         ]);
@@ -58,7 +57,7 @@ export class ProjectAccountAssignmentService implements Services.ProjectAccountA
         const { transaction, identifiers, realm } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.assignmentRepository.find({
-            where: { id: { $in: unique }, organization: { realm } },
+            where: { id: { $in: unique }, $or: [{ organization: { realm } }, { project: { realm } }] },
             transaction,
         });
 
@@ -79,7 +78,7 @@ export class ProjectAccountAssignmentService implements Services.ProjectAccountA
         const { transaction, identifiers, realm } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.assignmentRepository.find({
-            where: { id: { $in: unique }, organization: { realm } },
+            where: { id: { $in: unique }, $or: [{ organization: { realm } }, { project: { realm } }] },
             transaction,
         });
 
@@ -100,7 +99,7 @@ export class ProjectAccountAssignmentService implements Services.ProjectAccountA
         const { transaction, identifiers, realm } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.assignmentRepository.find({
-            where: { id: { $in: unique }, organization: { realm } },
+            where: { id: { $in: unique }, $or: [{ organization: { realm } }, { project: { realm } }] },
             transaction,
         });
 

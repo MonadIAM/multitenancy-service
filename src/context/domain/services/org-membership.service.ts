@@ -1,6 +1,11 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
+import { LockMode } from "@mikro-orm/core";
 
-import { ORG_MEMBERSHIP_REPOSITORY, ORGANIZATION_REPOSITORY } from "~context/infrastructure/repositories";
+import {
+    ORG_MEMBERSHIP_REPOSITORY,
+    ORGANIZATION_REPOSITORY,
+    PROJECT_REPOSITORY,
+} from "~context/infrastructure/repositories";
 import { OrganizationStatus, OrgMembershipStatus } from "~context/enums";
 import { Exception } from "~common/exceptions";
 
@@ -16,6 +21,8 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
     private readonly dictionaryPath = "services.org-membership";
 
     public constructor(
+        @Inject(PROJECT_REPOSITORY)
+        private readonly projectRepository: Repositories.Project.Contract,
         @Inject(PROJECT_ACCOUNT_ASSIGNMENT_SERVICE)
         private readonly projectAssignmentService: Services.ProjectAccountAssignment.InternalContract,
         @Inject(DEPT_ACCOUNT_ASSIGNMENT_SERVICE)
@@ -27,6 +34,42 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
         @Inject(ORGANIZATION_REPOSITORY)
         private readonly organizationRepository: Repositories.Organization.Contract,
     ) {}
+
+    public async confirmJoin(props: Services.OrgMembership.ConfirmJoin.Props): Services.OrgMembership.ConfirmJoin.Result {
+        const { input, realm, transaction } = props;
+        const membership = await this.membershipRepository.findUnique({
+            where: { id: input.membership, account: input.account, organization: { realm } },
+            transaction,
+        });
+
+        if (membership) {
+            if (membership.process !== input.process || membership.status !== OrgMembershipStatus.JOINING) {
+                throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            } else {
+                membership.confirmJoin(new Date(input.joinedAt));
+
+                return { access: [] };
+            }
+        } else {
+            return { access: [{ realm, account: input.account }] };
+        }
+    }
+
+    public async rejectJoin(props: Services.OrgMembership.RejectJoin.Props): Services.OrgMembership.RejectJoin.Result {
+        const { input, realm, transaction } = props;
+        const membership = await this.membershipRepository.findUnique({
+            where: { id: input.membership, account: input.account, organization: { realm } },
+            transaction,
+        });
+
+        if (membership) {
+            if (membership.process !== input.process || membership.status !== OrgMembershipStatus.JOINING) {
+                throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            } else {
+                membership.rejectJoin(input.reason);
+            }
+        }
+    }
 
     public async join(props: Services.OrgMembership.Join.Props): Services.OrgMembership.Join.Result {
         const { transaction, input, realm } = props;
@@ -43,7 +86,7 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
 
         if (existing) {
             if (existing.status === OrgMembershipStatus.LEFT) {
-                existing.activate();
+                existing.beginJoin();
 
                 return existing;
             } else {
@@ -51,6 +94,7 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
             }
         } else {
             const entity = new OrgMembership({ organization, account: input.account });
+            entity.beginJoin();
             transaction.persist(entity);
 
             return entity;
@@ -60,8 +104,14 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
     public async suspend(props: Services.OrgMembership.Suspend.Props): Services.OrgMembership.Suspend.Result {
         const { transaction, identifiers, realm } = props;
         const unique = Array.from(new Set(identifiers));
+        await this.organizationRepository.findUnique({
+            where: { realm },
+            options: { lockMode: LockMode.PESSIMISTIC_WRITE, refresh: true },
+            transaction,
+        });
         const entities = await this.membershipRepository.find({
             where: { id: { $in: unique }, organization: { realm } },
+            options: { populate: ["organization"], refresh: true },
             transaction,
         });
 
@@ -69,18 +119,27 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
             throw Exception.notFound({ messageKey: `${this.dictionaryPath}.MEMBERSHIPS_NOT_FOUND` });
         } else {
             for (const entity of entities) {
+                this.assertCanLoseAccess(entity);
                 entity.suspend();
             }
 
-            return entities;
+            const access = await this.collectAccess({ memberships: entities, transaction });
+
+            return { memberships: entities, access };
         }
     }
 
     public async resume(props: Services.OrgMembership.Resume.Props): Services.OrgMembership.Resume.Result {
         const { transaction, identifiers, realm } = props;
         const unique = Array.from(new Set(identifiers));
+        await this.organizationRepository.findUnique({
+            where: { realm },
+            options: { lockMode: LockMode.PESSIMISTIC_WRITE, refresh: true },
+            transaction,
+        });
         const entities = await this.membershipRepository.find({
             where: { id: { $in: unique }, organization: { realm } },
+            options: { populate: ["organization"], refresh: true },
             transaction,
         });
 
@@ -91,15 +150,23 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
                 entity.activate();
             }
 
-            return entities;
+            const access = await this.collectAccess({ memberships: entities, transaction });
+
+            return { memberships: entities, access };
         }
     }
 
     public async leave(props: Services.OrgMembership.Leave.Props): Services.OrgMembership.Leave.Result {
         const { transaction, identifiers, account, realm } = props;
         const unique = Array.from(new Set(identifiers));
+        await this.organizationRepository.findUnique({
+            where: { realm },
+            options: { lockMode: LockMode.PESSIMISTIC_WRITE, refresh: true },
+            transaction,
+        });
         const entities = await this.membershipRepository.find({
             where: { id: { $in: unique }, organization: { realm }, account },
+            options: { populate: ["organization"], refresh: true },
             transaction,
         });
 
@@ -107,6 +174,7 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
             throw Exception.notFound({ messageKey: `${this.dictionaryPath}.MEMBERSHIPS_NOT_FOUND` });
         } else {
             for (const entity of entities) {
+                this.assertCanLoseAccess(entity);
                 entity.leave();
             }
 
@@ -117,7 +185,10 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
                 this.teamAssignmentService.clean({ memberships: membershipIdentifiers, transaction }),
             ]);
 
+            const access = await this.collectAccess({ memberships: entities, transaction });
+
             return {
+                access,
                 memberships: entities,
                 assignments: {
                     department: departmentAssignments,
@@ -131,8 +202,14 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
     public async block(props: Services.OrgMembership.Block.Props): Services.OrgMembership.Block.Result {
         const { transaction, identifiers, realm } = props;
         const unique = Array.from(new Set(identifiers));
+        await this.organizationRepository.findUnique({
+            where: { realm },
+            options: { lockMode: LockMode.PESSIMISTIC_WRITE, refresh: true },
+            transaction,
+        });
         const entities = await this.membershipRepository.find({
             where: { id: { $in: unique }, organization: { realm } },
+            options: { populate: ["organization"], refresh: true },
             transaction,
         });
 
@@ -140,6 +217,7 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
             throw Exception.notFound({ messageKey: `${this.dictionaryPath}.MEMBERSHIPS_NOT_FOUND` });
         } else {
             for (const entity of entities) {
+                this.assertCanLoseAccess(entity);
                 entity.block();
             }
 
@@ -150,7 +228,10 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
                 this.teamAssignmentService.clean({ memberships: membershipIdentifiers, transaction }),
             ]);
 
+            const access = await this.collectAccess({ memberships: entities, transaction });
+
             return {
+                access,
                 memberships: entities,
                 assignments: {
                     department: departmentAssignments,
@@ -158,6 +239,80 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
                     team: teamAssignments,
                 },
             };
+        }
+    }
+
+    public async clean(props: Services.OrgMembership.Clean.Props): Services.OrgMembership.Clean.Result {
+        const { account, excludedOrganizations, transaction } = props;
+        await this.organizationRepository.find({
+            where: {
+                id: { $nin: excludedOrganizations },
+                memberships: { $some: { account } },
+            },
+            options: {
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                orderBy: { id: "ASC" },
+                refresh: true,
+            },
+            transaction,
+        });
+        const memberships = await this.membershipRepository.find({
+            where: { account, organization: { $nin: excludedOrganizations } },
+            options: { populate: ["organization"], refresh: true },
+            transaction,
+        });
+        if (memberships.some(({ process }) => process)) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            for (const membership of memberships) {
+                this.assertCanLoseAccess(membership);
+            }
+
+            const identifiers = memberships.map(({ id }) => id);
+            const [access] = await Promise.all([
+                this.collectAccess({ memberships, transaction }),
+                this.projectAssignmentService.clean({ memberships: identifiers, transaction }),
+                this.departmentAssignmentService.clean({ memberships: identifiers, transaction }),
+                this.teamAssignmentService.clean({ memberships: identifiers, transaction }),
+            ]);
+
+            transaction.remove(memberships);
+
+            return { memberships, access };
+        }
+    }
+
+    public async collectAccess(
+        props: Services.OrgMembership.CollectAccess.Props,
+    ): Services.OrgMembership.CollectAccess.Result {
+        const { memberships, transaction } = props;
+        const projects = await this.projectRepository.find({
+            where: {
+                organization: { id: { $in: Array.from(new Set(memberships.map(({ organization }) => organization.id))) } },
+            },
+            transaction,
+        });
+
+        return memberships.flatMap((membership) => {
+            const realms = Array.from(
+                new Set([
+                    membership.organization.realm,
+                    ...projects
+                        .filter((project) => project.organization.id === membership.organization.id)
+                        .map((project) => project.realm),
+                ]),
+            );
+
+            return realms.map((realm) => ({
+                account: membership.account,
+                realm,
+            }));
+        });
+    }
+
+    private assertCanLoseAccess(membership: Entities.OrgMembership): void {
+        if (membership.organization.owner.id === membership.id || membership.organization.pendingOwner === membership.id) {
+            throw Exception.invariantViolation({ messageKey: "services.org-membership.OWNER_ACCESS_REQUIRED" });
         }
     }
 }

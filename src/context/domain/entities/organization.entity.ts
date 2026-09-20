@@ -12,6 +12,8 @@ export class Organization implements Entities.Organization.Contract {
     public updatedAt?: Date;
     public revokedAt?: Date;
     public version: number = 1;
+    public process?: string;
+    public failure?: string;
 
     public status: OrganizationStatus;
     public description: string;
@@ -19,6 +21,7 @@ export class Organization implements Entities.Organization.Contract {
     public title: string;
 
     public owner!: Entities.OrgMembership;
+    public pendingOwner?: string;
 
     public memberships = new Collection<Entities.OrgMembership>(this);
 
@@ -37,6 +40,7 @@ export class Organization implements Entities.Organization.Contract {
     }
 
     public update({ patch }: Entities.Organization.ChangeDataProps): void {
+        this.assertReady();
         const now = new Date();
         let affected = 0;
         for (const [key, value] of Object.typedEntries(patch)) {
@@ -71,6 +75,7 @@ export class Organization implements Entities.Organization.Contract {
     }
 
     public revoke(): void {
+        this.assertReady();
         if (this.status === OrganizationStatus.REVOKED) {
             throw Exception.invariantViolation({
                 messageKey: `${Organization.dictionaryPath}.ALREADY_REVOKED`,
@@ -84,6 +89,7 @@ export class Organization implements Entities.Organization.Contract {
     }
 
     public restore(): void {
+        this.assertReady();
         if (this.status === OrganizationStatus.ACTIVE) {
             throw Exception.invariantViolation({
                 messageKey: `${Organization.dictionaryPath}.ALREADY_ACTIVE`,
@@ -96,10 +102,73 @@ export class Organization implements Entities.Organization.Contract {
     }
 
     public canPurge(): void {
-        if (this.status === OrganizationStatus.ACTIVE) {
+        if (this.process) {
+            throw Exception.invariantViolation({ messageKey: "services.workflow.OPERATION_PENDING" });
+        } else if (this.status === OrganizationStatus.ACTIVE) {
             throw Exception.invariantViolation({
                 messageKey: `${Organization.dictionaryPath}.CANNOT_PURGE_ACTIVE`,
             });
+        }
+    }
+
+    public beginBootstrap(): void {
+        if (this.process || this.status !== OrganizationStatus.ACTIVE) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.process = randomUUID();
+            this.status = OrganizationStatus.PROVISIONING;
+            this.failure = undefined;
+        }
+    }
+
+    public confirmBootstrap(): void {
+        if (!this.process || this.status !== OrganizationStatus.PROVISIONING) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.status = OrganizationStatus.ACTIVE;
+            this.process = undefined;
+            this.failure = undefined;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public rejectBootstrap(reason: string): void {
+        if (!this.process || this.status !== OrganizationStatus.PROVISIONING) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.status = OrganizationStatus.FAILED;
+            this.process = undefined;
+            this.failure = reason;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public assertReady(): void {
+        if (this.process || this.status === OrganizationStatus.FAILED) {
+            throw Exception.invariantViolation({ messageKey: "services.workflow.OPERATION_PENDING" });
+        }
+    }
+
+    public beginTransfer(membership: Entities.OrgMembership): void {
+        this.assertReady();
+
+        if (this.status !== OrganizationStatus.ACTIVE || membership.id === this.owner.id) {
+            throw Exception.invariantViolation({ messageKey: "services.workflow.TRANSFER_NOT_ALLOWED" });
+        } else {
+            this.process = randomUUID();
+            this.pendingOwner = membership.id;
+            this.failure = undefined;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public finishTransfer(): void {
+        if (!this.process || !this.pendingOwner || this.status !== OrganizationStatus.ACTIVE) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.pendingOwner = undefined;
+            this.process = undefined;
+            this.updatedAt = new Date();
         }
     }
 }

@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { OrgMembershipIntegrationHelpers } from "~testing/integration/domain-service/org-membership.helpers";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import { postgresSuite } from "~testing/integration/postgres.suite";
+import { OrgMembershipStatus } from "~context/enums";
 import {
     ProjectAccountAssignment,
     DeptAccountAssignment,
@@ -24,14 +25,15 @@ describe("OrgMembershipService integration", () => {
         async (operation) => {
             const organization = await suite.fixtures().createOrganization();
             const membership = await suite.fixtures().createOrgMembership({ organization });
-            const project = await suite.fixtures().createProject({ organization, realm: organization.realm });
+            const project = await suite.fixtures().createProject({ organization });
+            const unrelatedProject = await suite.fixtures().createProject({ organization });
             const department = await suite.fixtures().createDepartment({ organization });
             const team = await suite.fixtures().createTeam({ department, organization });
             await suite.fixtures().createProjectAccountAssignment({ membership, project });
             await suite.fixtures().createDeptAccountAssignment({ membership, department });
             await suite.fixtures().createTeamAccountAssignment({ membership, team });
 
-            await suite.transaction((transaction) =>
+            const result = await suite.transaction((transaction) =>
                 suite.repository().membershipService[operation]({
                     account: membership.account,
                     identifiers: [membership.id],
@@ -40,6 +42,9 @@ describe("OrgMembershipService integration", () => {
                 }),
             );
 
+            expect(result.access.map(({ realm }) => realm).sort()).toEqual(
+                [organization.realm, project.realm, unrelatedProject.realm].sort(),
+            );
             const [loaded, projectCount, departmentCount, teamCount] = await suite.transaction(
                 async (transaction) =>
                     await Promise.all([
@@ -53,6 +58,31 @@ describe("OrgMembershipService integration", () => {
             expect([projectCount, departmentCount, teamCount]).toEqual([0, 0, 0]);
         },
     );
+
+    it("rejects resume after leaving without bypassing the join process", async () => {
+        const organization = await suite.fixtures().createOrganization();
+        const membership = await suite.fixtures().createOrgMembership({ organization });
+        await suite.transaction(async (transaction) => {
+            const entity = await transaction.findOneOrFail(OrgMembership, membership.id);
+            entity.leave();
+        });
+
+        await expect(
+            suite.transaction((transaction) =>
+                suite.repository().membershipService.resume({
+                    identifiers: [membership.id],
+                    realm: organization.realm,
+                    transaction,
+                }),
+            ),
+        ).rejects.toThrow("CANNOT_ACTIVATE");
+
+        await expect(
+            suite.transaction((transaction) =>
+                transaction.count(OrgMembership, { id: membership.id, status: OrgMembershipStatus.LEFT }),
+            ),
+        ).resolves.toBe(1);
+    });
 
     it("joins a new account into an active organization", async () => {
         const organization = await suite.fixtures().createOrganization();

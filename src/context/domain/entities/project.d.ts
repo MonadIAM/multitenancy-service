@@ -11,6 +11,8 @@ declare global {
                 updatedAt?: Date;
                 archivedAt?: Date;
                 version: number;
+                process?: string;
+                failure?: string;
 
                 status: ProjectStatus;
                 description: string;
@@ -23,8 +25,12 @@ declare global {
                 assignments: ORM.Collection<Entities.ProjectAccountAssignment>;
 
                 assignManager(props: AssignManager.Props): void;
+                rejectBootstrap(reason: string): void;
                 update(props: ChangeDataProps): void;
+                confirmBootstrap(): void;
                 unassignManager(): void;
+                beginBootstrap(): void;
+                assertReady(): void;
                 canPurge(): void;
                 restore(): void;
                 archive(): void;

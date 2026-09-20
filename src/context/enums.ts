@@ -60,46 +60,61 @@ export enum CleanupJob {
     CHANGE_LOG = "cleanup-change-log",
     AUDIT_LOG  = "cleanup-audit-log",
     INBOX      = "cleanup-inbox",
-    /* eslint-enable prettier/prettier */
 }
 
 export enum OrganizationStatus {
-    ACTIVE = "ACTIVE",
-    REVOKED = "REVOKED",
+    /* eslint-disable prettier/prettier */
+    PROVISIONING = "PROVISIONING",
+    FAILED       = "FAILED",
+    ACTIVE       = "ACTIVE",
+    REVOKED      = "REVOKED",
+    /* eslint-enable prettier/prettier */
 }
 
 export enum ProjectStatus {
-    ACTIVE = "ACTIVE",
-    ARCHIVED = "ARCHIVED",
+    /* eslint-disable prettier/prettier */
+    PROVISIONING = "PROVISIONING",
+    ARCHIVED     = "ARCHIVED",
+    FAILED       = "FAILED",
+    ACTIVE       = "ACTIVE",
+    /* eslint-enable prettier/prettier */
 }
 
 export enum DepartmentStatus {
-    ACTIVE = "ACTIVE",
+    /* eslint-disable prettier/prettier */
     ARCHIVED = "ARCHIVED",
+    ACTIVE   = "ACTIVE",
+    /* eslint-enable prettier/prettier */
 }
 
 export enum TeamStatus {
-    ACTIVE = "ACTIVE",
+    /* eslint-disable prettier/prettier */
     ARCHIVED = "ARCHIVED",
+    ACTIVE   = "ACTIVE",
+    /* eslint-enable prettier/prettier */
 }
 
 export enum OrgMembershipStatus {
     /* eslint-disable prettier/prettier */
     SUSPENDED = "SUSPENDED",
     BLOCKED   = "BLOCKED",
+    JOINING   = "JOINING",
     ACTIVE    = "ACTIVE",
     LEFT      = "LEFT",
     /* eslint-enable prettier/prettier */
 }
 
 export enum AssignmentStatus {
-    ACTIVE = "ACTIVE",
+    /* eslint-disable prettier/prettier */
     REVOKED = "REVOKED",
+    ACTIVE  = "ACTIVE",
+    /* eslint-enable prettier/prettier */
 }
 
 export enum InviteStatus {
     /* eslint-disable prettier/prettier */
     INVALIDATED = "INVALIDATED",
+    ACCEPTING   = "ACCEPTING",
     CANCELLED   = "CANCELLED",
     ACCEPTED    = "ACCEPTED",
     DECLINED    = "DECLINED",

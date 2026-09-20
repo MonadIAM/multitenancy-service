@@ -9,3 +9,5 @@ export const AUDIT_LOG_SERVICE = Symbol("Services.AuditLog.Contract");
 export const PROJECT_SERVICE = Symbol("Services.Project.Contract");
 export const INVITE_SERVICE = Symbol("Services.Invite.Contract");
 export const TEAM_SERVICE = Symbol("Services.Team.Contract");
+
+export const ACCOUNT_SERVICE = Symbol("Services.Account.Contract");

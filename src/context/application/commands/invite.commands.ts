@@ -1,13 +1,16 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 
-import { INVITE_SERVICE } from "~context/domain/services";
+import { ActionType, EntityType, RealmTopicAction, NotificationTopicAction, KafkaTopic } from "~context/enums";
 import { INVITE_REPOSITORY } from "~context/infrastructure/repositories";
+import { CONSUMER_META, SYSTEM_ACCOUNT_ID } from "~context/constants";
 import { TRANSACTIONAL_SERVICE } from "~common/transaction-manager";
-import { ActionType, EntityType } from "~context/enums";
-import { SYSTEM_ACCOUNT_ID } from "~context/constants";
+import { INVITE_SERVICE } from "~context/domain/services";
+
+import { InviteMapper } from "../mappers/invite.mapper";
 
 @Injectable({ scope: Scope.DEFAULT })
 export class InviteCommands implements Commands.Invite.Contract {
+    private readonly mapper: Commands.Mappers.Invite.Contract;
     private readonly dictionaryPath = "commands.invite";
     private readonly resource = "Invite";
 
@@ -18,13 +21,65 @@ export class InviteCommands implements Commands.Invite.Contract {
         private readonly inviteRepository: Repositories.Invite.Contract,
         @Inject(INVITE_SERVICE)
         private readonly inviteService: Services.Invite.CommandContract,
-    ) {}
+    ) {
+        this.mapper = new InviteMapper();
+    }
+
+    public async confirmJoin(props: Commands.Invite.ConfirmJoin.Props): Commands.Invite.ConfirmJoin.Result {
+        const { incoming, ...request } = props;
+
+        await this.transactionalService.consume({
+            incoming,
+            resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.compensationPayload,
+                destinationTopic: KafkaTopic.REALM,
+                actionType: RealmTopicAction.ACCOUNT_ACCESS_PURGE,
+            },
+            audit: {
+                actionType: ActionType.ACCEPT,
+                entityType: EntityType.INVITE,
+                context: CONSUMER_META,
+                ...request,
+            },
+            changeLog: true,
+            execute: async (transaction) => {
+                const result = await this.inviteService.confirmJoin({ ...request, transaction });
+
+                return { ...result, actor: request.actor };
+            },
+        });
+    }
+
+    public async rejectJoin(props: Commands.Invite.RejectJoin.Props): Commands.Invite.RejectJoin.Result {
+        const { incoming, ...request } = props;
+
+        await this.transactionalService.consume({
+            resource: this.resource,
+            audit: {
+                actionType: ActionType.ACCEPT,
+                entityType: EntityType.INVITE,
+                context: CONSUMER_META,
+                ...request,
+            },
+            changeLog: true,
+            incoming,
+            execute: (transaction) => {
+                return this.inviteService.rejectJoin({ ...request, transaction });
+            },
+        });
+    }
 
     public async create(props: Commands.Invite.Create.Props): Commands.Invite.Create.Result {
         const { input, actor, realm } = props;
 
         await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.notificationPayload,
+                destinationTopic: KafkaTopic.NOTIFICATION,
+                actionType: NotificationTopicAction.CREATE,
+            },
             audit: {
                 actionType: ActionType.CREATE,
                 entityType: EntityType.INVITE,
@@ -48,6 +103,11 @@ export class InviteCommands implements Commands.Invite.Contract {
 
         await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.joinPayload,
+                destinationTopic: KafkaTopic.REALM,
+                actionType: RealmTopicAction.MEMBERSHIP_JOIN_REQUESTED,
+            },
             audit: {
                 actionType: ActionType.ACCEPT,
                 entityType: EntityType.INVITE,
@@ -63,7 +123,7 @@ export class InviteCommands implements Commands.Invite.Contract {
             },
         });
 
-        return { message: `${this.dictionaryPath}.ACCEPTED` };
+        return { message: `${this.dictionaryPath}.ACCEPTANCE_REQUESTED` };
     }
 
     public async decline(props: Commands.Invite.Decline.Props): Commands.Invite.Decline.Result {
@@ -94,6 +154,11 @@ export class InviteCommands implements Commands.Invite.Contract {
 
         await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.cancellationPayload,
+                destinationTopic: KafkaTopic.NOTIFICATION,
+                actionType: NotificationTopicAction.CREATE,
+            },
             audit: {
                 actionType: ActionType.CANCEL,
                 entityType: EntityType.INVITE,

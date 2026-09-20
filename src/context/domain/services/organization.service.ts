@@ -1,7 +1,13 @@
+import { randomUUID } from "node:crypto";
 import { Inject, Injectable, Scope } from "@nestjs/common";
+import { LockMode } from "@mikro-orm/core";
 
-import { ORG_MEMBERSHIP_REPOSITORY, ORGANIZATION_REPOSITORY } from "~context/infrastructure/repositories";
-import { OrgMembershipStatus } from "~context/enums";
+import {
+    ORG_MEMBERSHIP_REPOSITORY,
+    ORGANIZATION_REPOSITORY,
+    PROJECT_REPOSITORY,
+} from "~context/infrastructure/repositories";
+import { OrgMembershipStatus, OrganizationStatus, ProjectStatus } from "~context/enums";
 import { Exception } from "~common/exceptions";
 
 import { OrgMembership, Organization } from "../entities";
@@ -11,18 +17,140 @@ export class OrganizationService implements Services.Organization.Contract {
     private readonly dictionaryPath = "services.organization";
 
     public constructor(
+        @Inject(PROJECT_REPOSITORY)
+        private readonly projectRepository: Repositories.Project.Contract,
         @Inject(ORGANIZATION_REPOSITORY)
         private readonly organizationRepository: Repositories.Organization.Contract,
         @Inject(ORG_MEMBERSHIP_REPOSITORY)
         private readonly membershipRepository: Repositories.OrgMembership.Contract,
     ) {}
 
+    public async confirmBootstrap(
+        props: Services.Organization.ConfirmBootstrap.Props,
+    ): Services.Organization.ConfirmBootstrap.Result {
+        const { input, realm, transaction } = props;
+        const organization = await this.organizationRepository.findUnique({
+            where: { id: input.resource, realm },
+            options: {
+                populate: ["owner"],
+                strategy: "select-in",
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                refresh: true,
+            },
+            transaction,
+        });
+
+        if (organization) {
+            if (organization.process !== input.process || organization.status !== OrganizationStatus.PROVISIONING) {
+                throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            } else {
+                organization.owner.confirmJoin(new Date());
+                organization.confirmBootstrap();
+
+                return { realms: [] };
+            }
+        } else {
+            return { realms: [{ realm }] };
+        }
+    }
+
+    public async rejectBootstrap(
+        props: Services.Organization.RejectBootstrap.Props,
+    ): Services.Organization.RejectBootstrap.Result {
+        const { input, realm, transaction } = props;
+        const organization = await this.organizationRepository.findUnique({
+            where: { id: input.resource, realm },
+            options: {
+                populate: ["owner"],
+                strategy: "select-in",
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                refresh: true,
+            },
+            transaction,
+        });
+
+        if (organization) {
+            if (organization.process !== input.process || organization.status !== OrganizationStatus.PROVISIONING) {
+                throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            } else {
+                organization.owner.rejectJoin(input.reason);
+                organization.rejectBootstrap(input.reason);
+            }
+        }
+    }
+
+    public async confirmTransfer(
+        props: Services.Organization.ConfirmTransfer.Props,
+    ): Services.Organization.ConfirmTransfer.Result {
+        const { input, realm, transaction } = props;
+        const organization = await this.organizationRepository.findUnique({
+            where: { id: input.organization, realm },
+            options: {
+                populate: ["owner"],
+                strategy: "select-in",
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                refresh: true,
+            },
+            transaction,
+        });
+
+        if (organization) {
+            if (
+                organization.process !== input.process ||
+                !organization.pendingOwner ||
+                organization.owner.account !== input.previousOwner
+            ) {
+                throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            } else {
+                const membership = await this.membershipRepository.findUniqueOrThrow({
+                    where: {
+                        id: organization.pendingOwner,
+                        organization: organization.id,
+                        account: input.owner,
+                        status: OrgMembershipStatus.ACTIVE,
+                    },
+                    options: { refresh: true },
+                    transaction,
+                });
+
+                organization.transferOwnership({ membership });
+                organization.finishTransfer();
+
+                return { realms: [] };
+            }
+        } else {
+            return { realms: [{ realm }] };
+        }
+    }
+
+    public async rejectTransfer(
+        props: Services.Organization.RejectTransfer.Props,
+    ): Services.Organization.RejectTransfer.Result {
+        const { input, realm, transaction } = props;
+        const organization = await this.organizationRepository.findUnique({
+            where: { id: input.organization, realm },
+            options: { lockMode: LockMode.PESSIMISTIC_WRITE, refresh: true },
+            transaction,
+        });
+
+        if (organization) {
+            if (organization.process !== input.process || !organization.pendingOwner) {
+                throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            } else {
+                organization.failure = input.reason;
+                organization.finishTransfer();
+            }
+        }
+    }
+
     public create(props: Services.Organization.Create.Props): Services.Organization.Create.Result {
         const { transaction, input, actor } = props;
-        const organization = new Organization({ ...input });
+        const organization = new Organization({ ...input, realm: randomUUID() });
         const membership = new OrgMembership({ organization, account: actor });
 
         organization.transferOwnership({ membership });
+        organization.beginBootstrap();
+        membership.beginJoin(organization.process);
         transaction.persist(organization);
         transaction.persist(membership);
 
@@ -43,20 +171,25 @@ export class OrganizationService implements Services.Organization.Contract {
         props: Services.Organization.TransferOwnership.Props,
     ): Services.Organization.TransferOwnership.Result {
         const { transaction, membership, realm, id } = props;
-        const [organization, owner] = await Promise.all([
-            this.organizationRepository.findUniqueOrThrow({
-                where: { id, realm },
-                transaction,
-            }),
-            this.membershipRepository.findUniqueOrThrow({
-                where: { id: membership, organization: id, status: OrgMembershipStatus.ACTIVE },
-                transaction,
-            }),
-        ]);
+        const organization = await this.organizationRepository.findUniqueOrThrow({
+            where: { id, realm },
+            options: {
+                populate: ["owner"],
+                strategy: "select-in",
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                refresh: true,
+            },
+            transaction,
+        });
+        const owner = await this.membershipRepository.findUniqueOrThrow({
+            where: { id: membership, organization: id, status: OrgMembershipStatus.ACTIVE },
+            options: { refresh: true },
+            transaction,
+        });
 
-        organization.transferOwnership({ membership: owner });
+        organization.beginTransfer(owner);
 
-        return organization;
+        return { organization, previousOwner: organization.owner.account, owner: owner.account };
     }
 
     public async revoke(props: Services.Organization.Revoke.Props): Services.Organization.Revoke.Result {
@@ -64,17 +197,38 @@ export class OrganizationService implements Services.Organization.Contract {
         const unique = Array.from(new Set(identifiers));
         const entities = await this.organizationRepository.find({
             where: { id: { $in: unique }, realm },
+            options: {
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                orderBy: { id: "ASC" },
+                refresh: true,
+            },
             transaction,
         });
 
         if (entities.length < unique.length) {
             throw Exception.notFound({ messageKey: `${this.dictionaryPath}.ORGANIZATIONS_NOT_FOUND` });
         } else {
-            for (const entity of entities) {
-                entity.revoke();
-            }
+            const pending = await this.projectRepository.find({
+                where: {
+                    organization: { $in: unique },
+                    status: ProjectStatus.PROVISIONING,
+                },
+                transaction,
+            });
 
-            return entities;
+            if (pending.length) {
+                throw Exception.conflict({
+                    messageKey: "services.workflow.OPERATION_PENDING",
+                });
+            } else {
+                for (const entity of entities) {
+                    entity.revoke();
+                }
+
+                const realms = await this.collectRealms({ organizations: entities, transaction });
+
+                return { organizations: entities, realms };
+            }
         }
     }
 
@@ -83,6 +237,11 @@ export class OrganizationService implements Services.Organization.Contract {
         const unique = Array.from(new Set(identifiers));
         const entities = await this.organizationRepository.find({
             where: { id: { $in: unique }, realm },
+            options: {
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                orderBy: { id: "ASC" },
+                refresh: true,
+            },
             transaction,
         });
 
@@ -93,7 +252,9 @@ export class OrganizationService implements Services.Organization.Contract {
                 entity.restore();
             }
 
-            return entities;
+            const realms = await this.collectRealms({ organizations: entities, transaction });
+
+            return { organizations: entities, realms };
         }
     }
 
@@ -102,6 +263,11 @@ export class OrganizationService implements Services.Organization.Contract {
         const unique = Array.from(new Set(identifiers));
         const entities = await this.organizationRepository.find({
             where: { id: { $in: unique }, realm },
+            options: {
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                orderBy: { id: "ASC" },
+                refresh: true,
+            },
             transaction,
         });
 
@@ -110,10 +276,72 @@ export class OrganizationService implements Services.Organization.Contract {
         } else {
             for (const entity of entities) {
                 entity.canPurge();
-                transaction.remove(entity);
             }
 
-            return entities;
+            return this.removeGraph({ organizations: entities, transaction });
         }
+    }
+
+    public async purgeOwned(props: Services.Organization.PurgeOwned.Props): Services.Organization.PurgeOwned.Result {
+        const { transaction, account } = props;
+        const organizations = await this.organizationRepository.find({
+            where: { owner: { account } },
+            options: {
+                lockMode: LockMode.PESSIMISTIC_WRITE,
+                orderBy: { id: "ASC" },
+                refresh: true,
+            },
+            transaction,
+        });
+
+        return this.removeGraph({ organizations, transaction });
+    }
+
+    private async removeGraph(props: Services.Organization.CollectRealms.Props): Services.Organization.Purge.Result {
+        const { organizations, transaction } = props;
+        const [realms, dependents] = await Promise.all([
+            this.collectRealms({ organizations, transaction }),
+            this.organizationRepository.findDependents({ identifiers: organizations.map(({ id }) => id), transaction }),
+        ]);
+
+        if (
+            organizations.some(({ process }) => process) ||
+            dependents.some((entity) => "process" in entity && entity.process)
+        ) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            transaction.remove(dependents);
+            transaction.remove(organizations);
+
+            return { organizations, realms };
+        }
+    }
+
+    public async collectRealms(
+        props: Services.Organization.CollectRealms.Props,
+    ): Services.Organization.CollectRealms.Result {
+        const { organizations, transaction } = props;
+        const projects = await this.projectRepository.find({
+            where: {
+                organization: { id: { $in: organizations.map(({ id }) => id) } },
+                status: {
+                    $nin: [ProjectStatus.PROVISIONING, ProjectStatus.FAILED],
+                },
+            },
+            transaction,
+        });
+
+        return organizations.flatMap((organization) =>
+            Array.from(
+                new Set([
+                    organization.realm,
+                    ...projects
+                        .filter((project) => project.organization.id === organization.id)
+                        .map((project) => project.realm),
+                ]),
+            ).map((realm) => ({
+                realm,
+            })),
+        );
     }
 }

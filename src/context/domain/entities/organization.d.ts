@@ -11,6 +11,8 @@ declare global {
                 updatedAt?: Date;
                 revokedAt?: Date;
                 version: number;
+                process?: string;
+                failure?: string;
 
                 status: OrganizationStatus;
                 description: string;
@@ -18,11 +20,18 @@ declare global {
                 title: string;
 
                 owner: Entities.OrgMembership;
+                pendingOwner?: string;
 
                 memberships: ORM.Collection<Entities.OrgMembership>;
 
+                beginTransfer(membership: Entities.OrgMembership): void;
                 transferOwnership(props: TransferOwnership.Props): void;
+                rejectBootstrap(reason: string): void;
                 update(props: ChangeDataProps): void;
+                confirmBootstrap(): void;
+                finishTransfer(): void;
+                beginBootstrap(): void;
+                assertReady(): void;
                 canPurge(): void;
                 restore(): void;
                 revoke(): void;

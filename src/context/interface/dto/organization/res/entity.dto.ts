@@ -14,6 +14,18 @@ export class OrganizationDTO {
     declare public id: string;
 
     @Expose()
+    @Validator.IsOptional()
+    @Validator.IsUUID()
+    @ApiProperty({ required: false, type: String, format: "uuid" })
+    declare public process?: string;
+
+    @Expose()
+    @Validator.IsOptional()
+    @Validator.IsString()
+    @ApiProperty({ required: false, type: String })
+    declare public failure?: string;
+
+    @Expose()
     @Validator.ValidateNested()
     @Type(() => OrgMembershipLookupDTO)
     @ApiProperty({ required: true, type: OrgMembershipLookupDTO })

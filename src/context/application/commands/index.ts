@@ -6,6 +6,7 @@ import { TeamAccountAssignmentCommands } from "./team-account-assignment.command
 import { OrgMembershipCommands } from "./org-membership.commands";
 import { OrganizationCommands } from "./organization.commands";
 import { DepartmentCommands } from "./department.commands";
+import { AccountCommands } from "./account.commands";
 import { ProjectCommands } from "./project.commands";
 import { InviteCommands } from "./invite.commands";
 import { TeamCommands } from "./team.commands";
@@ -16,6 +17,7 @@ import {
     ORG_MEMBERSHIP_COMMANDS,
     ORGANIZATION_COMMANDS,
     DEPARTMENT_COMMANDS,
+    ACCOUNT_COMMANDS,
     PROJECT_COMMANDS,
     INVITE_COMMANDS,
     TEAM_COMMANDS,
@@ -47,6 +49,10 @@ export const COMMANDS: ClassProvider[] = [
         useClass: DepartmentCommands,
     },
     {
+        provide: ACCOUNT_COMMANDS,
+        useClass: AccountCommands,
+    },
+    {
         provide: PROJECT_COMMANDS,
         useClass: ProjectCommands,
     },
@@ -67,6 +73,7 @@ export {
     ORG_MEMBERSHIP_COMMANDS,
     ORGANIZATION_COMMANDS,
     DEPARTMENT_COMMANDS,
+    ACCOUNT_COMMANDS,
     PROJECT_COMMANDS,
     INVITE_COMMANDS,
     TEAM_COMMANDS,

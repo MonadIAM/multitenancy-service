@@ -7,7 +7,11 @@ export class OrganizationUnitHelpers extends DomainServiceCoreUnitHelpers implem
         const repositories = this.repositories(props);
         return {
             service: new OrganizationService(
-                this.contract<Repositories.Organization.Contract>(repositories.organizations),
+                this.contract<Repositories.Project.Contract>(repositories.projects),
+                this.contract<Repositories.Organization.Contract>({
+                    ...repositories.organizations,
+                    findDependents: () => Promise.resolve([]),
+                }),
                 this.contract<Repositories.OrgMembership.Contract>(repositories.memberships),
             ),
             transaction: this.transaction(),

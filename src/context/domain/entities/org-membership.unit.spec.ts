@@ -46,19 +46,15 @@ describe("OrgMembership Entity", () => {
         expect(membership.updatedAt).toBe(activatedAt);
     });
 
-    it("should leave and reactivate membership without restoring old state", () => {
+    it("should require a new join process after leaving", () => {
         const membership = createMembership();
         const leftAt = new Date("2026-01-01T00:00:00.000Z");
-        const joinedAt = new Date("2026-01-02T00:00:00.000Z");
-
         membership.leave(leftAt);
+
+        expect(() => membership.activate()).toThrow("CANNOT_ACTIVATE");
+
         expect(membership.status).toBe(OrgMembershipStatus.LEFT);
         expect(membership.leftAt).toBe(leftAt);
-
-        membership.activate(joinedAt);
-        expect(membership.status).toBe(OrgMembershipStatus.ACTIVE);
-        expect(membership.leftAt).toBeUndefined();
-        expect(membership.joinedAt).toBe(joinedAt);
     });
 
     it("should clear suspension when membership leaves", () => {
@@ -101,5 +97,35 @@ describe("OrgMembership Entity", () => {
         membership.leave();
         expect(() => membership.leave()).toThrow("CANNOT_LEAVE");
         expect(() => membership.suspend()).toThrow("CANNOT_SUSPEND");
+    });
+
+    it("rejects join from a blocked membership", () => {
+        const membership = createMembership();
+        membership.block();
+
+        expect(() => membership.beginJoin()).toThrow("OPERATION_CONFLICT");
+
+        expect(membership.status).toBe(OrgMembershipStatus.BLOCKED);
+        expect(membership.process).toBeUndefined();
+    });
+
+    it("rejects a competing join without replacing the current process", () => {
+        const membership = createMembership();
+        membership.beginJoin("current");
+
+        expect(() => membership.beginJoin("competing")).toThrow("OPERATION_CONFLICT");
+
+        expect(membership.process).toBe("current");
+        expect(membership.status).toBe(OrgMembershipStatus.JOINING);
+    });
+
+    it("rejects a late join refusal after confirmation", () => {
+        const membership = createMembership();
+        membership.beginJoin();
+        membership.confirmJoin(new Date());
+
+        expect(() => membership.rejectJoin("late rejection")).toThrow("OPERATION_CONFLICT");
+
+        expect(membership.status).toBe(OrgMembershipStatus.ACTIVE);
     });
 });

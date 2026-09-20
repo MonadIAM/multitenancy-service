@@ -26,6 +26,40 @@ export class InviteService implements Services.Invite.Contract {
         private readonly inviteRepository: Repositories.Invite.Contract,
     ) {}
 
+    public async confirmJoin(props: Services.Invite.ConfirmJoin.Props): Services.Invite.ConfirmJoin.Result {
+        const { input, realm, transaction } = props;
+        const result = await this.membershipService.confirmJoin(props);
+
+        if (input.invite) {
+            const invite = await this.inviteRepository.findUnique({
+                where: { id: input.invite, invitee: input.account, organization: { realm } },
+                transaction,
+            });
+
+            if (invite?.process === input.process && invite.status === InviteStatus.ACCEPTING) {
+                invite.confirmAccept();
+            }
+        }
+
+        return result;
+    }
+
+    public async rejectJoin(props: Services.Invite.RejectJoin.Props): Services.Invite.RejectJoin.Result {
+        const { input, realm, transaction } = props;
+        await this.membershipService.rejectJoin(props);
+
+        if (input.invite) {
+            const invite = await this.inviteRepository.findUnique({
+                where: { id: input.invite, invitee: input.account, organization: { realm } },
+                transaction,
+            });
+
+            if (invite?.process === input.process && invite.status === InviteStatus.ACCEPTING) {
+                invite.rejectAccept(input.reason);
+            }
+        }
+    }
+
     public async create(props: Services.Invite.Create.Props): Services.Invite.Create.Result {
         const { transaction, input, realm } = props;
         const [organization, membership] = await Promise.all([
@@ -60,12 +94,13 @@ export class InviteService implements Services.Invite.Contract {
             transaction,
         });
 
-        entity.accept();
         const membership = await this.membershipService.join({
             input: { organization: entity.organization.id, account: input.invitee },
             transaction,
             realm,
         });
+
+        entity.beginAccept(membership.process!);
 
         return { membership, invite: entity };
     }
@@ -100,9 +135,7 @@ export class InviteService implements Services.Invite.Contract {
                 transaction,
             });
 
-            if (entity.status === InviteStatus.PENDING) {
-                entity.cancel();
-            }
+            entity.cancel();
 
             return entity;
         }
@@ -113,25 +146,25 @@ export class InviteService implements Services.Invite.Contract {
 
         if (!input.account && !input.organization) {
             throw Exception.badRequest({ messageKey: `${this.dictionaryPath}.INVALIDATION_SCOPE_REQUIRED` });
-        }
-
-        const entities = await this.inviteRepository.find({
-            where: {
-                organization: {
-                    realm,
-                    ...(input.organization ? { id: input.organization } : {}),
+        } else {
+            const entities = await this.inviteRepository.find({
+                where: {
+                    organization: {
+                        realm,
+                        ...(input.organization ? { id: input.organization } : {}),
+                    },
+                    status: InviteStatus.PENDING,
+                    ...(input.account ? { $or: [{ invitee: input.account }, { inviter: input.account }] } : {}),
                 },
-                status: InviteStatus.PENDING,
-                ...(input.account ? { $or: [{ invitee: input.account }, { inviter: input.account }] } : {}),
-            },
-            transaction,
-        });
+                transaction,
+            });
 
-        for (const entity of entities) {
-            entity.invalidate();
+            for (const entity of entities) {
+                entity.invalidate();
+            }
+
+            return entities;
         }
-
-        return entities;
     }
 
     public expire(props: Services.Invite.Expire.Props): Services.Invite.Expire.Result {

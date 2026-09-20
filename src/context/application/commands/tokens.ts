@@ -7,3 +7,5 @@ export const DEPARTMENT_COMMANDS = Symbol("Commands.Department.Contract");
 export const PROJECT_COMMANDS = Symbol("Commands.Project.Contract");
 export const INVITE_COMMANDS = Symbol("Commands.Invite.Contract");
 export const TEAM_COMMANDS = Symbol("Commands.Team.Contract");
+
+export const ACCOUNT_COMMANDS = Symbol("Commands.Account.Contract");

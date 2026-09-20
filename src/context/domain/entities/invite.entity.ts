@@ -11,11 +11,13 @@ export class Invite implements Entities.Invite.Contract {
     public updatedAt?: Date;
     public expiresAt?: Date;
     public version: number = 1;
+    public process?: string;
+    public failure?: string;
 
     public organization: Entities.Organization;
     public invitee: string;
     public inviter: string;
-    public role: string;
+    public role?: string;
     public status: InviteStatus;
 
     public constructor(props: Entities.Invite.ConstructorProps) {
@@ -77,6 +79,35 @@ export class Invite implements Entities.Invite.Contract {
             throw Exception.invariantViolation({
                 messageKey: `${Invite.dictionaryPath}.CANNOT_${action}_INACTIVE`,
             });
+        }
+    }
+
+    public beginAccept(process: string): void {
+        this.accept();
+        this.status = InviteStatus.ACCEPTING;
+        this.process = process;
+        this.failure = undefined;
+    }
+
+    public confirmAccept(): void {
+        if (!this.process || this.status !== InviteStatus.ACCEPTING) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.status = InviteStatus.ACCEPTED;
+            this.process = undefined;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public rejectAccept(reason: string): void {
+        if (!this.process || this.status !== InviteStatus.ACCEPTING) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.status =
+                this.expiresAt && this.expiresAt.getTime() <= Date.now() ? InviteStatus.EXPIRED : InviteStatus.PENDING;
+            this.process = undefined;
+            this.failure = reason;
+            this.updatedAt = new Date();
         }
     }
 }

@@ -1,17 +1,16 @@
 {
   "organization": {
-    "CREATED": "Организация создана",
     "UPDATED": "Организация обновлена",
-    "OWNERSHIP_TRANSFERRED": "Владелец организации изменён",
     "REVOKED": "Организация отозвана",
     "RESTORED": "Организация восстановлена",
     "PURGED": "Организация удалена",
     "BULK_REVOKED_COUNT": "Отозвано организаций: {count}",
     "BULK_RESTORED_COUNT": "Восстановлено организаций: {count}",
-    "BULK_PURGED_COUNT": "Удалено организаций: {count}"
+    "BULK_PURGED_COUNT": "Удалено организаций: {count}",
+    "CREATION_REQUESTED": "Создание организации запрошено",
+    "OWNERSHIP_TRANSFER_REQUESTED": "Передача владения организацией запрошена"
   },
   "project": {
-    "CREATED": "Проект создан",
     "UPDATED": "Проект обновлён",
     "MANAGER_ASSIGNED": "Менеджер проекта назначен",
     "MANAGER_UNASSIGNED": "Менеджер проекта снят",
@@ -20,7 +19,8 @@
     "PURGED": "Проект удалён",
     "BULK_ARCHIVED_COUNT": "Архивировано проектов: {count}",
     "BULK_RESTORED_COUNT": "Восстановлено проектов: {count}",
-    "BULK_PURGED_COUNT": "Удалено проектов: {count}"
+    "BULK_PURGED_COUNT": "Удалено проектов: {count}",
+    "CREATION_REQUESTED": "Создание проекта запрошено"
   },
   "department": {
     "CREATED": "Подразделение создано",
@@ -47,7 +47,6 @@
     "BULK_PURGED_COUNT": "Удалено команд: {count}"
   },
   "org-membership": {
-    "JOINED": "Членство в организации создано",
     "SUSPENDED": "Членство приостановлено",
     "RESUMED": "Членство возобновлено",
     "LEFT": "Членство в организации завершено",
@@ -55,7 +54,8 @@
     "BULK_SUSPENDED_COUNT": "Приостановлено членств: {count}",
     "BULK_RESUMED_COUNT": "Возобновлено членств: {count}",
     "BULK_LEFT_COUNT": "Завершено членств: {count}",
-    "BULK_BLOCKED_COUNT": "Заблокировано членств: {count}"
+    "BULK_BLOCKED_COUNT": "Заблокировано членств: {count}",
+    "JOIN_REQUESTED": "Вступление в организацию запрошено"
   },
   "project-account-assignment": {
     "CREATED": "Участник назначен на проект",
@@ -86,8 +86,8 @@
   },
   "invite": {
     "CREATED": "Приглашение создано",
-    "ACCEPTED": "Приглашение принято",
     "DECLINED": "Приглашение отклонено",
-    "CANCELLED": "Приглашение отменено"
+    "CANCELLED": "Приглашение отменено",
+    "ACCEPTANCE_REQUESTED": "Принятие приглашения запрошено"
   }
 }

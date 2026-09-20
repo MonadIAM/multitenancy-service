@@ -20,7 +20,7 @@ const ROLE_ID = "00000000-0000-4000-8000-000000000004";
 
 export class EntityFactoryRegistry implements Unit.Domain.EntityFactory.Contract {
     public createOrganization(props: Unit.Domain.EntityFactory.CreateOrganization.Props = {}): Entities.Organization {
-        return this.entity(
+        const organization = this.entity(
             new Organization({
                 realm: REALM_ID,
                 title: "Unit Organization",
@@ -28,6 +28,9 @@ export class EntityFactoryRegistry implements Unit.Domain.EntityFactory.Contract
             }),
             props,
         );
+        organization.owner ??= new OrgMembership({ organization, account: ACCOUNT_ID });
+
+        return organization;
     }
 
     public createOrgMembership(props: Unit.Domain.EntityFactory.CreateOrgMembership.Props = {}): Entities.OrgMembership {

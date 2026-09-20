@@ -3,11 +3,47 @@ declare namespace Services {
         interface Contract extends CommandContract {}
 
         interface CommandContract {
+            confirmJoin: ConfirmJoin.Signature;
+            rejectJoin: RejectJoin.Signature;
+            clean: Clean.Signature;
+            collectAccess: CollectAccess.Signature;
             suspend: Suspend.Signature;
             resume: Resume.Signature;
             block: Block.Signature;
             leave: Leave.Signature;
             join: Join.Signature;
+        }
+
+        namespace CollectAccess {
+            type Props = { memberships: Entities.OrgMembership[]; transaction: ORM.EntityManager };
+
+            type Result = Promise<{ realm: string; account: string }[]>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace Clean {
+            type Props = { account: string; excludedOrganizations: string[]; transaction: ORM.EntityManager };
+
+            type Result = Promise<{ memberships: Entities.OrgMembership[]; access: { realm: string; account: string }[] }>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace ConfirmJoin {
+            type Props = Topics.Realm.MembershipJoinConfirmedMessage["payload"] & { transaction: ORM.EntityManager };
+
+            type Result = Promise<{ access: { realm: string; account: string }[] }>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace RejectJoin {
+            type Props = Topics.Realm.MembershipJoinRejectedMessage["payload"] & { transaction: ORM.EntityManager };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
         }
 
         namespace Join {
@@ -32,7 +68,7 @@ declare namespace Services {
                 realm: string;
             };
 
-            type Result = Promise<Entities.OrgMembership[]>;
+            type Result = Promise<{ memberships: Entities.OrgMembership[]; access: { realm: string; account: string }[] }>;
 
             type Signature = (props: Props) => Result;
         }
@@ -44,7 +80,7 @@ declare namespace Services {
                 realm: string;
             };
 
-            type Result = Promise<Entities.OrgMembership[]>;
+            type Result = Promise<{ memberships: Entities.OrgMembership[]; access: { realm: string; account: string }[] }>;
 
             type Signature = (props: Props) => Result;
         }
@@ -63,6 +99,7 @@ declare namespace Services {
                     project: Entities.ProjectAccountAssignment[];
                     team: Entities.TeamAccountAssignment[];
                 };
+                access: { realm: string; account: string }[];
                 memberships: Entities.OrgMembership[];
             }>;
 
@@ -82,6 +119,7 @@ declare namespace Services {
                     project: Entities.ProjectAccountAssignment[];
                     team: Entities.TeamAccountAssignment[];
                 };
+                access: { realm: string; account: string }[];
                 memberships: Entities.OrgMembership[];
             }>;
 

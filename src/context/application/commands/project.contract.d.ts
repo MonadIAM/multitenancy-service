@@ -1,6 +1,31 @@
 declare namespace Commands {
     namespace Project {
-        interface Contract extends ControllerContract {}
+        interface Contract extends ControllerContract, ConsumerContract {}
+
+        interface ConsumerContract {
+            confirmBootstrap: ConfirmBootstrap.Signature;
+            rejectBootstrap: RejectBootstrap.Signature;
+        }
+
+        namespace ConfirmBootstrap {
+            type Props = Topics.Realm.BootstrapConfirmedMessage["payload"] & {
+                incoming: TransactionManager.Service.IncomingMessage;
+            };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace RejectBootstrap {
+            type Props = Topics.Realm.BootstrapRejectedMessage["payload"] & {
+                incoming: TransactionManager.Service.IncomingMessage;
+            };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
+        }
 
         interface ControllerContract {
             changeManager: ChangeManager.Signature;

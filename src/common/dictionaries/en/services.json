@@ -28,7 +28,8 @@
   },
   "org-membership": {
     "MEMBERSHIP_ALREADY_EXISTS": "The organization membership already exists.",
-    "MEMBERSHIPS_NOT_FOUND": "One or more memberships do not exist."
+    "MEMBERSHIPS_NOT_FOUND": "One or more memberships do not exist.",
+    "OWNER_ACCESS_REQUIRED": "The owner and pending owner must retain active membership"
   },
   "project-account-assignment": {
     "ORGANIZATION_MISMATCH": "The membership and project belong to different organizations.",
@@ -45,5 +46,13 @@
   "invite": {
     "INVITEE_ALREADY_MEMBER": "The invitee already belongs to the organization.",
     "INVALIDATION_SCOPE_REQUIRED": "An account or organization is required to invalidate invitations."
+  },
+  "workflow": {
+    "OPERATION_CONFLICT": "The operation conflicts with the current resource state.",
+    "OPERATION_PENDING": "The operation is pending or has failed",
+    "TRANSFER_NOT_ALLOWED": "Ownership transfer is not allowed"
+  },
+  "account": {
+    "TRANSFER_PENDING": "Account cleanup is waiting for ownership transfer"
   }
 }

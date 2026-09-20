@@ -6,11 +6,6 @@ import { Validator } from "~common/validator";
 @ApiSchema({ name: "OrganizationCreateBody" })
 export class CreateBodyDTO {
     @Expose()
-    @Validator.IsUUID()
-    @ApiProperty({ required: true, type: String, format: "uuid" })
-    declare public realm: string;
-
-    @Expose()
     @Validator.IsString()
     @Validator.MinLength(1)
     @Validator.MaxLength(128)

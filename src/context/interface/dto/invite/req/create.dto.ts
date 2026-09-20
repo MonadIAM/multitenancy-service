@@ -16,9 +16,10 @@ export class CreateBodyDTO {
     declare public invitee: string;
 
     @Expose()
+    @Validator.IsOptional()
     @Validator.IsUUID()
-    @ApiProperty({ required: true, type: String, format: "uuid" })
-    declare public role: string;
+    @ApiProperty({ required: false, type: String, format: "uuid" })
+    declare public role?: string;
 
     @Expose()
     @Validator.IsOptional()

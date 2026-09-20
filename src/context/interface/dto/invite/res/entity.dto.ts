@@ -14,6 +14,18 @@ export class InviteDTO {
     declare public id: string;
 
     @Expose()
+    @Validator.IsOptional()
+    @Validator.IsUUID()
+    @ApiProperty({ required: false, type: String, format: "uuid" })
+    declare public process?: string;
+
+    @Expose()
+    @Validator.IsOptional()
+    @Validator.IsString()
+    @ApiProperty({ required: false, type: String })
+    declare public failure?: string;
+
+    @Expose()
     @Validator.ValidateNested()
     @Type(() => OrganizationLookupDTO)
     @ApiProperty({ required: true, type: OrganizationLookupDTO })
@@ -30,9 +42,10 @@ export class InviteDTO {
     declare public inviter: string;
 
     @Expose()
+    @Validator.IsOptional()
     @Validator.IsUUID()
-    @ApiProperty({ required: true, type: String, format: "uuid" })
-    declare public role: string;
+    @ApiProperty({ required: false, type: String, format: "uuid" })
+    declare public role?: string;
 
     @Expose()
     @Validator.IsEnum(InviteStatus)

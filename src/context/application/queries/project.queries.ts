@@ -64,7 +64,7 @@ export class ProjectQueries implements Queries.Project.Contract {
             prefilter.$or = [];
 
             if (props.permissions.includes(PermissionCode.PROJECT_READ_COMMON)) {
-                prefilter.$or.push({ realm: props.realm });
+                prefilter.$or.push({ realm: props.realm }, { organization: { realm: props.realm } });
             }
 
             if (props.permissions.includes(PermissionCode.PROJECT_READ_PERSONAL)) {

@@ -13,7 +13,7 @@ export const InviteSchema = new EntitySchema<Invite>({
         {
             name: "invite_pending_invitee_organization_unique",
             properties: ["invitee", "organization"],
-            where: "status = 'PENDING'",
+            where: "status in ('PENDING', 'ACCEPTING')",
         },
     ],
 
@@ -41,11 +41,13 @@ export const InviteSchema = new EntitySchema<Invite>({
             fieldName: "organization_id",
             deleteRule: "restrict",
         },
-        role: { type: "uuid", fieldName: "role_id" },
+        role: { type: "uuid", fieldName: "role_id", nullable: true },
 
         updatedAt: { type: "timestamptz", length: 3, nullable: true },
         createdAt: { type: "timestamptz", length: 3 },
         expiresAt: { type: "timestamptz", length: 3, nullable: true },
+        process: { type: "uuid", nullable: true },
+        failure: { type: "text", nullable: true },
         version: { type: "int", version: true },
     },
 });

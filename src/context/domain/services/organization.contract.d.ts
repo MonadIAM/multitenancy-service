@@ -3,12 +3,66 @@ declare namespace Services {
         interface Contract extends CommandContract {}
 
         interface CommandContract {
+            confirmBootstrap: ConfirmBootstrap.Signature;
+            rejectBootstrap: RejectBootstrap.Signature;
+            confirmTransfer: ConfirmTransfer.Signature;
+            rejectTransfer: RejectTransfer.Signature;
+            collectRealms: CollectRealms.Signature;
             transferOwnership: TransferOwnership.Signature;
             restore: Restore.Signature;
             create: Create.Signature;
             update: Update.Signature;
             revoke: Revoke.Signature;
             purge: Purge.Signature;
+            purgeOwned: PurgeOwned.Signature;
+        }
+
+        namespace PurgeOwned {
+            type Props = { account: string; transaction: ORM.EntityManager };
+
+            type Result = Purge.Result;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace CollectRealms {
+            type Props = { organizations: Entities.Organization[]; transaction: ORM.EntityManager };
+
+            type Result = Promise<{ realm: string }[]>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace ConfirmBootstrap {
+            type Props = Topics.Realm.BootstrapConfirmedMessage["payload"] & { transaction: ORM.EntityManager };
+
+            type Result = Promise<{ realms: { realm: string }[] }>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace RejectBootstrap {
+            type Props = Topics.Realm.BootstrapRejectedMessage["payload"] & { transaction: ORM.EntityManager };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace ConfirmTransfer {
+            type Props = Topics.Realm.TransferOwnershipConfirmedMessage["payload"] & { transaction: ORM.EntityManager };
+
+            type Result = Promise<{ realms: { realm: string }[] }>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace RejectTransfer {
+            type Props = Topics.Realm.TransferOwnershipRejectedMessage["payload"] & { transaction: ORM.EntityManager };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
         }
 
         namespace Create {
@@ -17,7 +71,6 @@ declare namespace Services {
                 actor: string;
                 input: {
                     description: string;
-                    realm: string;
                     title: string;
                 };
             };
@@ -51,7 +104,11 @@ declare namespace Services {
                 id: string;
             };
 
-            type Result = Promise<Entities.Organization>;
+            type Result = Promise<{
+                organization: Entities.Organization;
+                previousOwner: string;
+                owner: string;
+            }>;
 
             type Signature = (props: Props) => Result;
         }
@@ -63,7 +120,7 @@ declare namespace Services {
                 identifiers: string[];
             };
 
-            type Result = Promise<Entities.Organization[]>;
+            type Result = Promise<{ organizations: Entities.Organization[]; realms: { realm: string }[] }>;
 
             type Signature = (props: Props) => Result;
         }
@@ -75,7 +132,7 @@ declare namespace Services {
                 identifiers: string[];
             };
 
-            type Result = Promise<Entities.Organization[]>;
+            type Result = Promise<{ organizations: Entities.Organization[]; realms: { realm: string }[] }>;
 
             type Signature = (props: Props) => Result;
         }
@@ -87,7 +144,7 @@ declare namespace Services {
                 identifiers: string[];
             };
 
-            type Result = Promise<Entities.Organization[]>;
+            type Result = Promise<{ organizations: Entities.Organization[]; realms: { realm: string }[] }>;
 
             type Signature = (props: Props) => Result;
         }

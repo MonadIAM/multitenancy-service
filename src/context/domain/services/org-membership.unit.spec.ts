@@ -59,7 +59,7 @@ describe("OrgMembershipService", () => {
                 }),
             ).resolves.toBe(membership);
 
-            expect(membership.status).toBe(OrgMembershipStatus.ACTIVE);
+            expect(membership.status).toBe(OrgMembershipStatus.JOINING);
 
             await expect(
                 service.join({
@@ -91,6 +91,7 @@ describe("OrgMembershipService", () => {
                 id: { $in: [MEMBERSHIP_ID] },
                 organization: { realm: REALM_ID },
             },
+            options: { populate: ["organization"], refresh: true },
             transaction: transaction.entityManager,
         });
 
@@ -150,6 +151,7 @@ describe("OrgMembershipService", () => {
                     organization: { realm: REALM_ID },
                     ...(operation === "leave" ? { account: membership.account } : {}),
                 },
+                options: { populate: ["organization"], refresh: true },
                 transaction: transaction.entityManager,
             });
             expect(services.projectAssignments.clean).toHaveBeenCalledWith({
@@ -165,6 +167,12 @@ describe("OrgMembershipService", () => {
                 transaction: transaction.entityManager,
             });
             expect(result).toEqual({
+                access: [
+                    {
+                        realm: membership.organization.realm,
+                        account: membership.account,
+                    },
+                ],
                 memberships: [membership],
                 assignments: {
                     project: [projectAssignment],

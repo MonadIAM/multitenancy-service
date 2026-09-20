@@ -1,17 +1,16 @@
 {
   "organization": {
-    "CREATED": "Organization created",
     "UPDATED": "Organization updated",
-    "OWNERSHIP_TRANSFERRED": "Organization ownership transferred",
     "REVOKED": "Organization revoked",
     "RESTORED": "Organization restored",
     "PURGED": "Organization deleted",
     "BULK_REVOKED_COUNT": "Revoked organizations: {count}",
     "BULK_RESTORED_COUNT": "Restored organizations: {count}",
-    "BULK_PURGED_COUNT": "Deleted organizations: {count}"
+    "BULK_PURGED_COUNT": "Deleted organizations: {count}",
+    "CREATION_REQUESTED": "Organization creation requested",
+    "OWNERSHIP_TRANSFER_REQUESTED": "Organization ownership transfer requested"
   },
   "project": {
-    "CREATED": "Project created",
     "UPDATED": "Project updated",
     "MANAGER_ASSIGNED": "Project manager assigned",
     "MANAGER_UNASSIGNED": "Project manager unassigned",
@@ -20,7 +19,8 @@
     "PURGED": "Project deleted",
     "BULK_ARCHIVED_COUNT": "Archived projects: {count}",
     "BULK_RESTORED_COUNT": "Restored projects: {count}",
-    "BULK_PURGED_COUNT": "Deleted projects: {count}"
+    "BULK_PURGED_COUNT": "Deleted projects: {count}",
+    "CREATION_REQUESTED": "Project creation requested"
   },
   "department": {
     "CREATED": "Department created",
@@ -47,7 +47,6 @@
     "BULK_PURGED_COUNT": "Deleted teams: {count}"
   },
   "org-membership": {
-    "JOINED": "Organization membership created",
     "SUSPENDED": "Membership suspended",
     "RESUMED": "Membership resumed",
     "LEFT": "Organization membership left",
@@ -55,7 +54,8 @@
     "BULK_SUSPENDED_COUNT": "Suspended memberships: {count}",
     "BULK_RESUMED_COUNT": "Resumed memberships: {count}",
     "BULK_LEFT_COUNT": "Left memberships: {count}",
-    "BULK_BLOCKED_COUNT": "Blocked memberships: {count}"
+    "BULK_BLOCKED_COUNT": "Blocked memberships: {count}",
+    "JOIN_REQUESTED": "Organization membership requested"
   },
   "project-account-assignment": {
     "CREATED": "Account assigned to project",
@@ -86,8 +86,8 @@
   },
   "invite": {
     "CREATED": "Invitation created",
-    "ACCEPTED": "Invitation accepted",
     "DECLINED": "Invitation declined",
-    "CANCELLED": "Invitation cancelled"
+    "CANCELLED": "Invitation cancelled",
+    "ACCEPTANCE_REQUESTED": "Invitation acceptance requested"
   }
 }

@@ -1,6 +1,53 @@
 declare namespace Commands {
     namespace Organization {
-        interface Contract extends ControllerContract {}
+        interface Contract extends ControllerContract, ConsumerContract {}
+
+        interface ConsumerContract {
+            confirmBootstrap: ConfirmBootstrap.Signature;
+            rejectBootstrap: RejectBootstrap.Signature;
+            confirmTransfer: ConfirmTransfer.Signature;
+            rejectTransfer: RejectTransfer.Signature;
+        }
+
+        namespace ConfirmBootstrap {
+            type Props = Topics.Realm.BootstrapConfirmedMessage["payload"] & {
+                incoming: TransactionManager.Service.IncomingMessage;
+            };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace RejectBootstrap {
+            type Props = Topics.Realm.BootstrapRejectedMessage["payload"] & {
+                incoming: TransactionManager.Service.IncomingMessage;
+            };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace ConfirmTransfer {
+            type Props = Topics.Realm.TransferOwnershipConfirmedMessage["payload"] & {
+                incoming: TransactionManager.Service.IncomingMessage;
+            };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
+        }
+
+        namespace RejectTransfer {
+            type Props = Topics.Realm.TransferOwnershipRejectedMessage["payload"] & {
+                incoming: TransactionManager.Service.IncomingMessage;
+            };
+
+            type Result = Promise<void>;
+
+            type Signature = (props: Props) => Result;
+        }
 
         interface ControllerContract {
             transferOwnership: TransferOwnership.Signature;
@@ -15,7 +62,6 @@ declare namespace Commands {
             type Props = {
                 input: {
                     description: string;
-                    realm: string;
                     title: string;
                 };
                 context: Extract.Meta;

@@ -35,12 +35,13 @@ export const OrganizationSchema = new EntitySchema<Organization>({
             columnTypes: ["uuid", "uuid"],
             referencedColumnNames: ["id", "organization_id"],
             ownColumns: ["owner_id"],
-            deleteRule: "restrict",
+            deleteRule: "no action",
             deferMode: DeferMode.INITIALLY_DEFERRED,
             foreignKeyName: "organization_owner_membership_fk",
         },
         realm: { type: "uuid", fieldName: "realm_id" },
 
+        pendingOwner: { type: "uuid", nullable: true },
         title: { type: "text" },
         description: { type: "text" },
         status: {
@@ -52,6 +53,8 @@ export const OrganizationSchema = new EntitySchema<Organization>({
         revokedAt: { type: "timestamptz", length: 3, nullable: true },
         updatedAt: { type: "timestamptz", length: 3, nullable: true },
         createdAt: { type: "timestamptz", length: 3 },
+        process: { type: "uuid", nullable: true },
+        failure: { type: "text", nullable: true },
         version: { type: "int", version: true },
     },
 });

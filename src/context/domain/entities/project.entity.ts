@@ -12,6 +12,8 @@ export class Project implements Entities.Project.Contract {
     public updatedAt?: Date;
     public archivedAt?: Date;
     public version: number = 1;
+    public process?: string;
+    public failure?: string;
 
     public status: ProjectStatus;
     public description: string;
@@ -35,6 +37,7 @@ export class Project implements Entities.Project.Contract {
     }
 
     public assignManager({ assignment }: Entities.Project.AssignManager.Props): void {
+        this.assertReady();
         if (this.manager?.id === assignment.id) {
             throw Exception.invariantViolation({
                 messageKey: `${Project.dictionaryPath}.NO_CHANGES_DETECTED`,
@@ -46,6 +49,7 @@ export class Project implements Entities.Project.Contract {
     }
 
     public unassignManager(): void {
+        this.assertReady();
         if (this.manager) {
             this.manager = undefined;
             this.updatedAt = new Date();
@@ -57,6 +61,7 @@ export class Project implements Entities.Project.Contract {
     }
 
     public update({ patch }: Entities.Project.ChangeDataProps): void {
+        this.assertReady();
         const now = new Date();
         let affected = 0;
         for (const [key, value] of Object.typedEntries(patch)) {
@@ -80,6 +85,7 @@ export class Project implements Entities.Project.Contract {
     }
 
     public archive(): void {
+        this.assertReady();
         if (this.status === ProjectStatus.ARCHIVED) {
             throw Exception.invariantViolation({
                 messageKey: `${Project.dictionaryPath}.ALREADY_ARCHIVED`,
@@ -93,6 +99,7 @@ export class Project implements Entities.Project.Contract {
     }
 
     public restore(): void {
+        this.assertReady();
         if (this.status === ProjectStatus.ACTIVE) {
             throw Exception.invariantViolation({
                 messageKey: `${Project.dictionaryPath}.ALREADY_ACTIVE`,
@@ -105,10 +112,50 @@ export class Project implements Entities.Project.Contract {
     }
 
     public canPurge(): void {
-        if (this.status === ProjectStatus.ACTIVE) {
+        if (this.process) {
+            throw Exception.invariantViolation({ messageKey: "services.workflow.OPERATION_PENDING" });
+        } else if (this.status === ProjectStatus.ACTIVE) {
             throw Exception.invariantViolation({
                 messageKey: `${Project.dictionaryPath}.CANNOT_PURGE_ACTIVE`,
             });
+        }
+    }
+
+    public beginBootstrap(): void {
+        if (this.process || this.status !== ProjectStatus.ACTIVE) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.process = randomUUID();
+            this.status = ProjectStatus.PROVISIONING;
+            this.failure = undefined;
+        }
+    }
+
+    public confirmBootstrap(): void {
+        if (!this.process || this.status !== ProjectStatus.PROVISIONING) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.status = ProjectStatus.ACTIVE;
+            this.process = undefined;
+            this.failure = undefined;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public rejectBootstrap(reason: string): void {
+        if (!this.process || this.status !== ProjectStatus.PROVISIONING) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        } else {
+            this.status = ProjectStatus.FAILED;
+            this.process = undefined;
+            this.failure = reason;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public assertReady(): void {
+        if (this.process || this.status === ProjectStatus.FAILED) {
+            throw Exception.invariantViolation({ messageKey: "services.workflow.OPERATION_PENDING" });
         }
     }
 }

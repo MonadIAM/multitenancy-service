@@ -7,18 +7,17 @@ import type { Path } from "nestjs-i18n";
 export type I18nTranslations = {
     "commands": {
         "organization": {
-            "CREATED": string;
             "UPDATED": string;
-            "OWNERSHIP_TRANSFERRED": string;
             "REVOKED": string;
             "RESTORED": string;
             "PURGED": string;
             "BULK_REVOKED_COUNT": string;
             "BULK_RESTORED_COUNT": string;
             "BULK_PURGED_COUNT": string;
+            "CREATION_REQUESTED": string;
+            "OWNERSHIP_TRANSFER_REQUESTED": string;
         };
         "project": {
-            "CREATED": string;
             "UPDATED": string;
             "MANAGER_ASSIGNED": string;
             "MANAGER_UNASSIGNED": string;
@@ -28,6 +27,7 @@ export type I18nTranslations = {
             "BULK_ARCHIVED_COUNT": string;
             "BULK_RESTORED_COUNT": string;
             "BULK_PURGED_COUNT": string;
+            "CREATION_REQUESTED": string;
         };
         "department": {
             "CREATED": string;
@@ -54,7 +54,6 @@ export type I18nTranslations = {
             "BULK_PURGED_COUNT": string;
         };
         "org-membership": {
-            "JOINED": string;
             "SUSPENDED": string;
             "RESUMED": string;
             "LEFT": string;
@@ -63,6 +62,7 @@ export type I18nTranslations = {
             "BULK_RESUMED_COUNT": string;
             "BULK_LEFT_COUNT": string;
             "BULK_BLOCKED_COUNT": string;
+            "JOIN_REQUESTED": string;
         };
         "project-account-assignment": {
             "CREATED": string;
@@ -93,12 +93,13 @@ export type I18nTranslations = {
         };
         "invite": {
             "CREATED": string;
-            "ACCEPTED": string;
             "DECLINED": string;
             "CANCELLED": string;
+            "ACCEPTANCE_REQUESTED": string;
         };
     };
     "db": {
+        "CONCURRENT_MODIFICATION": string;
         "NOT_FOUND": string;
         "UNIQUE_VIOLATION": string;
         "FK_VIOLATION": string;
@@ -224,6 +225,7 @@ export type I18nTranslations = {
         "org-membership": {
             "MEMBERSHIP_ALREADY_EXISTS": string;
             "MEMBERSHIPS_NOT_FOUND": string;
+            "OWNER_ACCESS_REQUIRED": string;
         };
         "project-account-assignment": {
             "ORGANIZATION_MISMATCH": string;
@@ -240,6 +242,14 @@ export type I18nTranslations = {
         "invite": {
             "INVITEE_ALREADY_MEMBER": string;
             "INVALIDATION_SCOPE_REQUIRED": string;
+        };
+        "workflow": {
+            "OPERATION_CONFLICT": string;
+            "OPERATION_PENDING": string;
+            "TRANSFER_NOT_ALLOWED": string;
+        };
+        "account": {
+            "TRANSFER_PENDING": string;
         };
     };
     "validator": {

@@ -1,0 +1,25 @@
+import { describe, expect, it } from "@jest/globals";
+
+import { EntityFactoryRegistry } from "~testing/unit/entity-factory.registry";
+
+import { ProjectMapper } from "./project.mapper";
+
+const helpers = new EntityFactoryRegistry();
+const mapper = new ProjectMapper();
+
+describe("ProjectMapper", () => {
+    it("keeps the project realm distinct from the parent organization realm", () => {
+        const organization = helpers.createOrganization();
+        const project = helpers.createProject({ organization, realm: "project-realm" });
+        project.beginBootstrap();
+
+        const payload = mapper.bootstrapPayload({ project, actor: "creator" });
+
+        expect(payload.realm).toBe("project-realm");
+        expect(payload.actor).toBe("creator");
+        expect(payload.input.organizationRealm).toBe(organization.realm);
+        expect(payload.input.owner).toBe(organization.owner.account);
+        expect(payload.input.process).toBe(project.process);
+        expect(payload.input.resource).toBe(project.id);
+    });
+});
