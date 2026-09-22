@@ -1,27 +1,17 @@
-import type { jest } from "@jest/globals";
+declare namespace Unit.Queries.TeamAccountAssignment {
+    interface Contract extends Domain.Core.Contract {
+        queries: Queries.Signature;
+    }
 
-declare global {
-    namespace Unit {
-        namespace Application {
-            namespace TeamAccountAssignmentQueries {
-                interface Contract extends Domain.Core.Contract {
-                    readonly queries: Queries.Signature;
-                }
+    namespace Queries {
+        type Result = {
+            queries: globalThis.Queries.TeamAccountAssignment.Contract;
+            teamAccountAssignmentRepository: {
+                findUniqueOrThrow: Jest.Mock<Repositories.TeamAccountAssignment.QueryContract["findUniqueOrThrow"]>;
+                findMany: Jest.Mock<Repositories.TeamAccountAssignment.QueryContract["findMany"]>;
+            };
+        };
 
-                namespace Queries {
-                    type Result = {
-                        readonly queries: globalThis.Queries.TeamAccountAssignment.Contract;
-                        readonly teamAccountAssignmentRepository: {
-                            readonly findMany: jest.Mock<Repositories.TeamAccountAssignment.QueryContract["findMany"]>;
-                            readonly findUniqueOrThrow: jest.Mock<
-                                Repositories.TeamAccountAssignment.QueryContract["findUniqueOrThrow"]
-                            >;
-                        };
-                    };
-
-                    type Signature = () => Result;
-                }
-            }
-        }
+        type Signature = () => Result;
     }
 }

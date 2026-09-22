@@ -4,8 +4,8 @@ import { TeamQueries } from "~context/application/queries/team.queries";
 
 import { DomainServiceCoreUnitHelpers } from "../core.helpers";
 
-export class TeamQueriesUnitHelpers extends DomainServiceCoreUnitHelpers implements Unit.Application.TeamQueries.Contract {
-    public queries(): Unit.Application.TeamQueries.Queries.Result {
+export class TeamQueriesUnitHelpers extends DomainServiceCoreUnitHelpers implements Unit.Queries.Team.Contract {
+    public queries(): Unit.Queries.Team.Queries.Result {
         const teamRepository = {
             findUniqueOrThrow: jest.fn<Repositories.Team.QueryContract["findUniqueOrThrow"]>(),
             getLookupList: jest.fn<Repositories.Team.QueryContract["getLookupList"]>(),

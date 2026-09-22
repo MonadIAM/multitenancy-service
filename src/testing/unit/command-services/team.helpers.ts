@@ -4,11 +4,8 @@ import { TeamCommands } from "~context/application/commands/team.commands";
 
 import { ApplicationCommandUnitHelpers } from "./core.helpers";
 
-export class TeamCommandsUnitHelpers
-    extends ApplicationCommandUnitHelpers
-    implements Unit.Application.TeamCommands.Contract
-{
-    public commands(): Unit.Application.TeamCommands.Commands.Result {
+export class TeamCommandsUnitHelpers extends ApplicationCommandUnitHelpers implements Unit.Commands.Team.Contract {
+    public commands(): Unit.Commands.Team.Commands.Result {
         const execution = this.execution();
 
         const teamService = {

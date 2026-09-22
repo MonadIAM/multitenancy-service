@@ -15,7 +15,7 @@ const ROLE_ID    = "00000000-0000-4000-8000-000000000004";
 const BEFORE_EXPIRATION = new Date("2029-01-01T00:00:00.000Z");
 const EXPIRES_AT = new Date("2030-01-01T00:00:00.000Z");
 
-function createInvite(expiresAt: Optional<Date> = EXPIRES_AT): Invite {
+function createInvite(props: Partial<Entities.Invite.ConstructorProps> = {}): Invite {
     const organization = new Organization({
         description: "Description",
         realm: REALM_ID,
@@ -26,7 +26,8 @@ function createInvite(expiresAt: Optional<Date> = EXPIRES_AT): Invite {
         inviter: INVITER_ID,
         role: ROLE_ID,
         organization,
-        expiresAt,
+        expiresAt: EXPIRES_AT,
+        ...props,
     });
 }
 
@@ -54,7 +55,7 @@ describe("Invite Entity", () => {
     });
 
     it("should allow an invite without expiresAt to finish", () => {
-        const invite = createInvite(undefined);
+        const invite = createInvite({ expiresAt: undefined });
 
         invite.accept(BEFORE_EXPIRATION);
 
@@ -70,18 +71,24 @@ describe("Invite Entity", () => {
         expect(invite.updatedAt).toBe(EXPIRES_AT);
     });
 
-    it("should reject terminal actions after the expiration deadline", () => {
+    it.each([
+        { method: "accept", error: "CANNOT_ACCEPT_EXPIRED" },
+        { method: "decline", error: "CANNOT_DECLINE_EXPIRED" },
+        { method: "cancel", error: "CANNOT_CANCEL_EXPIRED" },
+        { method: "invalidate", error: "CANNOT_INVALIDATE_EXPIRED" },
+    ] as const)("should reject $method at the expiration deadline", ({ method, error }) => {
         const invite = createInvite();
 
-        expect(() => invite.accept(EXPIRES_AT)).toThrow("CANNOT_ACCEPT_EXPIRED");
-        expect(() => invite.decline(EXPIRES_AT)).toThrow("CANNOT_DECLINE_EXPIRED");
-        expect(() => invite.cancel(EXPIRES_AT)).toThrow("CANNOT_CANCEL_EXPIRED");
-        expect(() => invite.invalidate(EXPIRES_AT)).toThrow("CANNOT_INVALIDATE_EXPIRED");
+        expect(() => invite[method](EXPIRES_AT)).toThrow(error);
     });
 
-    it("should reject expiring an invite before its deadline or without a deadline", () => {
-        expect(() => createInvite().expire(BEFORE_EXPIRATION)).toThrow("CANNOT_EXPIRE_UNDUE");
-        expect(() => createInvite(undefined).expire(BEFORE_EXPIRATION)).toThrow("CANNOT_EXPIRE_UNDUE");
+    it.each([
+        { scenario: "before its deadline", expiresAt: EXPIRES_AT },
+        { scenario: "without a deadline", expiresAt: undefined },
+    ])("should reject expiring an invite $scenario", ({ expiresAt }) => {
+        const invite = createInvite({ expiresAt });
+
+        expect(() => invite.expire(BEFORE_EXPIRATION)).toThrow("CANNOT_EXPIRE_UNDUE");
     });
 
     it("should reject a second terminal transition", () => {

@@ -4,11 +4,8 @@ import { ProjectCommands } from "~context/application/commands/project.commands"
 
 import { ApplicationCommandUnitHelpers } from "./core.helpers";
 
-export class ProjectCommandsUnitHelpers
-    extends ApplicationCommandUnitHelpers
-    implements Unit.Application.ProjectCommands.Contract
-{
-    public commands(): Unit.Application.ProjectCommands.Commands.Result {
+export class ProjectCommandsUnitHelpers extends ApplicationCommandUnitHelpers implements Unit.Commands.Project.Contract {
+    public commands(): Unit.Commands.Project.Commands.Result {
         const execution = this.execution();
 
         const projectService = {

@@ -1,17 +1,13 @@
-import type { OrgMembershipService } from "~context/domain/services/org-membership.service";
+declare namespace Unit.Domain.OrgMembership {
+    interface Contract extends Core.Contract {
+        service: Service.Signature;
+    }
 
-declare global {
-    namespace Unit.Domain.OrgMembership {
-        interface Contract extends Core.Contract {
-            readonly service: Service.Signature;
-        }
+    namespace Service {
+        type Props = RepositoryMockBank.Repositories.Props;
 
-        namespace Service {
-            type Props = RepositoryMockBank.Repositories.Props;
+        type Result = Core.Service.Context<globalThis.Services.OrgMembership.Contract>;
 
-            type Result = Core.Service.Context<OrgMembershipService>;
-
-            type Signature = (props?: Props) => Result;
-        }
+        type Signature = (props?: Props) => Result;
     }
 }

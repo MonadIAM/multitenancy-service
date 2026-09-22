@@ -1,17 +1,13 @@
-import type { DepartmentService } from "~context/domain/services/department.service";
+declare namespace Unit.Domain.Department {
+    interface Contract extends Core.Contract {
+        service: Service.Signature;
+    }
 
-declare global {
-    namespace Unit.Domain.Department {
-        interface Contract extends Core.Contract {
-            readonly service: Service.Signature;
-        }
+    namespace Service {
+        type Props = RepositoryMockBank.Repositories.Props;
 
-        namespace Service {
-            type Props = RepositoryMockBank.Repositories.Props;
+        type Result = Core.Service.Context<globalThis.Services.Department.Contract>;
 
-            type Result = Core.Service.Context<DepartmentService>;
-
-            type Signature = (props?: Props) => Result;
-        }
+        type Signature = (props?: Props) => Result;
     }
 }

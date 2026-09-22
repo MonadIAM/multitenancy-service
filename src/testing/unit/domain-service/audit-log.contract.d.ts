@@ -1,15 +1,11 @@
-import type { AuditLogService } from "~context/domain/services/audit-log.service";
+declare namespace Unit.Domain.AuditLog {
+    interface Contract extends Core.Contract {
+        service: Service.Signature;
+    }
 
-declare global {
-    namespace Unit.Domain.AuditLog {
-        interface Contract extends Core.Contract {
-            readonly service: Service.Signature;
-        }
+    namespace Service {
+        type Result = Core.Service.Context<globalThis.Services.AuditLog.Contract>;
 
-        namespace Service {
-            type Result = Core.Service.Context<AuditLogService>;
-
-            type Signature = () => Result;
-        }
+        type Signature = () => Result;
     }
 }

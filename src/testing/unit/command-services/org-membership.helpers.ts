@@ -6,9 +6,9 @@ import { ApplicationCommandUnitHelpers } from "./core.helpers";
 
 export class OrgMembershipCommandsUnitHelpers
     extends ApplicationCommandUnitHelpers
-    implements Unit.Application.OrgMembershipCommands.Contract
+    implements Unit.Commands.OrgMembership.Contract
 {
-    public commands(): Unit.Application.OrgMembershipCommands.Commands.Result {
+    public commands(): Unit.Commands.OrgMembership.Commands.Result {
         const execution = this.execution();
 
         const membershipService = {

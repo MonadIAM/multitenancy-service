@@ -1,19 +1,15 @@
-import type { AuditLogService } from "~context/domain/services/audit-log.service";
+declare namespace Integration.Domain.AuditLog {
+    type Suite = Postgres.Suite.Contract<Service.Context, Fixtures.Core.Contract>;
 
-declare global {
-    namespace Integration.Domain.AuditLog {
-        type Suite = Postgres.Suite.Contract<Service.Context, Fixtures.Core.Contract>;
+    namespace Service {
+        type Context = {
+            auditLogService: Services.AuditLog.Contract;
+        };
 
-        namespace Service {
-            type Context = {
-                auditLogService: AuditLogService;
-            };
+        type Signature = (context: Postgres.Suite.FactoryContext) => Context;
+    }
 
-            type Signature = (context: Postgres.Suite.FactoryContext) => Context;
-        }
-
-        interface Contract {
-            readonly service: Service.Signature;
-        }
+    interface Contract {
+        service: Service.Signature;
     }
 }

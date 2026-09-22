@@ -4,11 +4,8 @@ import { DepartmentQueries } from "~context/application/queries/department.queri
 
 import { DomainServiceCoreUnitHelpers } from "../core.helpers";
 
-export class DepartmentQueriesUnitHelpers
-    extends DomainServiceCoreUnitHelpers
-    implements Unit.Application.DepartmentQueries.Contract
-{
-    public queries(): Unit.Application.DepartmentQueries.Queries.Result {
+export class DepartmentQueriesUnitHelpers extends DomainServiceCoreUnitHelpers implements Unit.Queries.Department.Contract {
+    public queries(): Unit.Queries.Department.Queries.Result {
         const departmentRepository = {
             findUniqueOrThrow: jest.fn<Repositories.Department.QueryContract["findUniqueOrThrow"]>(),
             findMany: jest.fn<Repositories.Department.QueryContract["findMany"]>(),

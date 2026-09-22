@@ -1,17 +1,13 @@
-import type { InviteService } from "~context/domain/services/invite.service";
+declare namespace Unit.Domain.Invite {
+    interface Contract extends Core.Contract {
+        service: Service.Signature;
+    }
 
-declare global {
-    namespace Unit.Domain.Invite {
-        interface Contract extends Core.Contract {
-            readonly service: Service.Signature;
-        }
+    namespace Service {
+        type Props = RepositoryMockBank.Repositories.Props;
 
-        namespace Service {
-            type Props = RepositoryMockBank.Repositories.Props;
+        type Result = Core.Service.Context<globalThis.Services.Invite.Contract>;
 
-            type Result = Core.Service.Context<InviteService>;
-
-            type Signature = (props?: Props) => Result;
-        }
+        type Signature = (props?: Props) => Result;
     }
 }

@@ -1,24 +1,14 @@
-import type { jest } from "@jest/globals";
+declare namespace Unit.Commands.Account {
+    interface Contract extends Core.Contract {
+        commands: Commands.Signature;
+    }
 
-declare global {
-    namespace Unit {
-        namespace Application {
-            namespace AccountCommands {
-                interface Contract extends CommandCore.Contract {
-                    readonly commands: Commands.Signature;
-                }
+    namespace Commands {
+        type Result = Core.Execution.Result & {
+            commands: globalThis.Commands.Account.Contract;
+            accountService: Jest.Mocked<Pick<Services.Account.ConsumerContract, "purge">>;
+        };
 
-                namespace Commands {
-                    type Result = CommandCore.Execution.Result & {
-                        readonly commands: globalThis.Commands.Account.Contract;
-                        readonly accountService: {
-                            readonly purge: jest.Mock<Services.Account.ConsumerContract["purge"]>;
-                        };
-                    };
-
-                    type Signature = () => Result;
-                }
-            }
-        }
+        type Signature = () => Result;
     }
 }

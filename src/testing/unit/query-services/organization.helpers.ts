@@ -6,9 +6,9 @@ import { DomainServiceCoreUnitHelpers } from "../core.helpers";
 
 export class OrganizationQueriesUnitHelpers
     extends DomainServiceCoreUnitHelpers
-    implements Unit.Application.OrganizationQueries.Contract
+    implements Unit.Queries.Organization.Contract
 {
-    public queries(): Unit.Application.OrganizationQueries.Queries.Result {
+    public queries(): Unit.Queries.Organization.Queries.Result {
         const organizationRepository = {
             findUniqueOrThrow: jest.fn<Repositories.Organization.QueryContract["findUniqueOrThrow"]>(),
             getLookupList: jest.fn<Repositories.Organization.QueryContract["getLookupList"]>(),

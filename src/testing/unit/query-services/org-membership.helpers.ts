@@ -6,9 +6,9 @@ import { DomainServiceCoreUnitHelpers } from "../core.helpers";
 
 export class OrgMembershipQueriesUnitHelpers
     extends DomainServiceCoreUnitHelpers
-    implements Unit.Application.OrgMembershipQueries.Contract
+    implements Unit.Queries.OrgMembership.Contract
 {
-    public queries(): Unit.Application.OrgMembershipQueries.Queries.Result {
+    public queries(): Unit.Queries.OrgMembership.Queries.Result {
         const orgMembershipRepository = {
             findUniqueOrThrow: jest.fn<Repositories.OrgMembership.QueryContract["findUniqueOrThrow"]>(),
             findMany: jest.fn<Repositories.OrgMembership.QueryContract["findMany"]>(),

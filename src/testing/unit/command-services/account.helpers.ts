@@ -4,11 +4,8 @@ import { AccountCommands } from "~context/application/commands/account.commands"
 
 import { ApplicationCommandUnitHelpers } from "./core.helpers";
 
-export class AccountCommandsUnitHelpers
-    extends ApplicationCommandUnitHelpers
-    implements Unit.Application.AccountCommands.Contract
-{
-    public commands(): Unit.Application.AccountCommands.Commands.Result {
+export class AccountCommandsUnitHelpers extends ApplicationCommandUnitHelpers implements Unit.Commands.Account.Contract {
+    public commands(): Unit.Commands.Account.Commands.Result {
         const execution = this.execution();
 
         const accountService = {

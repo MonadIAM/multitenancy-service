@@ -1,19 +1,15 @@
-import type { DeptAccountAssignmentService } from "~context/domain/services/dept-account-assignment.service";
+declare namespace Integration.Domain.DeptAccountAssignment {
+    type Suite = Postgres.Suite.Contract<Service.Context, Fixtures.Core.Contract>;
 
-declare global {
-    namespace Integration.Domain.DeptAccountAssignment {
-        type Suite = Postgres.Suite.Contract<Service.Context, Fixtures.Core.Contract>;
+    namespace Service {
+        type Context = {
+            assignmentService: Services.DeptAccountAssignment.Contract;
+        };
 
-        namespace Service {
-            type Context = {
-                assignmentService: DeptAccountAssignmentService;
-            };
+        type Signature = (context: Postgres.Suite.FactoryContext) => Context;
+    }
 
-            type Signature = (context: Postgres.Suite.FactoryContext) => Context;
-        }
-
-        interface Contract {
-            readonly service: Service.Signature;
-        }
+    interface Contract {
+        service: Service.Signature;
     }
 }

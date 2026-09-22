@@ -1,28 +1,26 @@
-declare namespace Unit {
-    namespace Domain {
-        namespace ServiceMockBank {
-            interface Contract extends RepositoryMockBank.Contract {
-                readonly services: Services.Signature;
-            }
-
-            namespace Services {
-                type Result = ServiceMocks.Contract;
-
-                type Signature = () => Result;
-            }
+declare namespace Unit.Domain {
+    namespace ServiceMockBank {
+        interface Contract extends RepositoryMockBank.Contract {
+            services: Services.Signature;
         }
 
-        namespace ServiceMocks {
-            type Assignment = { clean: Mock };
+        namespace Services {
+            type Result = ServiceMocks.Contract;
 
-            type Membership = { join: Mock };
+            type Signature = () => Result;
+        }
+    }
 
-            interface Contract {
-                readonly projectAssignments: Assignment;
-                readonly departmentAssignments: Assignment;
-                readonly teamAssignments: Assignment;
-                readonly memberships: Membership;
-            }
+    namespace ServiceMocks {
+        type Assignment = { clean: Jest.Mock };
+
+        type Membership = { join: Jest.Mock };
+
+        interface Contract {
+            projectAssignments: Assignment;
+            departmentAssignments: Assignment;
+            teamAssignments: Assignment;
+            memberships: Membership;
         }
     }
 }

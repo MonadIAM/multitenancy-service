@@ -20,9 +20,12 @@ describe("OrgMembershipService integration", () => {
         fixture: (manager) => new CoreFixture(manager),
     });
 
-    it.each(["leave", "block"] as const)(
-        "%s changes membership status and cleans every assignment kind",
-        async (operation) => {
+    it.each([
+        { operation: "leave", expectedStatus: OrgMembershipStatus.LEFT },
+        { operation: "block", expectedStatus: OrgMembershipStatus.BLOCKED },
+    ] as const)(
+        "$operation changes membership status and cleans every assignment kind",
+        async ({ operation, expectedStatus }) => {
             const organization = await suite.fixtures().createOrganization();
             const membership = await suite.fixtures().createOrgMembership({ organization });
             const project = await suite.fixtures().createProject({ organization });
@@ -54,7 +57,7 @@ describe("OrgMembershipService integration", () => {
                         transaction.count(TeamAccountAssignment, { membership: { id: membership.id } }),
                     ]),
             );
-            expect(loaded.status).toBe(operation === "leave" ? "LEFT" : "BLOCKED");
+            expect(loaded.status).toBe(expectedStatus);
             expect([projectCount, departmentCount, teamCount]).toEqual([0, 0, 0]);
         },
     );

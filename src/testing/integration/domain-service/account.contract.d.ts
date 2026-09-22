@@ -1,17 +1,15 @@
-import type { AccountService } from "~context/domain/services/account.service";
+declare namespace Integration.Domain.Account {
+    type Suite = Postgres.Suite.Contract<Service.Context, Fixtures.Core.Contract>;
 
-declare global {
-    namespace Integration.Domain.Account {
-        type Suite = Postgres.Suite.Contract<Service.Context, Fixtures.Core.Contract>;
+    interface Contract {
+        service: Service.Signature;
+    }
 
-        interface Contract {
-            readonly service: Service.Signature;
-        }
+    namespace Service {
+        type Context = {
+            accountService: Services.Account.Contract;
+        };
 
-        namespace Service {
-            type Context = { accountService: AccountService };
-
-            type Signature = (context: Postgres.Suite.FactoryContext) => Context;
-        }
+        type Signature = (context: Postgres.Suite.FactoryContext) => Context;
     }
 }

@@ -6,9 +6,9 @@ import { ApplicationCommandUnitHelpers } from "./core.helpers";
 
 export class TeamAccountAssignmentCommandsUnitHelpers
     extends ApplicationCommandUnitHelpers
-    implements Unit.Application.TeamAccountAssignmentCommands.Contract
+    implements Unit.Commands.TeamAccountAssignment.Contract
 {
-    public commands(): Unit.Application.TeamAccountAssignmentCommands.Commands.Result {
+    public commands(): Unit.Commands.TeamAccountAssignment.Commands.Result {
         const execution = this.execution();
 
         const assignmentService = {

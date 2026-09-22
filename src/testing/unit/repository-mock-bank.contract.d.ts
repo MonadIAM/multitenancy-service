@@ -1,55 +1,53 @@
-declare namespace Unit {
-    namespace Domain {
-        namespace RepositoryMockBank {
-            interface Contract extends EntityFactory.Contract {
-                readonly repositories: Repositories.Signature;
-            }
-
-            namespace Repositories {
-                type Props = {
-                    readonly projectAssignments?: Entities.ProjectAccountAssignment[];
-                    readonly departmentAssignments?: Entities.DeptAccountAssignment[];
-                    readonly teamAssignments?: Entities.TeamAccountAssignment[];
-                    readonly memberships?: Entities.OrgMembership[];
-                    readonly organizations?: Entities.Organization[];
-                    readonly departments?: Entities.Department[];
-                    readonly changeLogs?: SystemEntities.ChangeLog[];
-                    readonly auditLogs?: SystemEntities.AuditLog[];
-                    readonly projects?: Entities.Project[];
-                    readonly invites?: Entities.Invite[];
-                    readonly teams?: Entities.Team[];
-                };
-
-                type Signature = (props?: Props) => RepositoryMocks.Contract;
-            }
+declare namespace Unit.Domain {
+    namespace RepositoryMockBank {
+        interface Contract extends Testing.EntityFactory.Contract {
+            repositories: Repositories.Signature;
         }
 
-        namespace RepositoryMocks {
-            type Base = {
-                resource: string;
-                findUniqueOrThrow: Mock;
-                findUnique: Mock;
-                findMany: Mock;
-                find: Mock;
+        namespace Repositories {
+            type Props = {
+                projectAssignments?: Entities.ProjectAccountAssignment[];
+                departmentAssignments?: Entities.DeptAccountAssignment[];
+                teamAssignments?: Entities.TeamAccountAssignment[];
+                memberships?: Entities.OrgMembership[];
+                organizations?: Entities.Organization[];
+                departments?: Entities.Department[];
+                changeLogs?: SystemEntities.ChangeLog[];
+                auditLogs?: SystemEntities.AuditLog[];
+                projects?: Entities.Project[];
+                invites?: Entities.Invite[];
+                teams?: Entities.Team[];
             };
 
-            type Lookup = Base & { getLookupList: Mock };
+            type Signature = (props?: Props) => RepositoryMocks.Contract;
+        }
+    }
 
-            type Invite = Base & { findExpiredPending: Mock };
+    namespace RepositoryMocks {
+        type Base = {
+            resource: string;
+            findUniqueOrThrow: Jest.Mock;
+            findUnique: Jest.Mock;
+            findMany: Jest.Mock;
+            find: Jest.Mock;
+        };
 
-            interface Contract {
-                readonly projectAssignments: Base;
-                readonly departmentAssignments: Base;
-                readonly teamAssignments: Base;
-                readonly memberships: Base;
-                readonly organizations: Lookup;
-                readonly departments: Lookup;
-                readonly changeLogs: Base;
-                readonly auditLogs: Base;
-                readonly projects: Lookup;
-                readonly invites: Invite;
-                readonly teams: Lookup;
-            }
+        type Lookup = Base & { getLookupList: Jest.Mock };
+
+        type Invite = Base & { findExpiredPending: Jest.Mock };
+
+        interface Contract {
+            projectAssignments: Base;
+            departmentAssignments: Base;
+            teamAssignments: Base;
+            memberships: Base;
+            organizations: Lookup;
+            departments: Lookup;
+            changeLogs: Base;
+            auditLogs: Base;
+            projects: Lookup;
+            invites: Invite;
+            teams: Lookup;
         }
     }
 }

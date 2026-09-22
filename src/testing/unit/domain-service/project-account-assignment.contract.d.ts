@@ -1,17 +1,13 @@
-import type { ProjectAccountAssignmentService } from "~context/domain/services/project-account-assignment.service";
+declare namespace Unit.Domain.ProjectAccountAssignment {
+    interface Contract extends Core.Contract {
+        service: Service.Signature;
+    }
 
-declare global {
-    namespace Unit.Domain.ProjectAccountAssignment {
-        interface Contract extends Core.Contract {
-            readonly service: Service.Signature;
-        }
+    namespace Service {
+        type Props = RepositoryMockBank.Repositories.Props;
 
-        namespace Service {
-            type Props = RepositoryMockBank.Repositories.Props;
+        type Result = Core.Service.Context<globalThis.Services.ProjectAccountAssignment.Contract>;
 
-            type Result = Core.Service.Context<ProjectAccountAssignmentService>;
-
-            type Signature = (props?: Props) => Result;
-        }
+        type Signature = (props?: Props) => Result;
     }
 }

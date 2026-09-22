@@ -4,11 +4,8 @@ import { InviteCommands } from "~context/application/commands/invite.commands";
 
 import { ApplicationCommandUnitHelpers } from "./core.helpers";
 
-export class InviteCommandsUnitHelpers
-    extends ApplicationCommandUnitHelpers
-    implements Unit.Application.InviteCommands.Contract
-{
-    public commands(): Unit.Application.InviteCommands.Commands.Result {
+export class InviteCommandsUnitHelpers extends ApplicationCommandUnitHelpers implements Unit.Commands.Invite.Contract {
+    public commands(): Unit.Commands.Invite.Commands.Result {
         const execution = this.execution();
 
         const inviteRepository = {

@@ -1,39 +1,27 @@
 import { ChangeSetType } from "@mikro-orm/core";
 import { randomUUID } from "node:crypto";
 
-import { AuditLog, ChangeLog } from "~common/transaction-manager/entities";
+import { EntityFactoryRegistry } from "~testing/entity-factory.registry";
 import { DeltaChanges } from "~common/transaction-manager/value-objects";
 import { ActionType, EntityType } from "~context/enums";
-import {
-    ProjectAccountAssignment,
-    DeptAccountAssignment,
-    TeamAccountAssignment,
-    OrgMembership,
-    Organization,
-    Department,
-    Project,
-    Invite,
-    Team,
-} from "~context/domain/entities";
 
 export class CoreFixture implements Fixtures.Core.Contract {
+    private readonly entities = new EntityFactoryRegistry();
+
     public constructor(protected readonly entityManager: ORM.EntityManager) {}
 
     public async createOrganization(
         props: Fixtures.Core.CreateOrganization.Props = {},
     ): Fixtures.Core.CreateOrganization.Result {
-        const organization = new Organization({
+        const organization = this.entities.createOrganization({
+            ...props,
             description: props.description ?? "Test organization description",
+            ownerAccount: props.ownerAccount ?? randomUUID(),
             realm: props.realm ?? randomUUID(),
             title: props.title ?? "Test Organization",
         });
-        const owner = new OrgMembership({
-            account: props.ownerAccount ?? randomUUID(),
-            organization,
-        });
 
-        organization.owner = owner;
-        this.entityManager.persist([organization, owner]);
+        this.entityManager.persist([organization, organization.owner]);
         await this.entityManager.flush();
 
         return organization;
@@ -43,18 +31,17 @@ export class CoreFixture implements Fixtures.Core.Contract {
         props: Fixtures.Core.CreateOrgMembership.Props,
     ): Fixtures.Core.CreateOrgMembership.Result {
         return await this.persist(
-            new OrgMembership({
+            this.entities.createOrgMembership({
+                ...props,
                 account: props.account ?? randomUUID(),
-                organization: props.organization,
             }),
         );
     }
 
     public async createInvite(props: Fixtures.Core.CreateInvite.Props): Fixtures.Core.CreateInvite.Result {
         return await this.persist(
-            new Invite({
-                expiresAt: props.expiresAt,
-                organization: props.organization,
+            this.entities.createInvite({
+                ...props,
                 invitee: props.invitee ?? randomUUID(),
                 inviter: props.inviter ?? randomUUID(),
                 role: props.role ?? randomUUID(),
@@ -64,9 +51,9 @@ export class CoreFixture implements Fixtures.Core.Contract {
 
     public async createProject(props: Fixtures.Core.CreateProject.Props): Fixtures.Core.CreateProject.Result {
         return await this.persist(
-            new Project({
+            this.entities.createProject({
+                ...props,
                 description: props.description ?? "Test project description",
-                organization: props.organization,
                 realm: props.realm ?? randomUUID(),
                 name: props.name ?? "Test Project",
             }),
@@ -77,9 +64,8 @@ export class CoreFixture implements Fixtures.Core.Contract {
         props: Fixtures.Core.CreateProjectAccountAssignment.Props,
     ): Fixtures.Core.CreateProjectAccountAssignment.Result {
         return await this.persist(
-            new ProjectAccountAssignment({
-                membership: props.membership,
-                project: props.project,
+            this.entities.createProjectAccountAssignment({
+                ...props,
                 assignedBy: props.assignedBy ?? randomUUID(),
             }),
         );
@@ -87,9 +73,9 @@ export class CoreFixture implements Fixtures.Core.Contract {
 
     public async createDepartment(props: Fixtures.Core.CreateDepartment.Props): Fixtures.Core.CreateDepartment.Result {
         return await this.persist(
-            new Department({
+            this.entities.createDepartment({
+                ...props,
                 description: props.description ?? "Test department description",
-                organization: props.organization,
                 name: props.name ?? "Test Department",
             }),
         );
@@ -99,9 +85,8 @@ export class CoreFixture implements Fixtures.Core.Contract {
         props: Fixtures.Core.CreateDeptAccountAssignment.Props,
     ): Fixtures.Core.CreateDeptAccountAssignment.Result {
         return await this.persist(
-            new DeptAccountAssignment({
-                membership: props.membership,
-                department: props.department,
+            this.entities.createDeptAccountAssignment({
+                ...props,
                 assignedBy: props.assignedBy ?? randomUUID(),
             }),
         );
@@ -109,10 +94,10 @@ export class CoreFixture implements Fixtures.Core.Contract {
 
     public async createTeam(props: Fixtures.Core.CreateTeam.Props): Fixtures.Core.CreateTeam.Result {
         return await this.persist(
-            new Team({
+            this.entities.createTeam({
+                ...props,
                 organization: props.organization ?? props.department.organization,
                 description: props.description ?? "Test team description",
-                department: props.department,
                 name: props.name ?? "Test Team",
             }),
         );
@@ -122,16 +107,15 @@ export class CoreFixture implements Fixtures.Core.Contract {
         props: Fixtures.Core.CreateTeamAccountAssignment.Props,
     ): Fixtures.Core.CreateTeamAccountAssignment.Result {
         return await this.persist(
-            new TeamAccountAssignment({
-                membership: props.membership,
+            this.entities.createTeamAccountAssignment({
+                ...props,
                 assignedBy: props.assignedBy ?? randomUUID(),
-                team: props.team,
             }),
         );
     }
 
     public async createAuditLog(props: Fixtures.Core.CreateAuditLog.Props = {}): Fixtures.Core.CreateAuditLog.Result {
-        const auditLog = new AuditLog({
+        const auditLog = this.entities.createAuditLog({
             entityType: props.entityType ?? EntityType.ORGANIZATION,
             actionType: props.actionType ?? ActionType.CREATE,
             actor: props.actor ?? randomUUID(),
@@ -151,7 +135,7 @@ export class CoreFixture implements Fixtures.Core.Contract {
 
     public async createChangeLog(props: Fixtures.Core.CreateChangeLog.Props = {}): Fixtures.Core.CreateChangeLog.Result {
         const auditEntry = props.auditEntry ?? (await this.createAuditLog());
-        const changeLog = new ChangeLog({
+        const changeLog = this.entities.createChangeLog({
             delta: props.delta ?? new DeltaChanges({ name: { old: null, new: "Updated Name" } }),
             changeType: props.changeType ?? ChangeSetType.CREATE,
             entityType: props.entityType ?? EntityType.ORGANIZATION,

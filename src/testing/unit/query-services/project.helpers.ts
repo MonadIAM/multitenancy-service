@@ -4,11 +4,8 @@ import { ProjectQueries } from "~context/application/queries/project.queries";
 
 import { DomainServiceCoreUnitHelpers } from "../core.helpers";
 
-export class ProjectQueriesUnitHelpers
-    extends DomainServiceCoreUnitHelpers
-    implements Unit.Application.ProjectQueries.Contract
-{
-    public queries(): Unit.Application.ProjectQueries.Queries.Result {
+export class ProjectQueriesUnitHelpers extends DomainServiceCoreUnitHelpers implements Unit.Queries.Project.Contract {
+    public queries(): Unit.Queries.Project.Queries.Result {
         const projectRepository = {
             findUniqueOrThrow: jest.fn<Repositories.Project.QueryContract["findUniqueOrThrow"]>(),
             getLookupList: jest.fn<Repositories.Project.QueryContract["getLookupList"]>(),
