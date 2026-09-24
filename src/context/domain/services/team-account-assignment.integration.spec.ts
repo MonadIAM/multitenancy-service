@@ -2,8 +2,8 @@ import { describe, expect, it } from "@jest/globals";
 import { randomUUID } from "node:crypto";
 
 import { TeamAccountAssignmentIntegrationHelpers } from "~testing/integration/domain-service/team-account-assignment.helpers";
+import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
-import { postgresSuite } from "~testing/integration/postgres.suite";
 import { TeamAccountAssignment } from "~context/domain/entities";
 
 const helpers = new TeamAccountAssignmentIntegrationHelpers();

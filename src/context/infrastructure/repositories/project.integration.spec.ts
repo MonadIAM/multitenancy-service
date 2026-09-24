@@ -3,7 +3,7 @@ import { QueryOrder } from "@mikro-orm/postgresql";
 
 import { PublicLinkOperator, PublicStringOperator } from "~infrastructure/database/enums";
 import { ProjectFixture } from "~testing/integration/repositories/project.fixture";
-import { postgresSuite } from "~testing/integration/postgres.suite";
+import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { ProjectStatus } from "~context/enums";
 
 import { ProjectRepository } from "./project.repository";

@@ -2,8 +2,8 @@ import { describe, expect, it } from "@jest/globals";
 import { QueryOrder } from "@mikro-orm/postgresql";
 
 import { PublicLinkOperator, PublicStringOperator } from "~infrastructure/database/enums";
+import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { TeamFixture } from "~testing/integration/repositories/team.fixture";
-import { postgresSuite } from "~testing/integration/postgres.suite";
 import { TeamStatus } from "~context/enums";
 
 import { TeamRepository } from "./team.repository";

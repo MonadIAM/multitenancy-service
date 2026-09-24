@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import { OrgMembershipFixture } from "~testing/integration/repositories/org-membership.fixture";
 import { PublicLinkOperator, PublicStringOperator } from "~infrastructure/database/enums";
-import { postgresSuite } from "~testing/integration/postgres.suite";
+import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { OrgMembershipStatus } from "~context/enums";
 
 import { OrgMembershipRepository } from "./org-membership.repository";

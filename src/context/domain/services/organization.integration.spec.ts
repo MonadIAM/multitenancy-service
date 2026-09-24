@@ -1,14 +1,14 @@
 import { describe, expect, it } from "@jest/globals";
 import { randomUUID } from "node:crypto";
 
-import { OrganizationIntegrationHelpers } from "~testing/integration/domain-service/organization.helpers";
 import { OrgMembershipIntegrationHelpers } from "~testing/integration/domain-service/org-membership.helpers";
+import { OrganizationIntegrationHelpers } from "~testing/integration/domain-service/organization.helpers";
 import { AccountIntegrationHelpers } from "~testing/integration/domain-service/account.helpers";
 import { ConcurrencyIntegrationHelpers } from "~testing/integration/concurrency.helpers";
+import { RealmType, OrganizationStatus, OrgMembershipStatus } from "~context/enums";
+import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import { Organization, OrgMembership } from "~context/domain/entities";
-import { postgresSuite } from "~testing/integration/postgres.suite";
-import { RealmType, OrganizationStatus, OrgMembershipStatus } from "~context/enums";
 
 const helpers = new OrganizationIntegrationHelpers();
 

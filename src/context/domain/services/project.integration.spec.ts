@@ -1,12 +1,12 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { ProjectIntegrationHelpers } from "~testing/integration/domain-service/project.helpers";
 import { OrganizationIntegrationHelpers } from "~testing/integration/domain-service/organization.helpers";
+import { ProjectIntegrationHelpers } from "~testing/integration/domain-service/project.helpers";
 import { ConcurrencyIntegrationHelpers } from "~testing/integration/concurrency.helpers";
-import { CoreFixture } from "~testing/integration/repositories/core.fixture";
-import { postgresSuite } from "~testing/integration/postgres.suite";
-import { Organization, Project } from "~context/domain/entities";
+import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { RealmType, OrganizationStatus, ProjectStatus } from "~context/enums";
+import { CoreFixture } from "~testing/integration/repositories/core.fixture";
+import { Organization, Project } from "~context/domain/entities";
 
 const helpers = new ProjectIntegrationHelpers();
 

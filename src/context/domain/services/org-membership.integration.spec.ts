@@ -2,8 +2,8 @@ import { describe, expect, it } from "@jest/globals";
 import { randomUUID } from "node:crypto";
 
 import { OrgMembershipIntegrationHelpers } from "~testing/integration/domain-service/org-membership.helpers";
+import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
-import { postgresSuite } from "~testing/integration/postgres.suite";
 import { OrgMembershipStatus } from "~context/enums";
 import {
     ProjectAccountAssignment,

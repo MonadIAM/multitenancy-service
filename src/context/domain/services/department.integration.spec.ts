@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
 
 import { DepartmentIntegrationHelpers } from "~testing/integration/domain-service/department.helpers";
+import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
-import { postgresSuite } from "~testing/integration/postgres.suite";
 import { Department } from "~context/domain/entities";
 
 const helpers = new DepartmentIntegrationHelpers();

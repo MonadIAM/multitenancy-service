@@ -3,7 +3,7 @@ import { QueryOrder } from "@mikro-orm/postgresql";
 
 import { PublicLinkOperator, PublicStringOperator } from "~infrastructure/database/enums";
 import { InviteFixture } from "~testing/integration/repositories/invite.fixture";
-import { postgresSuite } from "~testing/integration/postgres.suite";
+import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { InviteStatus } from "~context/enums";
 
 import { InviteRepository } from "./invite.repository";
