@@ -18,118 +18,124 @@ describe("DeptAccountAssignmentService", () => {
         jest.restoreAllMocks();
     });
 
-    it("creates an assignment in the same organization", async () => {
-        const organization = helpers.createOrganization({ realm: REALM_ID });
-        const membership = helpers.createOrgMembership({
-            id: MEMBERSHIP_ID,
-            organization,
-        });
-        const department = helpers.createDepartment({
-            id: DEPARTMENT_ID,
-            organization,
-        });
-        const { service, transaction } = helpers.service({
-            memberships: [membership],
-            departments: [department],
-        });
+    describe("create", () => {
+        it("creates an assignment in the same organization", async () => {
+            const organization = helpers.createOrganization({ realm: REALM_ID });
+            const membership = helpers.createOrgMembership({
+                id: MEMBERSHIP_ID,
+                organization,
+            });
+            const department = helpers.createDepartment({
+                id: DEPARTMENT_ID,
+                organization,
+            });
+            const { service, transaction } = helpers.service({
+                memberships: [membership],
+                departments: [department],
+            });
 
-        const result = await service.create({
-            input: { membership: MEMBERSHIP_ID, department: DEPARTMENT_ID },
-            transaction: transaction.entityManager,
-            actor: ACTOR_ID,
-            realm: REALM_ID,
-        });
-
-        expect(result).toEqual(
-            expect.objectContaining({
-                membership,
-                department,
-                assignedBy: ACTOR_ID,
-            }),
-        );
-        expect(transaction.persist).toHaveBeenCalledWith(result);
-    });
-
-    it("rejects assignments across organizations", async () => {
-        const membership = helpers.createOrgMembership({ id: MEMBERSHIP_ID });
-        const department = helpers.createDepartment({
-            id: DEPARTMENT_ID,
-            organization: helpers.createOrganization(),
-        });
-        const { service, transaction } = helpers.service({
-            memberships: [membership],
-            departments: [department],
-        });
-
-        await expect(
-            service.create({
+            const result = await service.create({
                 input: { membership: MEMBERSHIP_ID, department: DEPARTMENT_ID },
                 transaction: transaction.entityManager,
                 actor: ACTOR_ID,
                 realm: REALM_ID,
-            }),
-        ).rejects.toThrow("services.dept-account-assignment.ORGANIZATION_MISMATCH");
+            });
+
+            expect(result).toEqual(
+                expect.objectContaining({
+                    membership,
+                    department,
+                    assignedBy: ACTOR_ID,
+                }),
+            );
+            expect(transaction.persist).toHaveBeenCalledWith(result);
+        });
+
+        it("rejects assignments across organizations", async () => {
+            const membership = helpers.createOrgMembership({ id: MEMBERSHIP_ID });
+            const department = helpers.createDepartment({
+                id: DEPARTMENT_ID,
+                organization: helpers.createOrganization(),
+            });
+            const { service, transaction } = helpers.service({
+                memberships: [membership],
+                departments: [department],
+            });
+
+            await expect(
+                service.create({
+                    input: { membership: MEMBERSHIP_ID, department: DEPARTMENT_ID },
+                    transaction: transaction.entityManager,
+                    actor: ACTOR_ID,
+                    realm: REALM_ID,
+                }),
+            ).rejects.toThrow("services.dept-account-assignment.ORGANIZATION_MISMATCH");
+        });
     });
 
-    it("deduplicates revoke identifiers and rejects missing assignments", async () => {
-        const assignment = helpers.createDeptAccountAssignment({
-            id: ASSIGNMENT_ID,
-        });
-        const { service, repositories, transaction } = helpers.service({
-            departmentAssignments: [assignment],
-        });
+    describe("revoke / restore", () => {
+        it("deduplicates revoke identifiers and rejects missing assignments", async () => {
+            const assignment = helpers.createDeptAccountAssignment({
+                id: ASSIGNMENT_ID,
+            });
+            const { service, repositories, transaction } = helpers.service({
+                departmentAssignments: [assignment],
+            });
 
-        await service.revoke({
-            identifiers: [ASSIGNMENT_ID, ASSIGNMENT_ID],
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
+            await service.revoke({
+                identifiers: [ASSIGNMENT_ID, ASSIGNMENT_ID],
+                realm: REALM_ID,
+                transaction: transaction.entityManager,
+            });
+
+            expect(repositories.departmentAssignments.find).toHaveBeenCalledWith({
+                where: {
+                    id: { $in: [ASSIGNMENT_ID] },
+                    organization: { realm: REALM_ID },
+                },
+                transaction: transaction.entityManager,
+            });
+
+            repositories.departmentAssignments.find.mockImplementation(() => Promise.resolve([]));
+
+            await expect(
+                service.restore({
+                    identifiers: [ASSIGNMENT_ID],
+                    realm: REALM_ID,
+                    transaction: transaction.entityManager,
+                }),
+            ).rejects.toThrow("services.dept-account-assignment.ASSIGNMENTS_NOT_FOUND");
         });
+    });
 
-        expect(repositories.departmentAssignments.find).toHaveBeenCalledWith({
-            where: {
-                id: { $in: [ASSIGNMENT_ID] },
-                organization: { realm: REALM_ID },
-            },
-            transaction: transaction.entityManager,
-        });
+    describe("purge / clean", () => {
+        it("purges revoked assignments and cleans memberships", async () => {
+            const assignment = helpers.createDeptAccountAssignment({
+                id: ASSIGNMENT_ID,
+                status: AssignmentStatus.REVOKED,
+            });
+            const { service, repositories, transaction } = helpers.service({
+                departmentAssignments: [assignment],
+            });
 
-        repositories.departmentAssignments.find.mockImplementation(() => Promise.resolve([]));
-
-        await expect(
-            service.restore({
+            await service.purge({
                 identifiers: [ASSIGNMENT_ID],
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
-            }),
-        ).rejects.toThrow("services.dept-account-assignment.ASSIGNMENTS_NOT_FOUND");
-    });
+            });
 
-    it("purges revoked assignments and cleans memberships", async () => {
-        const assignment = helpers.createDeptAccountAssignment({
-            id: ASSIGNMENT_ID,
-            status: AssignmentStatus.REVOKED,
-        });
-        const { service, repositories, transaction } = helpers.service({
-            departmentAssignments: [assignment],
-        });
+            transaction.remove.mockClear();
 
-        await service.purge({
-            identifiers: [ASSIGNMENT_ID],
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
-        });
+            await service.clean({
+                memberships: [MEMBERSHIP_ID],
+                transaction: transaction.entityManager,
+            });
 
-        transaction.remove.mockClear();
-
-        await service.clean({
-            memberships: [MEMBERSHIP_ID],
-            transaction: transaction.entityManager,
+            expect(repositories.departmentAssignments.find).toHaveBeenLastCalledWith({
+                where: { membership: { id: { $in: [MEMBERSHIP_ID] } } },
+                transaction: transaction.entityManager,
+            });
+            expect(transaction.remove).toHaveBeenCalledWith(assignment);
         });
-
-        expect(repositories.departmentAssignments.find).toHaveBeenLastCalledWith({
-            where: { membership: { id: { $in: [MEMBERSHIP_ID] } } },
-            transaction: transaction.entityManager,
-        });
-        expect(transaction.remove).toHaveBeenCalledWith(assignment);
     });
 });

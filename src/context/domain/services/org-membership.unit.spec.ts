@@ -74,112 +74,116 @@ describe("OrgMembershipService", () => {
         });
     });
 
-    it("deduplicates identifiers and rejects incomplete bulk selections", async () => {
-        const membership = helpers.createOrgMembership({ id: MEMBERSHIP_ID });
-        const { service, repositories, transaction } = helpers.service({
-            memberships: [membership],
-        });
-
-        await service.suspend({
-            identifiers: [MEMBERSHIP_ID, MEMBERSHIP_ID],
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
-        });
-
-        expect(repositories.memberships.find).toHaveBeenCalledWith({
-            where: {
-                id: { $in: [MEMBERSHIP_ID] },
-                organization: { realm: REALM_ID },
-            },
-            options: { populate: ["organization"], refresh: true },
-            transaction: transaction.entityManager,
-        });
-
-        repositories.memberships.find.mockImplementation(() => Promise.resolve([]));
-
-        await expect(
-            service.resume({
-                identifiers: [MEMBERSHIP_ID],
-                realm: REALM_ID,
-                transaction: transaction.entityManager,
-            }),
-        ).rejects.toThrow("services.org-membership.MEMBERSHIPS_NOT_FOUND");
-    });
-
-    it.each([
-        {
-            operation: "leave" as const,
-            expectedStatus: OrgMembershipStatus.LEFT,
-        },
-        {
-            operation: "block" as const,
-            expectedStatus: OrgMembershipStatus.BLOCKED,
-        },
-    ])(
-        "$operation performs the full business operation and returns its aggregate result",
-        async ({ operation, expectedStatus }) => {
-            const membership = helpers.createOrgMembership({
-                id: MEMBERSHIP_ID,
-            });
-            const projectAssignment = helpers.createProjectAccountAssignment({
-                membership,
-            });
-            const departmentAssignment = helpers.createDeptAccountAssignment({
-                membership,
-            });
-            const teamAssignment = helpers.createTeamAccountAssignment({
-                membership,
-            });
-            const { service, services, repositories, transaction } = helpers.service({
+    describe("suspend / resume", () => {
+        it("deduplicates identifiers and rejects incomplete bulk selections", async () => {
+            const membership = helpers.createOrgMembership({ id: MEMBERSHIP_ID });
+            const { service, repositories, transaction } = helpers.service({
                 memberships: [membership],
             });
-            services.projectAssignments.clean.mockImplementation(() => Promise.resolve([projectAssignment]));
-            services.departmentAssignments.clean.mockImplementation(() => Promise.resolve([departmentAssignment]));
-            services.teamAssignments.clean.mockImplementation(() => Promise.resolve([teamAssignment]));
 
-            const result = await service[operation]({
-                account: membership.account,
-                identifiers: [MEMBERSHIP_ID],
+            await service.suspend({
+                identifiers: [MEMBERSHIP_ID, MEMBERSHIP_ID],
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
             });
 
-            expect(membership.status).toBe(expectedStatus);
             expect(repositories.memberships.find).toHaveBeenCalledWith({
                 where: {
                     id: { $in: [MEMBERSHIP_ID] },
                     organization: { realm: REALM_ID },
-                    ...(operation === "leave" ? { account: membership.account } : {}),
                 },
                 options: { populate: ["organization"], refresh: true },
                 transaction: transaction.entityManager,
             });
-            expect(services.projectAssignments.clean).toHaveBeenCalledWith({
-                memberships: [MEMBERSHIP_ID],
-                transaction: transaction.entityManager,
-            });
-            expect(services.departmentAssignments.clean).toHaveBeenCalledWith({
-                memberships: [MEMBERSHIP_ID],
-                transaction: transaction.entityManager,
-            });
-            expect(services.teamAssignments.clean).toHaveBeenCalledWith({
-                memberships: [MEMBERSHIP_ID],
-                transaction: transaction.entityManager,
-            });
-            expect(result).toEqual({
-                access: [
-                    {
-                        realm: membership.organization.realm,
-                        account: membership.account,
+
+            repositories.memberships.find.mockImplementation(() => Promise.resolve([]));
+
+            await expect(
+                service.resume({
+                    identifiers: [MEMBERSHIP_ID],
+                    realm: REALM_ID,
+                    transaction: transaction.entityManager,
+                }),
+            ).rejects.toThrow("services.org-membership.MEMBERSHIPS_NOT_FOUND");
+        });
+    });
+
+    describe("leave / block", () => {
+        it.each([
+            {
+                operation: "leave" as const,
+                expectedStatus: OrgMembershipStatus.LEFT,
+            },
+            {
+                operation: "block" as const,
+                expectedStatus: OrgMembershipStatus.BLOCKED,
+            },
+        ])(
+            "$operation performs the full business operation and returns its aggregate result",
+            async ({ operation, expectedStatus }) => {
+                const membership = helpers.createOrgMembership({
+                    id: MEMBERSHIP_ID,
+                });
+                const projectAssignment = helpers.createProjectAccountAssignment({
+                    membership,
+                });
+                const departmentAssignment = helpers.createDeptAccountAssignment({
+                    membership,
+                });
+                const teamAssignment = helpers.createTeamAccountAssignment({
+                    membership,
+                });
+                const { service, services, repositories, transaction } = helpers.service({
+                    memberships: [membership],
+                });
+                services.projectAssignments.clean.mockImplementation(() => Promise.resolve([projectAssignment]));
+                services.departmentAssignments.clean.mockImplementation(() => Promise.resolve([departmentAssignment]));
+                services.teamAssignments.clean.mockImplementation(() => Promise.resolve([teamAssignment]));
+
+                const result = await service[operation]({
+                    account: membership.account,
+                    identifiers: [MEMBERSHIP_ID],
+                    realm: REALM_ID,
+                    transaction: transaction.entityManager,
+                });
+
+                expect(membership.status).toBe(expectedStatus);
+                expect(repositories.memberships.find).toHaveBeenCalledWith({
+                    where: {
+                        id: { $in: [MEMBERSHIP_ID] },
+                        organization: { realm: REALM_ID },
+                        ...(operation === "leave" ? { account: membership.account } : {}),
                     },
-                ],
-                memberships: [membership],
-                assignments: {
-                    project: [projectAssignment],
-                    department: [departmentAssignment],
-                    team: [teamAssignment],
-                },
-            });
-        },
-    );
+                    options: { populate: ["organization"], refresh: true },
+                    transaction: transaction.entityManager,
+                });
+                expect(services.projectAssignments.clean).toHaveBeenCalledWith({
+                    memberships: [MEMBERSHIP_ID],
+                    transaction: transaction.entityManager,
+                });
+                expect(services.departmentAssignments.clean).toHaveBeenCalledWith({
+                    memberships: [MEMBERSHIP_ID],
+                    transaction: transaction.entityManager,
+                });
+                expect(services.teamAssignments.clean).toHaveBeenCalledWith({
+                    memberships: [MEMBERSHIP_ID],
+                    transaction: transaction.entityManager,
+                });
+                expect(result).toEqual({
+                    access: [
+                        {
+                            realm: membership.organization.realm,
+                            account: membership.account,
+                        },
+                    ],
+                    memberships: [membership],
+                    assignments: {
+                        project: [projectAssignment],
+                        department: [departmentAssignment],
+                        team: [teamAssignment],
+                    },
+                });
+            },
+        );
+    });
 });

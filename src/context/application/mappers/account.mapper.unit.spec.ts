@@ -7,22 +7,24 @@ import { AccountMapper } from "./account.mapper";
 const mapper = new AccountMapper();
 
 describe("AccountMapper", () => {
-    it("separates owned realm purge from account access purge in foreign realms", () => {
-        const result = {
-            realms: [{ realm: "owned" }],
-            access: [{ realm: "foreign", account: "account" }],
-        };
+    describe("realmPurgePayload / accessPurgePayload", () => {
+        it("separates owned realm purge from account access purge in foreign realms", () => {
+            const result = {
+                realms: [{ realm: "owned" }],
+                access: [{ realm: "foreign", account: "account" }],
+            };
 
-        const realms = mapper.realmPurgePayload(result);
-        const access = mapper.accessPurgePayload(result);
+            const realms = mapper.realmPurgePayload(result);
+            const access = mapper.accessPurgePayload(result);
 
-        expect(realms).toEqual([{ actor: SYSTEM_ACCOUNT_ID, realm: "owned" }]);
-        expect(access).toEqual([
-            {
-                actor: SYSTEM_ACCOUNT_ID,
-                realm: "foreign",
-                input: { account: "account" },
-            },
-        ]);
+            expect(realms).toEqual([{ actor: SYSTEM_ACCOUNT_ID, realm: "owned" }]);
+            expect(access).toEqual([
+                {
+                    actor: SYSTEM_ACCOUNT_ID,
+                    realm: "foreign",
+                    input: { account: "account" },
+                },
+            ]);
+        });
     });
 });

@@ -15,53 +15,59 @@ describe("InviteService integration", () => {
         fixture: (manager) => new CoreFixture(manager),
     });
 
-    it("accepts an invite and creates its membership atomically", async () => {
-        const organization = await suite.fixtures().createOrganization();
-        const invitee = randomUUID();
-        const invite = await suite.fixtures().createInvite({ organization, invitee, role: randomUUID() });
+    describe("accept / confirmJoin", () => {
+        it("accepts an invite and creates its membership atomically", async () => {
+            const organization = await suite.fixtures().createOrganization();
+            const invitee = randomUUID();
+            const invite = await suite.fixtures().createInvite({ organization, invitee, role: randomUUID() });
 
-        const result = await suite.transaction((transaction) =>
-            suite
-                .repository()
-                .inviteService.accept({ input: { invite: invite.id, invitee }, realm: organization.realm, transaction }),
-        );
+            const result = await suite.transaction((transaction) =>
+                suite.repository().inviteService.accept({
+                    input: { invite: invite.id, invitee },
+                    realm: organization.realm,
+                    transaction,
+                }),
+            );
 
-        const [loadedInvite, membershipCount] = await suite.transaction(
-            async (transaction) =>
-                await Promise.all([
-                    transaction.findOneOrFail(Invite, { id: invite.id }),
-                    transaction.count(OrgMembership, { id: result.membership.id, account: invitee }),
-                ]),
-        );
+            const [loadedInvite, membershipCount] = await suite.transaction(
+                async (transaction) =>
+                    await Promise.all([
+                        transaction.findOneOrFail(Invite, { id: invite.id }),
+                        transaction.count(OrgMembership, { id: result.membership.id, account: invitee }),
+                    ]),
+            );
 
-        expect(loadedInvite.status).toBe("ACCEPTING");
-        expect(membershipCount).toBe(1);
+            expect(loadedInvite.status).toBe("ACCEPTING");
+            expect(membershipCount).toBe(1);
 
-        await suite.transaction((transaction) =>
-            suite.repository().inviteService.confirmJoin({
-                actor: invite.inviter,
-                realm: organization.realm,
-                input: {
-                    process: result.membership.process!,
-                    command: result.membership.process!,
-                    membership: result.membership.id,
-                    account: invitee,
-                    invite: invite.id,
-                    assignment: randomUUID(),
-                    role: invite.role!,
-                    joinedAt: Date.now(),
-                },
-                transaction,
-            }),
-        );
+            await suite.transaction((transaction) =>
+                suite.repository().inviteService.confirmJoin({
+                    actor: invite.inviter,
+                    realm: organization.realm,
+                    input: {
+                        process: result.membership.process!,
+                        command: result.membership.process!,
+                        membership: result.membership.id,
+                        account: invitee,
+                        invite: invite.id,
+                        assignment: randomUUID(),
+                        role: invite.role!,
+                        joinedAt: Date.now(),
+                    },
+                    transaction,
+                }),
+            );
 
-        await expect(
-            suite.transaction((transaction) => transaction.count(Invite, { id: invite.id, status: InviteStatus.ACCEPTED })),
-        ).resolves.toBe(1);
-        await expect(
-            suite.transaction((transaction) =>
-                transaction.count(OrgMembership, { id: result.membership.id, status: OrgMembershipStatus.ACTIVE }),
-            ),
-        ).resolves.toBe(1);
+            await expect(
+                suite.transaction((transaction) =>
+                    transaction.count(Invite, { id: invite.id, status: InviteStatus.ACCEPTED }),
+                ),
+            ).resolves.toBe(1);
+            await expect(
+                suite.transaction((transaction) =>
+                    transaction.count(OrgMembership, { id: result.membership.id, status: OrgMembershipStatus.ACTIVE }),
+                ),
+            ).resolves.toBe(1);
+        });
     });
 });

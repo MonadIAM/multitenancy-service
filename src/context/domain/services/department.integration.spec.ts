@@ -13,25 +13,27 @@ describe("DepartmentService integration", () => {
         fixture: (manager) => new CoreFixture(manager),
     });
 
-    it("creates and archives a department scoped by organization realm", async () => {
-        const organization = await suite.fixtures().createOrganization();
+    describe("create / archive", () => {
+        it("creates and archives a department scoped by organization realm", async () => {
+            const organization = await suite.fixtures().createOrganization();
 
-        const department = await suite.transaction((transaction) =>
-            suite.repository().departmentService.create({
-                input: { organization: organization.id, name: "Created", description: "Description" },
-                realm: organization.realm,
-                transaction,
-            }),
-        );
-        await suite.transaction((transaction) =>
-            suite
-                .repository()
-                .departmentService.archive({ identifiers: [department.id], realm: organization.realm, transaction }),
-        );
+            const department = await suite.transaction((transaction) =>
+                suite.repository().departmentService.create({
+                    input: { organization: organization.id, name: "Created", description: "Description" },
+                    realm: organization.realm,
+                    transaction,
+                }),
+            );
+            await suite.transaction((transaction) =>
+                suite
+                    .repository()
+                    .departmentService.archive({ identifiers: [department.id], realm: organization.realm, transaction }),
+            );
 
-        const loaded = await suite.transaction((transaction) =>
-            transaction.findOneOrFail(Department, { id: department.id }),
-        );
-        expect(loaded.status).toBe("ARCHIVED");
+            const loaded = await suite.transaction((transaction) =>
+                transaction.findOneOrFail(Department, { id: department.id }),
+            );
+            expect(loaded.status).toBe("ARCHIVED");
+        });
     });
 });

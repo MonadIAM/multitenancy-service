@@ -39,63 +39,71 @@ function createAssignment(department: Department): DeptAccountAssignment {
 }
 
 describe("Department Entity", () => {
-    it("should initialize an active department without a manager", () => {
-        const department = createDepartment();
+    describe("constructor", () => {
+        it("should initialize an active department without a manager", () => {
+            const department = createDepartment();
 
-        expect(department.status).toBe(DepartmentStatus.ACTIVE);
-        expect(department.manager).toBeUndefined();
+            expect(department.status).toBe(DepartmentStatus.ACTIVE);
+            expect(department.manager).toBeUndefined();
+        });
     });
 
-    it("should assign, replace and unassign a manager", () => {
-        const department = createDepartment();
-        const first = createAssignment(department);
-        const second = createAssignment(department);
+    describe("assignManager / unassignManager", () => {
+        it("should assign, replace and unassign a manager", () => {
+            const department = createDepartment();
+            const first = createAssignment(department);
+            const second = createAssignment(department);
 
-        department.assignManager({ assignment: first });
-        department.assignManager({ assignment: second });
-        expect(department.manager).toBe(second);
+            department.assignManager({ assignment: first });
+            department.assignManager({ assignment: second });
+            expect(department.manager).toBe(second);
 
-        department.unassignManager();
-        expect(department.manager).toBeUndefined();
-    });
-
-    it("should reject manager operations without changes", () => {
-        const department = createDepartment();
-        const assignment = createAssignment(department);
-        department.assignManager({ assignment });
-
-        expect(() => department.assignManager({ assignment })).toThrow("NO_CHANGES_DETECTED");
-        department.unassignManager();
-        expect(() => department.unassignManager()).toThrow("NO_CHANGES_DETECTED");
-    });
-
-    it("should update mutable metadata", () => {
-        const department = createDepartment();
-
-        department.update({
-            patch: { description: "Updated", name: "Updated department" },
+            department.unassignManager();
+            expect(department.manager).toBeUndefined();
         });
 
-        expect(department.description).toBe("Updated");
-        expect(department.name).toBe("Updated department");
+        it("should reject manager operations without changes", () => {
+            const department = createDepartment();
+            const assignment = createAssignment(department);
+            department.assignManager({ assignment });
+
+            expect(() => department.assignManager({ assignment })).toThrow("NO_CHANGES_DETECTED");
+            department.unassignManager();
+            expect(() => department.unassignManager()).toThrow("NO_CHANGES_DETECTED");
+        });
     });
 
-    it("should reject empty and unchanged metadata updates", () => {
-        const department = createDepartment();
+    describe("update", () => {
+        it("should update mutable metadata", () => {
+            const department = createDepartment();
 
-        expect(() => department.update({ patch: {} })).toThrow("EMPTY_UPDATE_PATCH");
-        expect(() => department.update({ patch: { name: department.name } })).toThrow("NO_CHANGES_DETECTED");
+            department.update({
+                patch: { description: "Updated", name: "Updated department" },
+            });
+
+            expect(department.description).toBe("Updated");
+            expect(department.name).toBe("Updated department");
+        });
+
+        it("should reject empty and unchanged metadata updates", () => {
+            const department = createDepartment();
+
+            expect(() => department.update({ patch: {} })).toThrow("EMPTY_UPDATE_PATCH");
+            expect(() => department.update({ patch: { name: department.name } })).toThrow("NO_CHANGES_DETECTED");
+        });
     });
 
-    it("should archive, restore and guard purging", () => {
-        const department = createDepartment();
-        expect(() => department.canPurge()).toThrow("CANNOT_PURGE_ACTIVE");
+    describe("archive / restore / canPurge", () => {
+        it("should archive, restore and guard purging", () => {
+            const department = createDepartment();
+            expect(() => department.canPurge()).toThrow("CANNOT_PURGE_ACTIVE");
 
-        department.archive();
-        expect(() => department.canPurge()).not.toThrow();
-        department.restore();
+            department.archive();
+            expect(() => department.canPurge()).not.toThrow();
+            department.restore();
 
-        expect(department.status).toBe(DepartmentStatus.ACTIVE);
-        expect(department.archivedAt).toBeUndefined();
+            expect(department.status).toBe(DepartmentStatus.ACTIVE);
+            expect(department.archivedAt).toBeUndefined();
+        });
     });
 });

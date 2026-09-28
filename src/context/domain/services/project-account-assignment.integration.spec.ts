@@ -14,25 +14,27 @@ describe("ProjectAccountAssignmentService integration", () => {
         fixture: (manager) => new CoreFixture(manager),
     });
 
-    it("creates and then cleans an assignment by membership", async () => {
-        const organization = await suite.fixtures().createOrganization();
-        const membership = await suite.fixtures().createOrgMembership({ organization });
-        const project = await suite.fixtures().createProject({ organization, realm: organization.realm });
+    describe("create / clean", () => {
+        it("creates and then cleans an assignment by membership", async () => {
+            const organization = await suite.fixtures().createOrganization();
+            const membership = await suite.fixtures().createOrgMembership({ organization });
+            const project = await suite.fixtures().createProject({ organization, realm: organization.realm });
 
-        const assignment = await suite.transaction((transaction) =>
-            suite.repository().assignmentService.create({
-                input: { membership: membership.id, project: project.id },
-                actor: randomUUID(),
-                realm: organization.realm,
-                transaction,
-            }),
-        );
-        await suite.transaction((transaction) =>
-            suite.repository().assignmentService.clean({ memberships: [membership.id], transaction }),
-        );
+            const assignment = await suite.transaction((transaction) =>
+                suite.repository().assignmentService.create({
+                    input: { membership: membership.id, project: project.id },
+                    actor: randomUUID(),
+                    realm: organization.realm,
+                    transaction,
+                }),
+            );
+            await suite.transaction((transaction) =>
+                suite.repository().assignmentService.clean({ memberships: [membership.id], transaction }),
+            );
 
-        await expect(
-            suite.transaction((transaction) => transaction.count(ProjectAccountAssignment, { id: assignment.id })),
-        ).resolves.toBe(0);
+            await expect(
+                suite.transaction((transaction) => transaction.count(ProjectAccountAssignment, { id: assignment.id })),
+            ).resolves.toBe(0);
+        });
     });
 });

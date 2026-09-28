@@ -17,123 +17,133 @@ describe("DepartmentService", () => {
         jest.restoreAllMocks();
     });
 
-    it("creates a department in an active realm organization", async () => {
-        const organization = helpers.createOrganization({
-            id: ORGANIZATION_ID,
-            realm: REALM_ID,
-        });
-        const { service, repositories, transaction } = helpers.service({
-            organizations: [organization],
-        });
+    describe("create", () => {
+        it("creates a department in an active realm organization", async () => {
+            const organization = helpers.createOrganization({
+                id: ORGANIZATION_ID,
+                realm: REALM_ID,
+            });
+            const { service, repositories, transaction } = helpers.service({
+                organizations: [organization],
+            });
 
-        const result = await service.create({
-            input: {
-                organization: ORGANIZATION_ID,
-                name: "Department",
-                description: "Description",
-            },
-            transaction: transaction.entityManager,
-            realm: REALM_ID,
-        });
+            const result = await service.create({
+                input: {
+                    organization: ORGANIZATION_ID,
+                    name: "Department",
+                    description: "Description",
+                },
+                transaction: transaction.entityManager,
+                realm: REALM_ID,
+            });
 
-        expect(repositories.organizations.findUniqueOrThrow).toHaveBeenCalledWith({
-            where: { status: "ACTIVE", id: ORGANIZATION_ID, realm: REALM_ID },
-            transaction: transaction.entityManager,
-        });
-        expect(result.organization).toBe(organization);
-        expect(transaction.persist).toHaveBeenCalledWith(result);
-    });
-
-    it("assigns an active department assignment as manager", async () => {
-        const department = helpers.createDepartment({ id: DEPARTMENT_ID });
-        const assignment = helpers.createDeptAccountAssignment({
-            id: ASSIGNMENT_ID,
-            department,
-        });
-        const { service, repositories, transaction } = helpers.service({
-            departments: [department],
-        });
-        repositories.departmentAssignments.findUniqueOrThrow.mockImplementation(() => Promise.resolve(assignment));
-
-        await service.changeManager({
-            id: DEPARTMENT_ID,
-            assignment: ASSIGNMENT_ID,
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
-        });
-
-        expect(department.manager).toBe(assignment);
-    });
-
-    it("updates department metadata and unassigns its manager", async () => {
-        const department = helpers.createDepartment({ id: DEPARTMENT_ID });
-        department.assignManager({ assignment: helpers.createDeptAccountAssignment({ department }) });
-        const { service, repositories, transaction } = helpers.service({ departments: [department] });
-
-        await service.update({
-            id: DEPARTMENT_ID,
-            patch: { name: "Updated" },
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
-        });
-        await service.changeManager({
-            assignment: null,
-            id: DEPARTMENT_ID,
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
-        });
-
-        expect(department.name).toBe("Updated");
-        expect(department.manager).toBeUndefined();
-        expect(repositories.departmentAssignments.findUniqueOrThrow).not.toHaveBeenCalled();
-    });
-
-    it("deduplicates archive identifiers and scopes them by organization realm", async () => {
-        const department = helpers.createDepartment({ id: DEPARTMENT_ID });
-        const { service, repositories, transaction } = helpers.service({
-            departments: [department],
-        });
-
-        await service.archive({
-            identifiers: [DEPARTMENT_ID, DEPARTMENT_ID],
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
-        });
-
-        expect(repositories.departments.find).toHaveBeenCalledWith({
-            where: {
-                id: { $in: [DEPARTMENT_ID] },
-                organization: { realm: REALM_ID },
-            },
-            transaction: transaction.entityManager,
+            expect(repositories.organizations.findUniqueOrThrow).toHaveBeenCalledWith({
+                where: { status: "ACTIVE", id: ORGANIZATION_ID, realm: REALM_ID },
+                transaction: transaction.entityManager,
+            });
+            expect(result.organization).toBe(organization);
+            expect(transaction.persist).toHaveBeenCalledWith(result);
         });
     });
 
-    it("rejects incomplete restore results and purges archived departments", async () => {
-        const department = helpers.createDepartment({
-            id: DEPARTMENT_ID,
-            status: DepartmentStatus.ARCHIVED,
+    describe("changeManager", () => {
+        it("assigns an active department assignment as manager", async () => {
+            const department = helpers.createDepartment({ id: DEPARTMENT_ID });
+            const assignment = helpers.createDeptAccountAssignment({
+                id: ASSIGNMENT_ID,
+                department,
+            });
+            const { service, repositories, transaction } = helpers.service({
+                departments: [department],
+            });
+            repositories.departmentAssignments.findUniqueOrThrow.mockImplementation(() => Promise.resolve(assignment));
+
+            await service.changeManager({
+                id: DEPARTMENT_ID,
+                assignment: ASSIGNMENT_ID,
+                realm: REALM_ID,
+                transaction: transaction.entityManager,
+            });
+
+            expect(department.manager).toBe(assignment);
         });
-        const { service, repositories, transaction } = helpers.service({
-            departments: [department],
+    });
+
+    describe("update / changeManager", () => {
+        it("updates department metadata and unassigns its manager", async () => {
+            const department = helpers.createDepartment({ id: DEPARTMENT_ID });
+            department.assignManager({ assignment: helpers.createDeptAccountAssignment({ department }) });
+            const { service, repositories, transaction } = helpers.service({ departments: [department] });
+
+            await service.update({
+                id: DEPARTMENT_ID,
+                patch: { name: "Updated" },
+                realm: REALM_ID,
+                transaction: transaction.entityManager,
+            });
+            await service.changeManager({
+                assignment: null,
+                id: DEPARTMENT_ID,
+                realm: REALM_ID,
+                transaction: transaction.entityManager,
+            });
+
+            expect(department.name).toBe("Updated");
+            expect(department.manager).toBeUndefined();
+            expect(repositories.departmentAssignments.findUniqueOrThrow).not.toHaveBeenCalled();
         });
+    });
 
-        await service.purge({
-            identifiers: [DEPARTMENT_ID],
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
+    describe("archive", () => {
+        it("deduplicates archive identifiers and scopes them by organization realm", async () => {
+            const department = helpers.createDepartment({ id: DEPARTMENT_ID });
+            const { service, repositories, transaction } = helpers.service({
+                departments: [department],
+            });
+
+            await service.archive({
+                identifiers: [DEPARTMENT_ID, DEPARTMENT_ID],
+                realm: REALM_ID,
+                transaction: transaction.entityManager,
+            });
+
+            expect(repositories.departments.find).toHaveBeenCalledWith({
+                where: {
+                    id: { $in: [DEPARTMENT_ID] },
+                    organization: { realm: REALM_ID },
+                },
+                transaction: transaction.entityManager,
+            });
         });
+    });
 
-        expect(transaction.remove).toHaveBeenCalledWith(department);
+    describe("purge / restore", () => {
+        it("rejects incomplete restore results and purges archived departments", async () => {
+            const department = helpers.createDepartment({
+                id: DEPARTMENT_ID,
+                status: DepartmentStatus.ARCHIVED,
+            });
+            const { service, repositories, transaction } = helpers.service({
+                departments: [department],
+            });
 
-        repositories.departments.find.mockImplementation(() => Promise.resolve([]));
-
-        await expect(
-            service.restore({
+            await service.purge({
                 identifiers: [DEPARTMENT_ID],
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
-            }),
-        ).rejects.toThrow("services.department.DEPARTMENTS_NOT_FOUND");
+            });
+
+            expect(transaction.remove).toHaveBeenCalledWith(department);
+
+            repositories.departments.find.mockImplementation(() => Promise.resolve([]));
+
+            await expect(
+                service.restore({
+                    identifiers: [DEPARTMENT_ID],
+                    realm: REALM_ID,
+                    transaction: transaction.entityManager,
+                }),
+            ).rejects.toThrow("services.department.DEPARTMENTS_NOT_FOUND");
+        });
     });
 });

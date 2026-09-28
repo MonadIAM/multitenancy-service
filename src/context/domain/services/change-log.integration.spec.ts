@@ -13,23 +13,29 @@ describe("ChangeLogService integration", () => {
         fixture: (manager) => new CoreFixture(manager),
     });
 
-    it("purges only expired entries up to the batch size", async () => {
-        const expired = await suite.fixtures().createChangeLog({
-            createdAt: new Date("2020-01-01T00:00:00.000Z"),
-        });
-        const active = await suite.fixtures().createChangeLog({
-            createdAt: new Date("2030-01-01T00:00:00.000Z"),
-        });
+    describe("purgeExpired", () => {
+        it("purges only expired entries up to the batch size", async () => {
+            const expired = await suite.fixtures().createChangeLog({
+                createdAt: new Date("2020-01-01T00:00:00.000Z"),
+            });
+            const active = await suite.fixtures().createChangeLog({
+                createdAt: new Date("2030-01-01T00:00:00.000Z"),
+            });
 
-        await suite.transaction((transaction) =>
-            suite.repository().changeLogService.purgeExpired({
-                expirationDate: new Date("2025-01-01T00:00:00.000Z"),
-                batchSize: 10,
-                transaction,
-            }),
-        );
+            await suite.transaction((transaction) =>
+                suite.repository().changeLogService.purgeExpired({
+                    expirationDate: new Date("2025-01-01T00:00:00.000Z"),
+                    batchSize: 10,
+                    transaction,
+                }),
+            );
 
-        await expect(suite.transaction((transaction) => transaction.count(ChangeLog, { id: expired.id }))).resolves.toBe(0);
-        await expect(suite.transaction((transaction) => transaction.count(ChangeLog, { id: active.id }))).resolves.toBe(1);
+            await expect(
+                suite.transaction((transaction) => transaction.count(ChangeLog, { id: expired.id })),
+            ).resolves.toBe(0);
+            await expect(suite.transaction((transaction) => transaction.count(ChangeLog, { id: active.id }))).resolves.toBe(
+                1,
+            );
+        });
     });
 });

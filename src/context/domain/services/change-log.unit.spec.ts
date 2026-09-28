@@ -12,26 +12,28 @@ describe("ChangeLogService", () => {
         jest.restoreAllMocks();
     });
 
-    it("finds expired entries by batch size, removes them, and returns them", async () => {
-        const first = helpers.createChangeLog();
-        const second = helpers.createChangeLog();
-        const { service, repositories, transaction } = helpers.service();
-        repositories.changeLogs.find.mockImplementation(() => Promise.resolve([first, second]));
+    describe("purgeExpired", () => {
+        it("finds expired entries by batch size, removes them, and returns them", async () => {
+            const first = helpers.createChangeLog();
+            const second = helpers.createChangeLog();
+            const { service, repositories, transaction } = helpers.service();
+            repositories.changeLogs.find.mockImplementation(() => Promise.resolve([first, second]));
 
-        await expect(
-            service.purgeExpired({
-                expirationDate: EXPIRATION_DATE,
-                batchSize: BATCH_SIZE,
+            await expect(
+                service.purgeExpired({
+                    expirationDate: EXPIRATION_DATE,
+                    batchSize: BATCH_SIZE,
+                    transaction: transaction.entityManager,
+                }),
+            ).resolves.toEqual([first, second]);
+
+            expect(repositories.changeLogs.find).toHaveBeenCalledWith({
+                where: { createdAt: { $lt: EXPIRATION_DATE } },
+                options: { limit: BATCH_SIZE },
                 transaction: transaction.entityManager,
-            }),
-        ).resolves.toEqual([first, second]);
-
-        expect(repositories.changeLogs.find).toHaveBeenCalledWith({
-            where: { createdAt: { $lt: EXPIRATION_DATE } },
-            options: { limit: BATCH_SIZE },
-            transaction: transaction.entityManager,
+            });
+            expect(transaction.remove).toHaveBeenNthCalledWith(1, first);
+            expect(transaction.remove).toHaveBeenNthCalledWith(2, second);
         });
-        expect(transaction.remove).toHaveBeenNthCalledWith(1, first);
-        expect(transaction.remove).toHaveBeenNthCalledWith(2, second);
     });
 });

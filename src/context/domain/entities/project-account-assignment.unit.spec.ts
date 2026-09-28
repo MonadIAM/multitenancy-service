@@ -33,32 +33,36 @@ function createAssignment(): ProjectAccountAssignment {
 }
 
 describe("ProjectAccountAssignment Entity", () => {
-    it("should initialize an active immutable assignment", () => {
-        const assignment = createAssignment();
+    describe("constructor", () => {
+        it("should initialize an active immutable assignment", () => {
+            const assignment = createAssignment();
 
-        expect(isUUID(assignment.id, "4")).toBe(true);
-        expect(assignment.status).toBe(AssignmentStatus.ACTIVE);
-        expect(assignment.organization).toBe(assignment.project.organization);
-        expect(assignment.assignedAt).toBeInstanceOf(Date);
+            expect(isUUID(assignment.id, "4")).toBe(true);
+            expect(assignment.status).toBe(AssignmentStatus.ACTIVE);
+            expect(assignment.organization).toBe(assignment.project.organization);
+            expect(assignment.assignedAt).toBeInstanceOf(Date);
+        });
     });
 
-    it("should revoke and restore assignment", () => {
-        const assignment = createAssignment();
+    describe("revoke / restore / canPurge", () => {
+        it("should revoke and restore assignment", () => {
+            const assignment = createAssignment();
 
-        assignment.revoke();
-        expect(assignment.status).toBe(AssignmentStatus.REVOKED);
-        expect(() => assignment.canPurge()).not.toThrow();
+            assignment.revoke();
+            expect(assignment.status).toBe(AssignmentStatus.REVOKED);
+            expect(() => assignment.canPurge()).not.toThrow();
 
-        assignment.restore();
-        expect(assignment.status).toBe(AssignmentStatus.ACTIVE);
-    });
+            assignment.restore();
+            expect(assignment.status).toBe(AssignmentStatus.ACTIVE);
+        });
 
-    it("should reject duplicate transitions and purging an active assignment", () => {
-        const assignment = createAssignment();
+        it("should reject duplicate transitions and purging an active assignment", () => {
+            const assignment = createAssignment();
 
-        expect(() => assignment.restore()).toThrow("ALREADY_ACTIVE");
-        expect(() => assignment.canPurge()).toThrow("CANNOT_PURGE_ACTIVE");
-        assignment.revoke();
-        expect(() => assignment.revoke()).toThrow("ALREADY_REVOKED");
+            expect(() => assignment.restore()).toThrow("ALREADY_ACTIVE");
+            expect(() => assignment.canPurge()).toThrow("CANNOT_PURGE_ACTIVE");
+            assignment.revoke();
+            expect(() => assignment.revoke()).toThrow("ALREADY_REVOKED");
+        });
     });
 });

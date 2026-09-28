@@ -8,28 +8,32 @@ const INCOMING: TransactionManager.Service.IncomingMessage = { consumerKey: "uni
 const helpers = new AccountCommandsUnitHelpers();
 
 describe("AccountCommands", () => {
-    it("consumes account deletion and schedules realm and access cleanup together", async () => {
-        const { commands, accountService, transaction, consume } = helpers.commands();
+    describe("purge", () => {
+        it("consumes account deletion and schedules realm and access cleanup together", async () => {
+            const { commands, accountService, transaction, consume } = helpers.commands();
 
-        await commands.purge({ incoming: INCOMING, account: ACCOUNT });
+            await commands.purge({ incoming: INCOMING, account: ACCOUNT });
 
-        expect(accountService.purge.mock.calls).toEqual([[{ account: ACCOUNT, transaction: transaction.entityManager }]]);
-        expect(consume.mock.calls).toEqual([
-            [
-                expect.objectContaining({
-                    incoming: INCOMING,
-                    outbox: [
-                        expect.objectContaining({
-                            destinationTopic: KafkaTopic.REALM,
-                            actionType: RealmTopicAction.SYSTEM_PURGE,
-                        }),
-                        expect.objectContaining({
-                            destinationTopic: KafkaTopic.REALM,
-                            actionType: RealmTopicAction.ACCOUNT_ACCESS_PURGE,
-                        }),
-                    ],
-                }),
-            ],
-        ]);
+            expect(accountService.purge.mock.calls).toEqual([
+                [{ account: ACCOUNT, transaction: transaction.entityManager }],
+            ]);
+            expect(consume.mock.calls).toEqual([
+                [
+                    expect.objectContaining({
+                        incoming: INCOMING,
+                        outbox: [
+                            expect.objectContaining({
+                                destinationTopic: KafkaTopic.REALM,
+                                actionType: RealmTopicAction.SYSTEM_PURGE,
+                            }),
+                            expect.objectContaining({
+                                destinationTopic: KafkaTopic.REALM,
+                                actionType: RealmTopicAction.ACCOUNT_ACCESS_PURGE,
+                            }),
+                        ],
+                    }),
+                ],
+            ]);
+        });
     });
 });

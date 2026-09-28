@@ -13,22 +13,24 @@ describe("TeamService integration", () => {
         fixture: (manager) => new CoreFixture(manager),
     });
 
-    it("creates and archives a team under an active department", async () => {
-        const organization = await suite.fixtures().createOrganization();
-        const department = await suite.fixtures().createDepartment({ organization });
+    describe("create / archive", () => {
+        it("creates and archives a team under an active department", async () => {
+            const organization = await suite.fixtures().createOrganization();
+            const department = await suite.fixtures().createDepartment({ organization });
 
-        const team = await suite.transaction((transaction) =>
-            suite.repository().teamService.create({
-                input: { department: department.id, name: "Created", description: "Description" },
-                realm: organization.realm,
-                transaction,
-            }),
-        );
-        await suite.transaction((transaction) =>
-            suite.repository().teamService.archive({ identifiers: [team.id], realm: organization.realm, transaction }),
-        );
+            const team = await suite.transaction((transaction) =>
+                suite.repository().teamService.create({
+                    input: { department: department.id, name: "Created", description: "Description" },
+                    realm: organization.realm,
+                    transaction,
+                }),
+            );
+            await suite.transaction((transaction) =>
+                suite.repository().teamService.archive({ identifiers: [team.id], realm: organization.realm, transaction }),
+            );
 
-        const loaded = await suite.transaction((transaction) => transaction.findOneOrFail(Team, { id: team.id }));
-        expect(loaded.status).toBe("ARCHIVED");
+            const loaded = await suite.transaction((transaction) => transaction.findOneOrFail(Team, { id: team.id }));
+            expect(loaded.status).toBe("ARCHIVED");
+        });
     });
 });

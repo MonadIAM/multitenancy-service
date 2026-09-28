@@ -18,137 +18,147 @@ describe("ProjectService", () => {
         jest.restoreAllMocks();
     });
 
-    it("creates a project only in an active organization from the same realm", async () => {
-        const organization = helpers.createOrganization({
-            id: ORGANIZATION_ID,
-            realm: REALM_ID,
-        });
-        const { service, repositories, transaction } = helpers.service({
-            organizations: [organization],
-        });
-
-        const result = await service.create({
-            input: {
-                organization: ORGANIZATION_ID,
+    describe("create", () => {
+        it("creates a project only in an active organization from the same realm", async () => {
+            const organization = helpers.createOrganization({
+                id: ORGANIZATION_ID,
                 realm: REALM_ID,
-                name: "Project",
-                description: "Description",
-            },
-            transaction: transaction.entityManager,
-        });
+            });
+            const { service, repositories, transaction } = helpers.service({
+                organizations: [organization],
+            });
 
-        expect(repositories.organizations.findUniqueOrThrow).toHaveBeenCalledWith({
-            where: { id: ORGANIZATION_ID, realm: REALM_ID, status: "ACTIVE" },
-            options: {
-                populate: ["owner"],
-                strategy: "select-in",
-                lockMode: LockMode.PESSIMISTIC_WRITE,
-                refresh: true,
-            },
-            transaction: transaction.entityManager,
+            const result = await service.create({
+                input: {
+                    organization: ORGANIZATION_ID,
+                    realm: REALM_ID,
+                    name: "Project",
+                    description: "Description",
+                },
+                transaction: transaction.entityManager,
+            });
+
+            expect(repositories.organizations.findUniqueOrThrow).toHaveBeenCalledWith({
+                where: { id: ORGANIZATION_ID, realm: REALM_ID, status: "ACTIVE" },
+                options: {
+                    populate: ["owner"],
+                    strategy: "select-in",
+                    lockMode: LockMode.PESSIMISTIC_WRITE,
+                    refresh: true,
+                },
+                transaction: transaction.entityManager,
+            });
+            expect(result.organization).toBe(organization);
+            expect(transaction.persist).toHaveBeenCalledWith(result);
         });
-        expect(result.organization).toBe(organization);
-        expect(transaction.persist).toHaveBeenCalledWith(result);
     });
 
-    it("assigns an active project assignment as manager", async () => {
-        const project = helpers.createProject({
-            id: PROJECT_ID,
-            realm: REALM_ID,
-        });
-        const assignment = helpers.createProjectAccountAssignment({
-            id: ASSIGNMENT_ID,
-            project,
-        });
-        const { service, repositories, transaction } = helpers.service({
-            projects: [project],
-        });
-        repositories.projectAssignments.findUniqueOrThrow.mockImplementation(() => Promise.resolve(assignment));
-
-        await expect(
-            service.changeManager({
+    describe("changeManager", () => {
+        it("assigns an active project assignment as manager", async () => {
+            const project = helpers.createProject({
                 id: PROJECT_ID,
-                assignment: ASSIGNMENT_ID,
                 realm: REALM_ID,
-                transaction: transaction.entityManager,
-            }),
-        ).resolves.toBe(project);
+            });
+            const assignment = helpers.createProjectAccountAssignment({
+                id: ASSIGNMENT_ID,
+                project,
+            });
+            const { service, repositories, transaction } = helpers.service({
+                projects: [project],
+            });
+            repositories.projectAssignments.findUniqueOrThrow.mockImplementation(() => Promise.resolve(assignment));
 
-        expect(project.manager).toBe(assignment);
+            await expect(
+                service.changeManager({
+                    id: PROJECT_ID,
+                    assignment: ASSIGNMENT_ID,
+                    realm: REALM_ID,
+                    transaction: transaction.entityManager,
+                }),
+            ).resolves.toBe(project);
+
+            expect(project.manager).toBe(assignment);
+        });
     });
 
-    it("updates project metadata and unassigns its manager", async () => {
-        const project = helpers.createProject({ id: PROJECT_ID, realm: REALM_ID });
-        project.assignManager({ assignment: helpers.createProjectAccountAssignment({ project }) });
-        const { service, repositories, transaction } = helpers.service({ projects: [project] });
+    describe("update / changeManager", () => {
+        it("updates project metadata and unassigns its manager", async () => {
+            const project = helpers.createProject({ id: PROJECT_ID, realm: REALM_ID });
+            project.assignManager({ assignment: helpers.createProjectAccountAssignment({ project }) });
+            const { service, repositories, transaction } = helpers.service({ projects: [project] });
 
-        await service.update({
-            id: PROJECT_ID,
-            patch: { name: "Updated" },
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
-        });
-        await service.changeManager({
-            assignment: null,
-            id: PROJECT_ID,
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
-        });
-
-        expect(project.name).toBe("Updated");
-        expect(project.manager).toBeUndefined();
-        expect(repositories.projectAssignments.findUniqueOrThrow).not.toHaveBeenCalled();
-    });
-
-    it("deduplicates archive identifiers and rejects incomplete results", async () => {
-        const project = helpers.createProject({
-            id: PROJECT_ID,
-            realm: REALM_ID,
-        });
-        const { service, repositories, transaction } = helpers.service({
-            projects: [project],
-        });
-
-        await expect(
-            service.archive({
-                identifiers: [PROJECT_ID, PROJECT_ID],
+            await service.update({
+                id: PROJECT_ID,
+                patch: { name: "Updated" },
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
-            }),
-        ).resolves.toEqual([project]);
+            });
+            await service.changeManager({
+                assignment: null,
+                id: PROJECT_ID,
+                realm: REALM_ID,
+                transaction: transaction.entityManager,
+            });
 
-        expect(repositories.projects.find).toHaveBeenCalledWith({
-            where: { id: { $in: [PROJECT_ID] }, $or: [{ realm: REALM_ID }, { organization: { realm: REALM_ID } }] },
-            transaction: transaction.entityManager,
+            expect(project.name).toBe("Updated");
+            expect(project.manager).toBeUndefined();
+            expect(repositories.projectAssignments.findUniqueOrThrow).not.toHaveBeenCalled();
         });
+    });
 
-        repositories.projects.find.mockImplementation(() => Promise.resolve([]));
+    describe("archive / restore", () => {
+        it("deduplicates archive identifiers and rejects incomplete results", async () => {
+            const project = helpers.createProject({
+                id: PROJECT_ID,
+                realm: REALM_ID,
+            });
+            const { service, repositories, transaction } = helpers.service({
+                projects: [project],
+            });
 
-        await expect(
-            service.restore({
+            await expect(
+                service.archive({
+                    identifiers: [PROJECT_ID, PROJECT_ID],
+                    realm: REALM_ID,
+                    transaction: transaction.entityManager,
+                }),
+            ).resolves.toEqual([project]);
+
+            expect(repositories.projects.find).toHaveBeenCalledWith({
+                where: { id: { $in: [PROJECT_ID] }, $or: [{ realm: REALM_ID }, { organization: { realm: REALM_ID } }] },
+                transaction: transaction.entityManager,
+            });
+
+            repositories.projects.find.mockImplementation(() => Promise.resolve([]));
+
+            await expect(
+                service.restore({
+                    identifiers: [PROJECT_ID],
+                    realm: REALM_ID,
+                    transaction: transaction.entityManager,
+                }),
+            ).rejects.toThrow("services.project.PROJECTS_NOT_FOUND");
+        });
+    });
+
+    describe("purge", () => {
+        it("purges archived projects", async () => {
+            const project = helpers.createProject({
+                id: PROJECT_ID,
+                realm: REALM_ID,
+                status: ProjectStatus.ARCHIVED,
+            });
+            const { service, transaction } = helpers.service({
+                projects: [project],
+            });
+
+            await service.purge({
                 identifiers: [PROJECT_ID],
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
-            }),
-        ).rejects.toThrow("services.project.PROJECTS_NOT_FOUND");
-    });
+            });
 
-    it("purges archived projects", async () => {
-        const project = helpers.createProject({
-            id: PROJECT_ID,
-            realm: REALM_ID,
-            status: ProjectStatus.ARCHIVED,
+            expect(transaction.remove).toHaveBeenCalledWith(project);
         });
-        const { service, transaction } = helpers.service({
-            projects: [project],
-        });
-
-        await service.purge({
-            identifiers: [PROJECT_ID],
-            realm: REALM_ID,
-            transaction: transaction.entityManager,
-        });
-
-        expect(transaction.remove).toHaveBeenCalledWith(project);
     });
 });

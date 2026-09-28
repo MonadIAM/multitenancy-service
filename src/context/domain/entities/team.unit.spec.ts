@@ -46,63 +46,71 @@ function createAssignment(team: Team): TeamAccountAssignment {
 }
 
 describe("Team Entity", () => {
-    it("should initialize an active team without a lead", () => {
-        const team = createTeam();
+    describe("constructor", () => {
+        it("should initialize an active team without a lead", () => {
+            const team = createTeam();
 
-        expect(team.status).toBe(TeamStatus.ACTIVE);
-        expect(team.lead).toBeUndefined();
+            expect(team.status).toBe(TeamStatus.ACTIVE);
+            expect(team.lead).toBeUndefined();
+        });
     });
 
-    it("should assign, replace and unassign a lead", () => {
-        const team = createTeam();
-        const first = createAssignment(team);
-        const second = createAssignment(team);
+    describe("assignLead / unassignLead", () => {
+        it("should assign, replace and unassign a lead", () => {
+            const team = createTeam();
+            const first = createAssignment(team);
+            const second = createAssignment(team);
 
-        team.assignLead({ assignment: first });
-        team.assignLead({ assignment: second });
-        expect(team.lead).toBe(second);
+            team.assignLead({ assignment: first });
+            team.assignLead({ assignment: second });
+            expect(team.lead).toBe(second);
 
-        team.unassignLead();
-        expect(team.lead).toBeUndefined();
-    });
-
-    it("should reject lead operations without changes", () => {
-        const team = createTeam();
-        const assignment = createAssignment(team);
-        team.assignLead({ assignment });
-
-        expect(() => team.assignLead({ assignment })).toThrow("NO_CHANGES_DETECTED");
-        team.unassignLead();
-        expect(() => team.unassignLead()).toThrow("NO_CHANGES_DETECTED");
-    });
-
-    it("should update mutable metadata", () => {
-        const team = createTeam();
-
-        team.update({
-            patch: { description: "Updated", name: "Updated team" },
+            team.unassignLead();
+            expect(team.lead).toBeUndefined();
         });
 
-        expect(team.description).toBe("Updated");
-        expect(team.name).toBe("Updated team");
+        it("should reject lead operations without changes", () => {
+            const team = createTeam();
+            const assignment = createAssignment(team);
+            team.assignLead({ assignment });
+
+            expect(() => team.assignLead({ assignment })).toThrow("NO_CHANGES_DETECTED");
+            team.unassignLead();
+            expect(() => team.unassignLead()).toThrow("NO_CHANGES_DETECTED");
+        });
     });
 
-    it("should reject empty and unchanged metadata updates", () => {
-        const team = createTeam();
+    describe("update", () => {
+        it("should update mutable metadata", () => {
+            const team = createTeam();
 
-        expect(() => team.update({ patch: {} })).toThrow("EMPTY_UPDATE_PATCH");
-        expect(() => team.update({ patch: { name: team.name } })).toThrow("NO_CHANGES_DETECTED");
+            team.update({
+                patch: { description: "Updated", name: "Updated team" },
+            });
+
+            expect(team.description).toBe("Updated");
+            expect(team.name).toBe("Updated team");
+        });
+
+        it("should reject empty and unchanged metadata updates", () => {
+            const team = createTeam();
+
+            expect(() => team.update({ patch: {} })).toThrow("EMPTY_UPDATE_PATCH");
+            expect(() => team.update({ patch: { name: team.name } })).toThrow("NO_CHANGES_DETECTED");
+        });
     });
 
-    it("should archive, restore and guard purging", () => {
-        const team = createTeam();
-        expect(() => team.canPurge()).toThrow("CANNOT_PURGE_ACTIVE");
+    describe("archive / restore / canPurge", () => {
+        it("should archive, restore and guard purging", () => {
+            const team = createTeam();
+            expect(() => team.canPurge()).toThrow("CANNOT_PURGE_ACTIVE");
 
-        team.archive();
-        expect(() => team.canPurge()).not.toThrow();
-        team.restore();
+            team.archive();
+            expect(() => team.canPurge()).not.toThrow();
+            team.restore();
 
-        expect(team.status).toBe(TeamStatus.ACTIVE);
-        expect(team.archivedAt).toBeUndefined();
+            expect(team.status).toBe(TeamStatus.ACTIVE);
+            expect(team.archivedAt).toBeUndefined();
+        });
     });
 });

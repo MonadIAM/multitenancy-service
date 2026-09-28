@@ -20,87 +20,93 @@ describe("OrgMembershipService integration", () => {
         fixture: (manager) => new CoreFixture(manager),
     });
 
-    it.each([
-        { operation: "leave", expectedStatus: OrgMembershipStatus.LEFT },
-        { operation: "block", expectedStatus: OrgMembershipStatus.BLOCKED },
-    ] as const)(
-        "$operation changes membership status and cleans every assignment kind",
-        async ({ operation, expectedStatus }) => {
-            const organization = await suite.fixtures().createOrganization();
-            const membership = await suite.fixtures().createOrgMembership({ organization });
-            const project = await suite.fixtures().createProject({ organization });
-            const unrelatedProject = await suite.fixtures().createProject({ organization });
-            const department = await suite.fixtures().createDepartment({ organization });
-            const team = await suite.fixtures().createTeam({ department, organization });
-            await suite.fixtures().createProjectAccountAssignment({ membership, project });
-            await suite.fixtures().createDeptAccountAssignment({ membership, department });
-            await suite.fixtures().createTeamAccountAssignment({ membership, team });
+    describe("leave / block", () => {
+        it.each([
+            { operation: "leave", expectedStatus: OrgMembershipStatus.LEFT },
+            { operation: "block", expectedStatus: OrgMembershipStatus.BLOCKED },
+        ] as const)(
+            "$operation changes membership status and cleans every assignment kind",
+            async ({ operation, expectedStatus }) => {
+                const organization = await suite.fixtures().createOrganization();
+                const membership = await suite.fixtures().createOrgMembership({ organization });
+                const project = await suite.fixtures().createProject({ organization });
+                const unrelatedProject = await suite.fixtures().createProject({ organization });
+                const department = await suite.fixtures().createDepartment({ organization });
+                const team = await suite.fixtures().createTeam({ department, organization });
+                await suite.fixtures().createProjectAccountAssignment({ membership, project });
+                await suite.fixtures().createDeptAccountAssignment({ membership, department });
+                await suite.fixtures().createTeamAccountAssignment({ membership, team });
 
-            const result = await suite.transaction((transaction) =>
-                suite.repository().membershipService[operation]({
-                    account: membership.account,
-                    identifiers: [membership.id],
-                    realm: organization.realm,
-                    transaction,
-                }),
-            );
+                const result = await suite.transaction((transaction) =>
+                    suite.repository().membershipService[operation]({
+                        account: membership.account,
+                        identifiers: [membership.id],
+                        realm: organization.realm,
+                        transaction,
+                    }),
+                );
 
-            expect(result.access.map(({ realm }) => realm).sort()).toEqual(
-                [organization.realm, project.realm, unrelatedProject.realm].sort(),
-            );
-            const [loaded, projectCount, departmentCount, teamCount] = await suite.transaction(
-                async (transaction) =>
-                    await Promise.all([
-                        transaction.findOneOrFail(OrgMembership, { id: membership.id }),
-                        transaction.count(ProjectAccountAssignment, { membership: { id: membership.id } }),
-                        transaction.count(DeptAccountAssignment, { membership: { id: membership.id } }),
-                        transaction.count(TeamAccountAssignment, { membership: { id: membership.id } }),
-                    ]),
-            );
-            expect(loaded.status).toBe(expectedStatus);
-            expect([projectCount, departmentCount, teamCount]).toEqual([0, 0, 0]);
-        },
-    );
-
-    it("rejects resume after leaving without bypassing the join process", async () => {
-        const organization = await suite.fixtures().createOrganization();
-        const membership = await suite.fixtures().createOrgMembership({ organization });
-        await suite.transaction(async (transaction) => {
-            const entity = await transaction.findOneOrFail(OrgMembership, membership.id);
-            entity.leave();
-        });
-
-        await expect(
-            suite.transaction((transaction) =>
-                suite.repository().membershipService.resume({
-                    identifiers: [membership.id],
-                    realm: organization.realm,
-                    transaction,
-                }),
-            ),
-        ).rejects.toThrow("CANNOT_ACTIVATE");
-
-        await expect(
-            suite.transaction((transaction) =>
-                transaction.count(OrgMembership, { id: membership.id, status: OrgMembershipStatus.LEFT }),
-            ),
-        ).resolves.toBe(1);
+                expect(result.access.map(({ realm }) => realm).sort()).toEqual(
+                    [organization.realm, project.realm, unrelatedProject.realm].sort(),
+                );
+                const [loaded, projectCount, departmentCount, teamCount] = await suite.transaction(
+                    async (transaction) =>
+                        await Promise.all([
+                            transaction.findOneOrFail(OrgMembership, { id: membership.id }),
+                            transaction.count(ProjectAccountAssignment, { membership: { id: membership.id } }),
+                            transaction.count(DeptAccountAssignment, { membership: { id: membership.id } }),
+                            transaction.count(TeamAccountAssignment, { membership: { id: membership.id } }),
+                        ]),
+                );
+                expect(loaded.status).toBe(expectedStatus);
+                expect([projectCount, departmentCount, teamCount]).toEqual([0, 0, 0]);
+            },
+        );
     });
 
-    it("joins a new account into an active organization", async () => {
-        const organization = await suite.fixtures().createOrganization();
-        const account = randomUUID();
+    describe("resume", () => {
+        it("rejects resume after leaving without bypassing the join process", async () => {
+            const organization = await suite.fixtures().createOrganization();
+            const membership = await suite.fixtures().createOrgMembership({ organization });
+            await suite.transaction(async (transaction) => {
+                const entity = await transaction.findOneOrFail(OrgMembership, membership.id);
+                entity.leave();
+            });
 
-        const membership = await suite.transaction((transaction) =>
-            suite.repository().membershipService.join({
-                input: { organization: organization.id, account },
-                realm: organization.realm,
-                transaction,
-            }),
-        );
+            await expect(
+                suite.transaction((transaction) =>
+                    suite.repository().membershipService.resume({
+                        identifiers: [membership.id],
+                        realm: organization.realm,
+                        transaction,
+                    }),
+                ),
+            ).rejects.toThrow("CANNOT_ACTIVATE");
 
-        await expect(
-            suite.transaction((transaction) => transaction.count(OrgMembership, { id: membership.id, account })),
-        ).resolves.toBe(1);
+            await expect(
+                suite.transaction((transaction) =>
+                    transaction.count(OrgMembership, { id: membership.id, status: OrgMembershipStatus.LEFT }),
+                ),
+            ).resolves.toBe(1);
+        });
+    });
+
+    describe("join", () => {
+        it("joins a new account into an active organization", async () => {
+            const organization = await suite.fixtures().createOrganization();
+            const account = randomUUID();
+
+            const membership = await suite.transaction((transaction) =>
+                suite.repository().membershipService.join({
+                    input: { organization: organization.id, account },
+                    realm: organization.realm,
+                    transaction,
+                }),
+            );
+
+            await expect(
+                suite.transaction((transaction) => transaction.count(OrgMembership, { id: membership.id, account })),
+            ).resolves.toBe(1);
+        });
     });
 });
