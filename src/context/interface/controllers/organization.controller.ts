@@ -5,27 +5,24 @@ import { Extract, FormatResponse, RequirePermission, Reauthentication, Swagger }
 import { ORGANIZATION_COMMANDS } from "~context/application/commands";
 import { SuccessMessageDTO } from "~common/dto";
 import { ORGANIZATION_QUERIES } from "~context/application/queries";
-import { PermissionCode } from "~context/enums";
+import { PermissionCode, PrivilegeScope } from "~context/enums";
 
 import {
-    CreateBodyDTO,
-    UpdateQueryDTO,
-    UpdateBodyDTO,
     TransferOwnershipQueryDTO,
     TransferOwnershipBodyDTO,
-    RevokeQueryDTO,
-    RevokeBodyDTO,
-    RestoreQueryDTO,
-    RestoreBodyDTO,
-    PurgeQueryDTO,
-    PurgeBodyDTO,
     GetLookupListQueryDTO,
     GetLookupListBodyDTO,
     GetByIdQueryDTO,
     GetListQueryDTO,
     OrganizationDTO,
     GetListBodyDTO,
+    RestoreBodyDTO,
+    UpdateQueryDTO,
+    CreateBodyDTO,
     LookupListDTO,
+    RevokeBodyDTO,
+    UpdateBodyDTO,
+    PurgeBodyDTO,
     ListDTO,
 } from "../dto/organization";
 
@@ -241,12 +238,12 @@ export class OrganizationController {
         FORBIDDEN,
     )
     public revoke(
-        @Query() { realm }: RevokeQueryDTO,
+        @Extract.Permissions(PrivilegeScope.GLOBAL) permissions: string[],
         @Body() input: RevokeBodyDTO,
         @Extract.Session() { account: actor }: Extract.Session.Auth,
         @Extract.Meta() context: Extract.Meta,
     ): Promise<MessageResult> {
-        return this.commands.revoke({ context, actor, input, realm });
+        return this.commands.revoke({ context, actor, input, global: permissions.length > 0 });
     }
 
     @Patch("restore")
@@ -269,12 +266,12 @@ export class OrganizationController {
         FORBIDDEN,
     )
     public restore(
-        @Query() { realm }: RestoreQueryDTO,
+        @Extract.Permissions(PrivilegeScope.GLOBAL) permissions: string[],
         @Body() input: RestoreBodyDTO,
         @Extract.Session() { account: actor }: Extract.Session.Auth,
         @Extract.Meta() context: Extract.Meta,
     ): Promise<MessageResult> {
-        return this.commands.restore({ context, actor, input, realm });
+        return this.commands.restore({ context, actor, input, global: permissions.length > 0 });
     }
 
     @Delete("purge")
@@ -298,11 +295,11 @@ export class OrganizationController {
         FORBIDDEN,
     )
     public purge(
-        @Query() { realm }: PurgeQueryDTO,
+        @Extract.Permissions(PrivilegeScope.GLOBAL) permissions: string[],
         @Body() input: PurgeBodyDTO,
         @Extract.Session() { account: actor }: Extract.Session.Auth,
         @Extract.Meta() context: Extract.Meta,
     ): Promise<MessageResult> {
-        return this.commands.purge({ context, actor, input, realm });
+        return this.commands.purge({ context, actor, input, global: permissions.length > 0 });
     }
 }

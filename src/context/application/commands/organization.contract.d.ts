@@ -109,12 +109,12 @@ declare namespace Commands {
 
         namespace Revoke {
             type Props = {
-                realm: string;
                 input: {
                     identifiers: string[];
                     reason: string;
                 };
                 context: Extract.Meta;
+                global: boolean;
                 actor: string;
             };
 
@@ -125,12 +125,12 @@ declare namespace Commands {
 
         namespace Restore {
             type Props = {
-                realm: string;
                 input: {
                     identifiers: string[];
                     reason: string;
                 };
                 context: Extract.Meta;
+                global: boolean;
                 actor: string;
             };
 
@@ -141,12 +141,12 @@ declare namespace Commands {
 
         namespace Purge {
             type Props = {
-                realm: string;
                 input: {
                     identifiers: string[];
                     reason: string;
                 };
                 context: Extract.Meta;
+                global: boolean;
                 actor: string;
             };
 

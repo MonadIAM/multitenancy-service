@@ -32,43 +32,49 @@ describe("OrganizationCommands", () => {
 
     describe("revoke / restore / purge", () => {
         it.each([
-            { method: "revoke", count: 1 },
-            { method: "revoke", count: 2 },
-            { method: "restore", count: 2 },
-            { method: "purge", count: 2 },
-        ] as const)("$method preserves realm scope and reports $count changed entities", async ({ method, count }) => {
-            const { commands, organizationService, transaction, run } = helpers.commands();
-            const entities = Array.from({ length: count }, () => helpers.createOrganization());
-            const input = { identifiers: [ID, "another-id", "unchanged-id"], reason: "Requested change" };
-            organizationService[method].mockResolvedValue({ organizations: entities, realms: [{ realm: REALM }] });
+            { method: "revoke", count: 1, global: false },
+            { method: "revoke", count: 2, global: false },
+            { method: "restore", count: 2, global: false },
+            { method: "purge", count: 2, global: false },
+            { method: "revoke", count: 1, global: true },
+            { method: "restore", count: 1, global: true },
+            { method: "purge", count: 1, global: true },
+        ] as const)(
+            "$method forwards global=$global and reports $count changed entities",
+            async ({ method, count, global }) => {
+                const { commands, organizationService, transaction, run } = helpers.commands();
+                const entities = Array.from({ length: count }, () => helpers.createOrganization());
+                const input = { identifiers: [ID, "another-id", "unchanged-id"], reason: "Requested change" };
+                organizationService[method].mockResolvedValue({ organizations: entities, realms: [{ realm: REALM }] });
 
-            const result = await commands[method]({ input, actor: ACTOR, realm: REALM, context: CONTEXT });
+                const result = await commands[method]({ input, actor: ACTOR, context: CONTEXT, global });
 
-            expect(organizationService[method].mock.calls).toEqual([
-                [{ identifiers: input.identifiers, realm: REALM, transaction: transaction.entityManager }],
-            ]);
-            expect(result.params).toEqual(count > 1 ? { count } : undefined);
-            expect(run).toHaveBeenCalledTimes(1);
-            await expect(run.mock.results[0]?.value).resolves.toEqual({
-                ...{ organizations: entities, realms: [{ realm: REALM }] },
-                actor: ACTOR,
-            });
-            expect(run.mock.calls).toEqual([
-                [
-                    expect.objectContaining({
-                        outbox: expect.objectContaining({
-                            destinationTopic: KafkaTopic.REALM,
-                            actionType:
-                                method === "restore"
-                                    ? RealmTopicAction.SYSTEM_RESTORE
-                                    : method === "purge"
-                                      ? RealmTopicAction.SYSTEM_PURGE
-                                      : RealmTopicAction.SYSTEM_REVOKE,
+                expect(organizationService[method].mock.calls).toEqual([
+                    [{ identifiers: input.identifiers, actor: ACTOR, global, transaction: transaction.entityManager }],
+                ]);
+                expect(result.params).toEqual(count > 1 ? { count } : undefined);
+                expect(run).toHaveBeenCalledTimes(1);
+                await expect(run.mock.results[0]?.value).resolves.toEqual({
+                    ...{ organizations: entities, realms: [{ realm: REALM }] },
+                    actor: ACTOR,
+                });
+                expect(run.mock.calls).toEqual([
+                    [
+                        expect.objectContaining({
+                            outbox: expect.objectContaining({
+                                destinationTopic: KafkaTopic.REALM,
+                                actionType:
+                                    method === "restore"
+                                        ? RealmTopicAction.SYSTEM_RESTORE
+                                        : method === "purge"
+                                          ? RealmTopicAction.SYSTEM_PURGE
+                                          : RealmTopicAction.SYSTEM_REVOKE,
+                            }),
                         }),
-                    }),
-                ],
-            ]);
-        });
+                    ],
+                ]);
+            },
+        );
     });
 
     describe("update", () => {
@@ -92,9 +98,9 @@ describe("OrganizationCommands", () => {
 
             await expect(
                 commands.revoke({
+                    global: false,
                     input: { identifiers: [ID], reason: "Requested change" },
                     actor: ACTOR,
-                    realm: REALM,
                     context: CONTEXT,
                 }),
             ).rejects.toBe(failure);

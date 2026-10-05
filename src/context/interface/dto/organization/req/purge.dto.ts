@@ -18,11 +18,3 @@ export class PurgeBodyDTO {
     @ApiProperty({ required: true, type: String })
     declare public reason: string;
 }
-
-@ApiSchema({ name: "OrganizationPurgeQuery" })
-export class PurgeQueryDTO {
-    @Expose()
-    @Validator.IsUUID()
-    @ApiProperty({ required: true, type: String, format: "uuid" })
-    declare public realm: string;
-}

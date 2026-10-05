@@ -193,10 +193,10 @@ export class OrganizationService implements Services.Organization.Contract {
     }
 
     public async revoke(props: Services.Organization.Revoke.Props): Services.Organization.Revoke.Result {
-        const { transaction, identifiers, realm } = props;
+        const { transaction, identifiers, actor, global } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.organizationRepository.find({
-            where: { id: { $in: unique }, realm },
+            where: { id: { $in: unique }, ...(global ? {} : { owner: { account: actor } }) },
             options: {
                 lockMode: LockMode.PESSIMISTIC_WRITE,
                 orderBy: { id: "ASC" },
@@ -233,10 +233,10 @@ export class OrganizationService implements Services.Organization.Contract {
     }
 
     public async restore(props: Services.Organization.Restore.Props): Services.Organization.Restore.Result {
-        const { transaction, identifiers, realm } = props;
+        const { transaction, identifiers, actor, global } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.organizationRepository.find({
-            where: { id: { $in: unique }, realm },
+            where: { id: { $in: unique }, ...(global ? {} : { owner: { account: actor } }) },
             options: {
                 lockMode: LockMode.PESSIMISTIC_WRITE,
                 orderBy: { id: "ASC" },
@@ -259,10 +259,10 @@ export class OrganizationService implements Services.Organization.Contract {
     }
 
     public async purge(props: Services.Organization.Purge.Props): Services.Organization.Purge.Result {
-        const { transaction, identifiers, realm } = props;
+        const { transaction, identifiers, actor, global } = props;
         const unique = Array.from(new Set(identifiers));
         const entities = await this.organizationRepository.find({
-            where: { id: { $in: unique }, realm },
+            where: { id: { $in: unique }, ...(global ? {} : { owner: { account: actor } }) },
             options: {
                 lockMode: LockMode.PESSIMISTIC_WRITE,
                 orderBy: { id: "ASC" },

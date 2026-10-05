@@ -71,8 +71,9 @@ describe("ProjectService integration", () => {
             const result = await concurrency.run({
                 first: (transaction) =>
                     organizationService.revoke({
+                        actor: organization.owner.account,
                         identifiers: [organization.id],
-                        realm: organization.realm,
+                        global: false,
                         transaction,
                     }),
                 second: (transaction) =>
@@ -117,8 +118,9 @@ describe("ProjectService integration", () => {
                     }),
                 second: (transaction) =>
                     organizationService.revoke({
+                        actor: organization.owner.account,
                         identifiers: [organization.id],
-                        realm: organization.realm,
+                        global: false,
                         transaction,
                     }),
             });
@@ -172,8 +174,9 @@ describe("ProjectService integration", () => {
                     },
                     second: (transaction) =>
                         organizationService.revoke({
+                            actor: organization.owner.account,
                             identifiers: [organization.id],
-                            realm: organization.realm,
+                            global: false,
                             transaction,
                         }),
                 });
@@ -221,8 +224,9 @@ describe("ProjectService integration", () => {
                     first: async (transaction) => {
                         await expect(
                             organizationService.revoke({
+                                actor: organization.owner.account,
                                 identifiers: [organization.id],
-                                realm: organization.realm,
+                                global: false,
                                 transaction,
                             }),
                         ).rejects.toThrow("services.workflow.OPERATION_PENDING");
@@ -243,8 +247,9 @@ describe("ProjectService integration", () => {
                 });
                 const result = await suite.transaction((transaction) =>
                     organizationService.revoke({
+                        actor: organization.owner.account,
                         identifiers: [organization.id],
-                        realm: organization.realm,
+                        global: false,
                         transaction,
                     }),
                 );

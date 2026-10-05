@@ -18,11 +18,3 @@ export class RevokeBodyDTO {
     @ApiProperty({ required: true, type: String })
     declare public reason: string;
 }
-
-@ApiSchema({ name: "OrganizationRevokeQuery" })
-export class RevokeQueryDTO {
-    @Expose()
-    @Validator.IsUUID()
-    @ApiProperty({ required: true, type: String, format: "uuid" })
-    declare public realm: string;
-}

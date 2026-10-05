@@ -160,8 +160,9 @@ describe("OrganizationService integration", () => {
             await expect(
                 suite.transaction((transaction) =>
                     suite.repository().organizationService.revoke({
-                        realm: organization.realm,
                         identifiers: [organization.id, randomUUID()],
+                        actor: organization.owner.account,
+                        global: false,
                         transaction,
                     }),
                 ),
@@ -379,6 +380,95 @@ describe("OrganizationService integration", () => {
             await expect(suite.transaction((transaction) => transaction.count(OrgMembership, membership.id))).resolves.toBe(
                 0,
             );
+        });
+    });
+
+    describe("lifecycle ownership", () => {
+        it.each(["revoke", "restore", "purge"] as const)(
+            "rejects a mixed owned/foreign batch for %s without changing either target",
+            async (method) => {
+                const actor = randomUUID();
+                const owned = await suite.fixtures().createOrganization({
+                    ownerAccount: actor,
+                });
+                const foreign = await suite.fixtures().createOrganization({
+                    ownerAccount: randomUUID(),
+                });
+                if (method !== "revoke") {
+                    await suite.transaction((transaction) =>
+                        transaction.nativeUpdate(
+                            Organization,
+                            { id: { $in: [owned.id, foreign.id] } },
+                            { status: OrganizationStatus.REVOKED },
+                        ),
+                    );
+                }
+
+                const result = suite.transaction((transaction) =>
+                    suite.repository().organizationService[method]({
+                        actor,
+                        global: false,
+                        identifiers: [owned.id, foreign.id],
+                        transaction,
+                    }),
+                );
+
+                await expect(result).rejects.toThrow("services.organization.ORGANIZATIONS_NOT_FOUND");
+                for await (const id of [owned.id, foreign.id]) {
+                    const loaded = await suite.transaction((transaction) => transaction.findOneOrFail(Organization, id));
+                    expect(loaded.status).toBe(
+                        method === "revoke" ? OrganizationStatus.ACTIVE : OrganizationStatus.REVOKED,
+                    );
+                }
+            },
+        );
+
+        it.each(["revoke", "restore", "purge"] as const)("permits global %s for another owner's target", async (method) => {
+            const actor = randomUUID();
+            const target = await suite.fixtures().createOrganization();
+            if (method !== "revoke") {
+                await suite.transaction((transaction) =>
+                    transaction.nativeUpdate(Organization, { id: target.id }, { status: OrganizationStatus.REVOKED }),
+                );
+            }
+
+            await suite.transaction((transaction) =>
+                suite.repository().organizationService[method]({
+                    actor,
+                    global: true,
+                    identifiers: [target.id],
+                    transaction,
+                }),
+            );
+
+            if (method === "purge") {
+                await expect(
+                    suite.transaction((transaction) => transaction.count(Organization, { id: target.id })),
+                ).resolves.toBe(0);
+            } else {
+                const loaded = await suite.transaction((transaction) => transaction.findOneOrFail(Organization, target.id));
+                expect(loaded.status).toBe(method === "revoke" ? OrganizationStatus.REVOKED : OrganizationStatus.ACTIVE);
+            }
+        });
+
+        it("allows the owner to revoke, restore, revoke and purge without a target realm context", async () => {
+            const actor = randomUUID();
+            const target = await suite.fixtures().createOrganization({ ownerAccount: actor });
+
+            for await (const method of ["revoke", "restore", "revoke", "purge"] as const) {
+                await suite.transaction((transaction) =>
+                    suite.repository().organizationService[method]({
+                        actor,
+                        global: false,
+                        identifiers: [target.id],
+                        transaction,
+                    }),
+                );
+            }
+
+            await expect(
+                suite.transaction((transaction) => transaction.count(Organization, { id: target.id })),
+            ).resolves.toBe(0);
         });
     });
 });

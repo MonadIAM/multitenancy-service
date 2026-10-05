@@ -18,11 +18,3 @@ export class RestoreBodyDTO {
     @ApiProperty({ required: true, type: String })
     declare public reason: string;
 }
-
-@ApiSchema({ name: "OrganizationRestoreQuery" })
-export class RestoreQueryDTO {
-    @Expose()
-    @Validator.IsUUID()
-    @ApiProperty({ required: true, type: String, format: "uuid" })
-    declare public realm: string;
-}

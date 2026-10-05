@@ -97,9 +97,10 @@ describe("OrganizationService", () => {
 
             await expect(
                 service.revoke({
-                    realm: organization.realm,
                     identifiers: [ORGANIZATION_ID, ORGANIZATION_ID],
                     transaction: transaction.entityManager,
+                    actor: ACTOR_ID,
+                    global: false,
                 }),
             ).resolves.toEqual({
                 organizations: [organization],
@@ -107,7 +108,7 @@ describe("OrganizationService", () => {
             });
 
             expect(repositories.organizations.find).toHaveBeenCalledWith({
-                where: { id: { $in: [ORGANIZATION_ID] }, realm: organization.realm },
+                where: { id: { $in: [ORGANIZATION_ID] }, owner: { account: ACTOR_ID } },
                 options: {
                     lockMode: LockMode.PESSIMISTIC_WRITE,
                     orderBy: { id: "ASC" },
@@ -120,9 +121,10 @@ describe("OrganizationService", () => {
 
             await expect(
                 service.restore({
-                    realm: organization.realm,
-                    identifiers: [ORGANIZATION_ID],
                     transaction: transaction.entityManager,
+                    identifiers: [ORGANIZATION_ID],
+                    actor: ACTOR_ID,
+                    global: false,
                 }),
             ).rejects.toThrow("services.organization.ORGANIZATIONS_NOT_FOUND");
         });
@@ -141,9 +143,10 @@ describe("OrganizationService", () => {
 
             await expect(
                 service.purge({
-                    realm: organization.realm,
-                    identifiers: [ORGANIZATION_ID],
                     transaction: transaction.entityManager,
+                    identifiers: [ORGANIZATION_ID],
+                    actor: ACTOR_ID,
+                    global: false,
                 }),
             ).resolves.toEqual({
                 organizations: [organization],

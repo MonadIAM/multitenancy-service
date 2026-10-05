@@ -115,9 +115,10 @@ declare namespace Services {
 
         namespace Revoke {
             type Props = {
-                realm: string;
                 transaction: ORM.EntityManager;
                 identifiers: string[];
+                global: boolean;
+                actor: string;
             };
 
             type Result = Promise<{ organizations: Entities.Organization[]; realms: { realm: string }[] }>;
@@ -127,9 +128,10 @@ declare namespace Services {
 
         namespace Restore {
             type Props = {
-                realm: string;
                 transaction: ORM.EntityManager;
                 identifiers: string[];
+                global: boolean;
+                actor: string;
             };
 
             type Result = Promise<{ organizations: Entities.Organization[]; realms: { realm: string }[] }>;
@@ -139,9 +141,10 @@ declare namespace Services {
 
         namespace Purge {
             type Props = {
-                realm: string;
                 transaction: ORM.EntityManager;
                 identifiers: string[];
+                global: boolean;
+                actor: string;
             };
 
             type Result = Promise<{ organizations: Entities.Organization[]; realms: { realm: string }[] }>;

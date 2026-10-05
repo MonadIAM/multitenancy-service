@@ -200,7 +200,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
     }
 
     public async revoke(props: Commands.Organization.Revoke.Props): Commands.Organization.Revoke.Result {
-        const { input, realm, actor } = props;
+        const { input, actor, global } = props;
 
         const { organizations } = await this.transactionalService.run({
             resource: this.resource,
@@ -212,6 +212,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
             audit: {
                 entityType: EntityType.ORGANIZATION,
                 actionType: ActionType.REVOKE,
+                realm: SYSTEM_REALM_ID,
                 ...props,
             },
             changeLog: true,
@@ -219,7 +220,8 @@ export class OrganizationCommands implements Commands.Organization.Contract {
                 const result = await this.organizationService.revoke({
                     identifiers: input.identifiers,
                     transaction,
-                    realm,
+                    global,
+                    actor,
                 });
 
                 return { ...result, actor };
@@ -234,7 +236,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
     }
 
     public async restore(props: Commands.Organization.Restore.Props): Commands.Organization.Restore.Result {
-        const { input, realm, actor } = props;
+        const { input, actor, global } = props;
 
         const { organizations } = await this.transactionalService.run({
             resource: this.resource,
@@ -246,6 +248,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
             audit: {
                 entityType: EntityType.ORGANIZATION,
                 actionType: ActionType.RESTORE,
+                realm: SYSTEM_REALM_ID,
                 ...props,
             },
             changeLog: true,
@@ -253,7 +256,8 @@ export class OrganizationCommands implements Commands.Organization.Contract {
                 const result = await this.organizationService.restore({
                     identifiers: input.identifiers,
                     transaction,
-                    realm,
+                    global,
+                    actor,
                 });
 
                 return { ...result, actor };
@@ -268,7 +272,7 @@ export class OrganizationCommands implements Commands.Organization.Contract {
     }
 
     public async purge(props: Commands.Organization.Purge.Props): Commands.Organization.Purge.Result {
-        const { input, realm, actor } = props;
+        const { input, actor, global } = props;
 
         const { organizations } = await this.transactionalService.run({
             resource: this.resource,
@@ -280,11 +284,17 @@ export class OrganizationCommands implements Commands.Organization.Contract {
             audit: {
                 entityType: EntityType.ORGANIZATION,
                 actionType: ActionType.DELETE,
+                realm: SYSTEM_REALM_ID,
                 ...props,
             },
             changeLog: true,
             execute: async (transaction) => {
-                const result = await this.organizationService.purge({ identifiers: input.identifiers, transaction, realm });
+                const result = await this.organizationService.purge({
+                    identifiers: input.identifiers,
+                    transaction,
+                    global,
+                    actor,
+                });
 
                 return { ...result, actor };
             },
