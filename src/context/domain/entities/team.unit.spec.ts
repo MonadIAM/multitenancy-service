@@ -1,18 +1,13 @@
 import { describe, expect, it } from "@jest/globals";
+import { randomUUID } from "node:crypto";
 
 import { TeamStatus } from "~context/enums";
 
-import { TeamAccountAssignment } from "./team-account-assignment.entity";
-import { OrgMembership } from "./org-membership.entity";
 import { Organization } from "./organization.entity";
 import { Department } from "./department.entity";
 import { Team } from "./team.entity";
 
-/* eslint-disable prettier/prettier */
-const ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
-const ACTOR_ID   = "00000000-0000-4000-8000-000000000002";
-const REALM_ID   = "00000000-0000-4000-8000-000000000003";
-/* eslint-enable prettier/prettier */
+const REALM_ID = "00000000-0000-4000-8000-000000000003";
 
 function createTeam(): Team {
     const organization = new Organization({
@@ -33,48 +28,38 @@ function createTeam(): Team {
     });
 }
 
-function createAssignment(team: Team): TeamAccountAssignment {
-    const membership = new OrgMembership({
-        organization: team.organization,
-        account: ACCOUNT_ID,
-    });
-    return new TeamAccountAssignment({
-        assignedBy: ACTOR_ID,
-        membership,
-        team,
-    });
-}
-
 describe("Team Entity", () => {
     describe("constructor", () => {
-        it("should initialize an active team without a lead", () => {
+        it("should initialize an active team without a leadPosition", () => {
             const team = createTeam();
 
             expect(team.status).toBe(TeamStatus.ACTIVE);
-            expect(team.lead).toBeUndefined();
+            expect(team.leadPosition).toBeUndefined();
         });
     });
 
     describe("assignLead / unassignLead", () => {
-        it("should assign, replace and unassign a lead", () => {
+        it("should assign, replace and unassign a leadPosition", () => {
             const team = createTeam();
-            const first = createAssignment(team);
-            const second = createAssignment(team);
+            const first = randomUUID();
+            const second = randomUUID();
 
-            team.assignLead({ assignment: first });
-            team.assignLead({ assignment: second });
-            expect(team.lead).toBe(second);
+            team.assignLead({ position: first });
+            team.completePosition(false);
+            team.assignLead({ position: second });
+            expect(team.leadPosition).toBe(second);
 
             team.unassignLead();
-            expect(team.lead).toBeUndefined();
+            expect(team.leadPosition).toBeUndefined();
         });
 
-        it("should reject lead operations without changes", () => {
+        it("should reject leadPosition operations without changes", () => {
             const team = createTeam();
-            const assignment = createAssignment(team);
-            team.assignLead({ assignment });
+            const position = randomUUID();
+            team.assignLead({ position });
+            team.completePosition(false);
 
-            expect(() => team.assignLead({ assignment })).toThrow("NO_CHANGES_DETECTED");
+            expect(() => team.assignLead({ position })).toThrow("NO_CHANGES_DETECTED");
             team.unassignLead();
             expect(() => team.unassignLead()).toThrow("NO_CHANGES_DETECTED");
         });

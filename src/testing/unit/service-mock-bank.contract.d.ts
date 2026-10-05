@@ -18,8 +18,6 @@ declare namespace Unit.Domain {
 
         interface Contract {
             projectAssignments: Assignment;
-            departmentAssignments: Assignment;
-            teamAssignments: Assignment;
             memberships: Membership;
         }
     }

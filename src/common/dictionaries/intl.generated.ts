@@ -73,24 +73,6 @@ export type I18nTranslations = {
             "BULK_RESTORED_COUNT": string;
             "BULK_PURGED_COUNT": string;
         };
-        "dept-account-assignment": {
-            "CREATED": string;
-            "REVOKED": string;
-            "RESTORED": string;
-            "PURGED": string;
-            "BULK_REVOKED_COUNT": string;
-            "BULK_RESTORED_COUNT": string;
-            "BULK_PURGED_COUNT": string;
-        };
-        "team-account-assignment": {
-            "CREATED": string;
-            "REVOKED": string;
-            "RESTORED": string;
-            "PURGED": string;
-            "BULK_REVOKED_COUNT": string;
-            "BULK_RESTORED_COUNT": string;
-            "BULK_PURGED_COUNT": string;
-        };
         "invite": {
             "CREATED": string;
             "DECLINED": string;
@@ -161,16 +143,6 @@ export type I18nTranslations = {
             "ALREADY_ACTIVE": string;
             "CANNOT_PURGE_ACTIVE": string;
         };
-        "dept-account-assignment": {
-            "ALREADY_REVOKED": string;
-            "ALREADY_ACTIVE": string;
-            "CANNOT_PURGE_ACTIVE": string;
-        };
-        "team-account-assignment": {
-            "ALREADY_REVOKED": string;
-            "ALREADY_ACTIVE": string;
-            "CANNOT_PURGE_ACTIVE": string;
-        };
     };
     "global": {
         "throttle": string;
@@ -228,14 +200,6 @@ export type I18nTranslations = {
             "OWNER_ACCESS_REQUIRED": string;
         };
         "project-account-assignment": {
-            "ORGANIZATION_MISMATCH": string;
-            "ASSIGNMENTS_NOT_FOUND": string;
-        };
-        "dept-account-assignment": {
-            "ORGANIZATION_MISMATCH": string;
-            "ASSIGNMENTS_NOT_FOUND": string;
-        };
-        "team-account-assignment": {
             "ORGANIZATION_MISMATCH": string;
             "ASSIGNMENTS_NOT_FOUND": string;
         };

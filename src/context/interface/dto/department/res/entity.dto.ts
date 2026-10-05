@@ -4,7 +4,6 @@ import { Expose, Type } from "class-transformer";
 import { DepartmentStatus } from "~context/enums";
 import { Validator } from "~common/validator";
 
-import { DeptAccountAssignmentLookupDTO } from "../../dept-account-assignment";
 import { OrganizationLookupDTO } from "../../organization";
 
 @ApiSchema({ name: "Department" })
@@ -22,10 +21,9 @@ export class DepartmentDTO {
 
     @Expose()
     @Validator.IsOptional()
-    @Validator.ValidateNested()
-    @Type(() => DeptAccountAssignmentLookupDTO)
-    @ApiProperty({ required: false, type: DeptAccountAssignmentLookupDTO })
-    declare public manager?: DeptAccountAssignmentLookupDTO;
+    @Validator.IsUUID()
+    @ApiProperty({ required: false, type: String, format: "uuid" })
+    declare public managerPosition?: string;
 
     @Expose()
     @Validator.IsString()

@@ -16,14 +16,17 @@ declare global {
                 description: string;
                 name: string;
 
-                manager?: Entities.DeptAccountAssignment;
+                managerPosition?: string;
+                previousPosition?: string;
+                process?: string;
                 organization: Entities.Organization;
 
-                assignments: ORM.Collection<Entities.DeptAccountAssignment>;
-
                 assignManager(props: AssignManager.Props): void;
+                releasePosition(positions: string[]): void;
+                completePosition(rejected: boolean): void;
                 update(props: ChangeDataProps): void;
                 unassignManager(): void;
+                assertReady(): void;
                 canPurge(): void;
                 restore(): void;
                 archive(): void;
@@ -37,7 +40,7 @@ declare global {
 
             namespace AssignManager {
                 type Props = {
-                    assignment: Entities.DeptAccountAssignment;
+                    position: string;
                 };
             }
 

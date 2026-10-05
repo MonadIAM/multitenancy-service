@@ -1,6 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
 
 import { DepartmentCommandsUnitHelpers } from "~testing/unit/command-services/department.helpers";
+import { KafkaTopic, PositionTopicAction } from "~context/enums";
+
+import { DepartmentMapper } from "../mappers/department.mapper";
 
 const ACTOR = "actor-account";
 const REALM = "realm-a";
@@ -63,11 +66,13 @@ describe("DepartmentCommands", () => {
     });
 
     describe("changeManager", () => {
-        it.each([ID, null])("changes the responsible assignment to %s within the realm", async (assignment) => {
-            const { commands, departmentService, transaction } = helpers.commands();
+        it.each([ID, null])("changes the responsible position to %s within the realm", async (position) => {
+            const { commands, departmentService, transaction, run } = helpers.commands();
+            const department = helpers.createDepartment();
+            departmentService.changeManager.mockResolvedValue(department);
 
             await commands.changeManager({
-                input: { assignment, reason: "Rotation" },
+                input: { position, reason: "Rotation" },
                 id: ID,
                 realm: REALM,
                 actor: ACTOR,
@@ -75,8 +80,42 @@ describe("DepartmentCommands", () => {
             });
 
             expect(departmentService.changeManager.mock.calls).toEqual([
-                [{ assignment, id: ID, realm: REALM, transaction: transaction.entityManager }],
+                [{ position, id: ID, realm: REALM, transaction: transaction.entityManager }],
             ]);
+            expect(run).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    outbox: {
+                        payloadMapper: DepartmentMapper.prototype.referencePayload,
+                        destinationTopic: KafkaTopic.POSITION,
+                        actionType: PositionTopicAction.REFERENCE_REQUESTED,
+                    },
+                }),
+            );
+            await expect(run.mock.results[0].value).resolves.toEqual({ department, actor: ACTOR, realm: REALM });
+        });
+    });
+
+    describe("purge", () => {
+        it("schedules HR cleanup for the removed entities in the deletion transaction", async () => {
+            const { commands, departmentService, run } = helpers.commands();
+            const departments = [helpers.createDepartment(), helpers.createDepartment()];
+            const input = { identifiers: departments.map((entity) => entity.id), reason: "Cleanup" };
+            departmentService.purge.mockResolvedValue(departments);
+
+            await commands.purge({ input, actor: ACTOR, realm: REALM, context: CONTEXT });
+
+            expect(run).toHaveBeenCalledTimes(1);
+            expect(run).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    changeLog: true,
+                    outbox: {
+                        payloadMapper: DepartmentMapper.prototype.purgePayload,
+                        actionType: PositionTopicAction.DEPARTMENT_PURGED,
+                        destinationTopic: KafkaTopic.POSITION,
+                    },
+                }),
+            );
+            await expect(run.mock.results[0].value).resolves.toEqual({ departments, actor: ACTOR, realm: REALM });
         });
     });
 

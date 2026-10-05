@@ -43,7 +43,7 @@ describe("OrgMembershipCommands", () => {
             membershipService[method].mockResolvedValue({
                 memberships: entities,
                 access: [{ realm: REALM, account: ACCOUNT }],
-                assignments: { department: [], team: [], project: [] },
+                assignments: { project: [] },
             });
 
             const result = await commands[method]({ input, actor: ACTOR, realm: REALM, context: CONTEXT });
@@ -64,7 +64,7 @@ describe("OrgMembershipCommands", () => {
                 ...{
                     memberships: entities,
                     access: [{ realm: REALM, account: ACCOUNT }],
-                    assignments: { department: [], team: [], project: [] },
+                    assignments: { project: [] },
                 },
                 actor: ACTOR,
             });

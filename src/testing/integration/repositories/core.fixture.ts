@@ -81,17 +81,6 @@ export class CoreFixture implements Fixtures.Core.Contract {
         );
     }
 
-    public async createDeptAccountAssignment(
-        props: Fixtures.Core.CreateDeptAccountAssignment.Props,
-    ): Fixtures.Core.CreateDeptAccountAssignment.Result {
-        return await this.persist(
-            this.entities.createDeptAccountAssignment({
-                ...props,
-                assignedBy: props.assignedBy ?? randomUUID(),
-            }),
-        );
-    }
-
     public async createTeam(props: Fixtures.Core.CreateTeam.Props): Fixtures.Core.CreateTeam.Result {
         return await this.persist(
             this.entities.createTeam({
@@ -99,17 +88,6 @@ export class CoreFixture implements Fixtures.Core.Contract {
                 organization: props.organization ?? props.department.organization,
                 description: props.description ?? "Test team description",
                 name: props.name ?? "Test Team",
-            }),
-        );
-    }
-
-    public async createTeamAccountAssignment(
-        props: Fixtures.Core.CreateTeamAccountAssignment.Props,
-    ): Fixtures.Core.CreateTeamAccountAssignment.Result {
-        return await this.persist(
-            this.entities.createTeamAccountAssignment({
-                ...props,
-                assignedBy: props.assignedBy ?? randomUUID(),
             }),
         );
     }

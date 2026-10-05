@@ -1,6 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
 
 import { TeamCommandsUnitHelpers } from "~testing/unit/command-services/team.helpers";
+import { KafkaTopic, PositionTopicAction } from "~context/enums";
+
+import { TeamMapper } from "../mappers/team.mapper";
 
 const ACTOR = "actor-account";
 const REALM = "realm-a";
@@ -63,11 +66,13 @@ describe("TeamCommands", () => {
     });
 
     describe("changeLead", () => {
-        it.each([ID, null])("changes the responsible assignment to %s within the realm", async (assignment) => {
-            const { commands, teamService, transaction } = helpers.commands();
+        it.each([ID, null])("changes the responsible position to %s within the realm", async (position) => {
+            const { commands, teamService, transaction, run } = helpers.commands();
+            const team = helpers.createTeam();
+            teamService.changeLead.mockResolvedValue(team);
 
             await commands.changeLead({
-                input: { assignment, reason: "Rotation" },
+                input: { position, reason: "Rotation" },
                 id: ID,
                 realm: REALM,
                 actor: ACTOR,
@@ -75,8 +80,42 @@ describe("TeamCommands", () => {
             });
 
             expect(teamService.changeLead.mock.calls).toEqual([
-                [{ assignment, id: ID, realm: REALM, transaction: transaction.entityManager }],
+                [{ position, id: ID, realm: REALM, transaction: transaction.entityManager }],
             ]);
+            expect(run).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    outbox: {
+                        payloadMapper: TeamMapper.prototype.referencePayload,
+                        destinationTopic: KafkaTopic.POSITION,
+                        actionType: PositionTopicAction.REFERENCE_REQUESTED,
+                    },
+                }),
+            );
+            await expect(run.mock.results[0].value).resolves.toEqual({ team, actor: ACTOR, realm: REALM });
+        });
+    });
+
+    describe("purge", () => {
+        it("schedules HR cleanup for the removed entities in the deletion transaction", async () => {
+            const { commands, teamService, run } = helpers.commands();
+            const teams = [helpers.createTeam(), helpers.createTeam()];
+            const input = { identifiers: teams.map((entity) => entity.id), reason: "Cleanup" };
+            teamService.purge.mockResolvedValue(teams);
+
+            await commands.purge({ input, actor: ACTOR, realm: REALM, context: CONTEXT });
+
+            expect(run).toHaveBeenCalledTimes(1);
+            expect(run).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    changeLog: true,
+                    outbox: {
+                        payloadMapper: TeamMapper.prototype.purgePayload,
+                        destinationTopic: KafkaTopic.POSITION,
+                        actionType: PositionTopicAction.TEAM_PURGED,
+                    },
+                }),
+            );
+            await expect(run.mock.results[0].value).resolves.toEqual({ teams, actor: ACTOR, realm: REALM });
         });
     });
 

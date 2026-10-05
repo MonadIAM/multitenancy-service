@@ -1,4 +1,3 @@
-import { Collection } from "@mikro-orm/core";
 import { randomUUID } from "node:crypto";
 
 import { DepartmentStatus } from "~context/enums";
@@ -13,14 +12,14 @@ export class Department implements Entities.Department.Contract {
     public archivedAt?: Date;
     public version: number = 1;
 
+    public previousPosition?: string;
     public status: DepartmentStatus;
+    public managerPosition?: string;
     public description: string;
+    public process?: string;
     public name: string;
 
-    public manager?: Entities.DeptAccountAssignment;
     public organization: Entities.Organization;
-
-    public assignments = new Collection<Entities.DeptAccountAssignment>(this);
 
     public constructor(props: Entities.Department.ConstructorProps) {
         this.createdAt = new Date();
@@ -32,20 +31,26 @@ export class Department implements Entities.Department.Contract {
         this.name = props.name;
     }
 
-    public assignManager({ assignment }: Entities.Department.AssignManager.Props): void {
-        if (this.manager?.id === assignment.id) {
+    public assignManager({ position }: Entities.Department.AssignManager.Props): void {
+        this.assertReady();
+
+        if (this.managerPosition === position) {
             throw Exception.invariantViolation({
                 messageKey: `${Department.dictionaryPath}.NO_CHANGES_DETECTED`,
             });
         } else {
-            this.manager = assignment;
+            this.previousPosition = this.managerPosition;
+            this.managerPosition = position;
+            this.process = randomUUID();
             this.updatedAt = new Date();
         }
     }
 
     public unassignManager(): void {
-        if (this.manager) {
-            this.manager = undefined;
+        if (this.managerPosition) {
+            this.managerPosition = undefined;
+            this.previousPosition = undefined;
+            this.process = undefined;
             this.updatedAt = new Date();
         } else {
             throw Exception.invariantViolation({
@@ -98,6 +103,33 @@ export class Department implements Entities.Department.Contract {
         } else {
             this.status = DepartmentStatus.ACTIVE;
             this.archivedAt = undefined;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public assertReady(): void {
+        if (this.process) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        }
+    }
+
+    public completePosition(rejected: boolean): void {
+        if (rejected) {
+            this.managerPosition = this.previousPosition;
+            this.updatedAt = new Date();
+        }
+
+        this.previousPosition = undefined;
+        this.process = undefined;
+    }
+
+    public releasePosition(positions: string[]): void {
+        if (this.previousPosition && positions.includes(this.previousPosition)) {
+            this.previousPosition = undefined;
+        }
+
+        if (!this.process && this.managerPosition && positions.includes(this.managerPosition)) {
+            this.managerPosition = undefined;
             this.updatedAt = new Date();
         }
     }

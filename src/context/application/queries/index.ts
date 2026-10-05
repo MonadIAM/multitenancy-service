@@ -1,8 +1,6 @@
 import { ClassProvider } from "@nestjs/common";
 
 import { ProjectAccountAssignmentQueries } from "./project-account-assignment.queries";
-import { DeptAccountAssignmentQueries } from "./dept-account-assignment.queries";
-import { TeamAccountAssignmentQueries } from "./team-account-assignment.queries";
 import { OrgMembershipQueries } from "./org-membership.queries";
 import { OrganizationQueries } from "./organization.queries";
 import { DepartmentQueries } from "./department.queries";
@@ -13,8 +11,6 @@ import { InviteQueries } from "./invite.queries";
 import { TeamQueries } from "./team.queries";
 import {
     PROJECT_ACCOUNT_ASSIGNMENT_QUERIES,
-    DEPT_ACCOUNT_ASSIGNMENT_QUERIES,
-    TEAM_ACCOUNT_ASSIGNMENT_QUERIES,
     ORG_MEMBERSHIP_QUERIES,
     ORGANIZATION_QUERIES,
     DEPARTMENT_QUERIES,
@@ -29,14 +25,6 @@ export const QUERIES: ClassProvider[] = [
     {
         provide: PROJECT_ACCOUNT_ASSIGNMENT_QUERIES,
         useClass: ProjectAccountAssignmentQueries,
-    },
-    {
-        provide: DEPT_ACCOUNT_ASSIGNMENT_QUERIES,
-        useClass: DeptAccountAssignmentQueries,
-    },
-    {
-        provide: TEAM_ACCOUNT_ASSIGNMENT_QUERIES,
-        useClass: TeamAccountAssignmentQueries,
     },
     {
         provide: ORG_MEMBERSHIP_QUERIES,
@@ -74,8 +62,6 @@ export const QUERIES: ClassProvider[] = [
 
 export {
     PROJECT_ACCOUNT_ASSIGNMENT_QUERIES,
-    DEPT_ACCOUNT_ASSIGNMENT_QUERIES,
-    TEAM_ACCOUNT_ASSIGNMENT_QUERIES,
     ORG_MEMBERSHIP_QUERIES,
     ORGANIZATION_QUERIES,
     DEPARTMENT_QUERIES,

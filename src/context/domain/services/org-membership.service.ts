@@ -1,20 +1,16 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 import { LockMode } from "@mikro-orm/core";
 
+import { OrganizationStatus, OrgMembershipStatus } from "~context/enums";
+import { Exception } from "~common/exceptions";
 import {
     ORG_MEMBERSHIP_REPOSITORY,
     ORGANIZATION_REPOSITORY,
     PROJECT_REPOSITORY,
 } from "~context/infrastructure/repositories";
-import { OrganizationStatus, OrgMembershipStatus } from "~context/enums";
-import { Exception } from "~common/exceptions";
 
+import { PROJECT_ACCOUNT_ASSIGNMENT_SERVICE } from "./tokens";
 import { OrgMembership } from "../entities";
-import {
-    PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
-    DEPT_ACCOUNT_ASSIGNMENT_SERVICE,
-    TEAM_ACCOUNT_ASSIGNMENT_SERVICE,
-} from "./tokens";
 
 @Injectable({ scope: Scope.DEFAULT })
 export class OrgMembershipService implements Services.OrgMembership.Contract {
@@ -25,10 +21,6 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
         private readonly projectRepository: Repositories.Project.Contract,
         @Inject(PROJECT_ACCOUNT_ASSIGNMENT_SERVICE)
         private readonly projectAssignmentService: Services.ProjectAccountAssignment.InternalContract,
-        @Inject(DEPT_ACCOUNT_ASSIGNMENT_SERVICE)
-        private readonly departmentAssignmentService: Services.DeptAccountAssignment.InternalContract,
-        @Inject(TEAM_ACCOUNT_ASSIGNMENT_SERVICE)
-        private readonly teamAssignmentService: Services.TeamAccountAssignment.InternalContract,
         @Inject(ORG_MEMBERSHIP_REPOSITORY)
         private readonly membershipRepository: Repositories.OrgMembership.Contract,
         @Inject(ORGANIZATION_REPOSITORY)
@@ -119,7 +111,9 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
             throw Exception.notFound({ messageKey: `${this.dictionaryPath}.MEMBERSHIPS_NOT_FOUND` });
         } else {
             for (const entity of entities) {
-                this.assertCanLoseAccess(entity);
+                if (entity.organization.owner.id === entity.id || entity.organization.pendingOwner === entity.id) {
+                    throw Exception.invariantViolation({ messageKey: "services.org-membership.OWNER_ACCESS_REQUIRED" });
+                }
                 entity.suspend();
             }
 
@@ -174,16 +168,17 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
             throw Exception.notFound({ messageKey: `${this.dictionaryPath}.MEMBERSHIPS_NOT_FOUND` });
         } else {
             for (const entity of entities) {
-                this.assertCanLoseAccess(entity);
+                if (entity.organization.owner.id === entity.id || entity.organization.pendingOwner === entity.id) {
+                    throw Exception.invariantViolation({ messageKey: "services.org-membership.OWNER_ACCESS_REQUIRED" });
+                }
                 entity.leave();
             }
 
             const membershipIdentifiers = entities.map(({ id }) => id);
-            const [projectAssignments, departmentAssignments, teamAssignments] = await Promise.all([
-                this.projectAssignmentService.clean({ memberships: membershipIdentifiers, transaction }),
-                this.departmentAssignmentService.clean({ memberships: membershipIdentifiers, transaction }),
-                this.teamAssignmentService.clean({ memberships: membershipIdentifiers, transaction }),
-            ]);
+            const projectAssignments = await this.projectAssignmentService.clean({
+                memberships: membershipIdentifiers,
+                transaction,
+            });
 
             const access = await this.collectAccess({ memberships: entities, transaction });
 
@@ -191,9 +186,7 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
                 access,
                 memberships: entities,
                 assignments: {
-                    department: departmentAssignments,
                     project: projectAssignments,
-                    team: teamAssignments,
                 },
             };
         }
@@ -217,16 +210,17 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
             throw Exception.notFound({ messageKey: `${this.dictionaryPath}.MEMBERSHIPS_NOT_FOUND` });
         } else {
             for (const entity of entities) {
-                this.assertCanLoseAccess(entity);
+                if (entity.organization.owner.id === entity.id || entity.organization.pendingOwner === entity.id) {
+                    throw Exception.invariantViolation({ messageKey: "services.org-membership.OWNER_ACCESS_REQUIRED" });
+                }
                 entity.block();
             }
 
             const membershipIdentifiers = entities.map(({ id }) => id);
-            const [projectAssignments, departmentAssignments, teamAssignments] = await Promise.all([
-                this.projectAssignmentService.clean({ memberships: membershipIdentifiers, transaction }),
-                this.departmentAssignmentService.clean({ memberships: membershipIdentifiers, transaction }),
-                this.teamAssignmentService.clean({ memberships: membershipIdentifiers, transaction }),
-            ]);
+            const projectAssignments = await this.projectAssignmentService.clean({
+                memberships: membershipIdentifiers,
+                transaction,
+            });
 
             const access = await this.collectAccess({ memberships: entities, transaction });
 
@@ -234,9 +228,7 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
                 access,
                 memberships: entities,
                 assignments: {
-                    department: departmentAssignments,
                     project: projectAssignments,
-                    team: teamAssignments,
                 },
             };
         }
@@ -265,15 +257,18 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
             throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
         } else {
             for (const membership of memberships) {
-                this.assertCanLoseAccess(membership);
+                if (
+                    membership.organization.owner.id === membership.id ||
+                    membership.organization.pendingOwner === membership.id
+                ) {
+                    throw Exception.invariantViolation({ messageKey: "services.org-membership.OWNER_ACCESS_REQUIRED" });
+                }
             }
 
             const identifiers = memberships.map(({ id }) => id);
             const [access] = await Promise.all([
                 this.collectAccess({ memberships, transaction }),
                 this.projectAssignmentService.clean({ memberships: identifiers, transaction }),
-                this.departmentAssignmentService.clean({ memberships: identifiers, transaction }),
-                this.teamAssignmentService.clean({ memberships: identifiers, transaction }),
             ]);
 
             transaction.remove(memberships);
@@ -308,11 +303,5 @@ export class OrgMembershipService implements Services.OrgMembership.Contract {
                 realm,
             }));
         });
-    }
-
-    private assertCanLoseAccess(membership: Entities.OrgMembership): void {
-        if (membership.organization.owner.id === membership.id || membership.organization.pendingOwner === membership.id) {
-            throw Exception.invariantViolation({ messageKey: "services.org-membership.OWNER_ACCESS_REQUIRED" });
-        }
     }
 }

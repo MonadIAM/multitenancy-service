@@ -1,17 +1,12 @@
 import { describe, expect, it } from "@jest/globals";
+import { randomUUID } from "node:crypto";
 
 import { DepartmentStatus } from "~context/enums";
 
-import { DeptAccountAssignment } from "./dept-account-assignment.entity";
-import { OrgMembership } from "./org-membership.entity";
 import { Organization } from "./organization.entity";
 import { Department } from "./department.entity";
 
-/* eslint-disable prettier/prettier */
-const ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
-const ACTOR_ID   = "00000000-0000-4000-8000-000000000002";
-const REALM_ID   = "00000000-0000-4000-8000-000000000003";
-/* eslint-enable prettier/prettier */
+const REALM_ID = "00000000-0000-4000-8000-000000000003";
 
 function createDepartment(): Department {
     const organization = new Organization({
@@ -26,48 +21,38 @@ function createDepartment(): Department {
     });
 }
 
-function createAssignment(department: Department): DeptAccountAssignment {
-    const membership = new OrgMembership({
-        account: ACCOUNT_ID,
-        organization: department.organization,
-    });
-    return new DeptAccountAssignment({
-        assignedBy: ACTOR_ID,
-        department,
-        membership,
-    });
-}
-
 describe("Department Entity", () => {
     describe("constructor", () => {
-        it("should initialize an active department without a manager", () => {
+        it("should initialize an active department without a managerPosition", () => {
             const department = createDepartment();
 
             expect(department.status).toBe(DepartmentStatus.ACTIVE);
-            expect(department.manager).toBeUndefined();
+            expect(department.managerPosition).toBeUndefined();
         });
     });
 
     describe("assignManager / unassignManager", () => {
-        it("should assign, replace and unassign a manager", () => {
+        it("should assign, replace and unassign a managerPosition", () => {
             const department = createDepartment();
-            const first = createAssignment(department);
-            const second = createAssignment(department);
+            const first = randomUUID();
+            const second = randomUUID();
 
-            department.assignManager({ assignment: first });
-            department.assignManager({ assignment: second });
-            expect(department.manager).toBe(second);
+            department.assignManager({ position: first });
+            department.completePosition(false);
+            department.assignManager({ position: second });
+            expect(department.managerPosition).toBe(second);
 
             department.unassignManager();
-            expect(department.manager).toBeUndefined();
+            expect(department.managerPosition).toBeUndefined();
         });
 
-        it("should reject manager operations without changes", () => {
+        it("should reject managerPosition operations without changes", () => {
             const department = createDepartment();
-            const assignment = createAssignment(department);
-            department.assignManager({ assignment });
+            const position = randomUUID();
+            department.assignManager({ position });
+            department.completePosition(false);
 
-            expect(() => department.assignManager({ assignment })).toThrow("NO_CHANGES_DETECTED");
+            expect(() => department.assignManager({ position })).toThrow("NO_CHANGES_DETECTED");
             department.unassignManager();
             expect(() => department.unassignManager()).toThrow("NO_CHANGES_DETECTED");
         });

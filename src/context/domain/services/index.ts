@@ -1,45 +1,34 @@
 import { ClassProvider } from "@nestjs/common";
 
-import { AccountService } from "./account.service";
-import {
-    ACCOUNT_SERVICE,
-    PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
-    DEPT_ACCOUNT_ASSIGNMENT_SERVICE,
-    TEAM_ACCOUNT_ASSIGNMENT_SERVICE,
-    ORG_MEMBERSHIP_SERVICE,
-    ORGANIZATION_SERVICE,
-    DEPARTMENT_SERVICE,
-    CHANGE_LOG_SERVICE,
-    AUDIT_LOG_SERVICE,
-    PROJECT_SERVICE,
-    INVITE_SERVICE,
-    TEAM_SERVICE,
-} from "./tokens";
 import { ProjectAccountAssignmentService } from "./project-account-assignment.service";
-import { DeptAccountAssignmentService } from "./dept-account-assignment.service";
-import { TeamAccountAssignmentService } from "./team-account-assignment.service";
 import { OrgMembershipService } from "./org-membership.service";
 import { OrganizationService } from "./organization.service";
 import { DepartmentService } from "./department.service";
 import { ChangeLogService } from "./change-log.service";
 import { AuditLogService } from "./audit-log.service";
+import { PositionService } from "./position.service";
+import { AccountService } from "./account.service";
 import { ProjectService } from "./project.service";
 import { InviteService } from "./invite.service";
 import { TeamService } from "./team.service";
+import {
+    PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
+    ORG_MEMBERSHIP_SERVICE,
+    ORGANIZATION_SERVICE,
+    DEPARTMENT_SERVICE,
+    CHANGE_LOG_SERVICE,
+    AUDIT_LOG_SERVICE,
+    POSITION_SERVICE,
+    PROJECT_SERVICE,
+    ACCOUNT_SERVICE,
+    INVITE_SERVICE,
+    TEAM_SERVICE,
+} from "./tokens";
 
 export const DOMAIN_SERVICES: ClassProvider[] = [
-    { provide: ACCOUNT_SERVICE, useClass: AccountService },
     {
         provide: PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
         useClass: ProjectAccountAssignmentService,
-    },
-    {
-        provide: DEPT_ACCOUNT_ASSIGNMENT_SERVICE,
-        useClass: DeptAccountAssignmentService,
-    },
-    {
-        provide: TEAM_ACCOUNT_ASSIGNMENT_SERVICE,
-        useClass: TeamAccountAssignmentService,
     },
     {
         provide: ORG_MEMBERSHIP_SERVICE,
@@ -62,6 +51,14 @@ export const DOMAIN_SERVICES: ClassProvider[] = [
         useClass: AuditLogService,
     },
     {
+        provide: POSITION_SERVICE,
+        useClass: PositionService,
+    },
+    {
+        provide: ACCOUNT_SERVICE,
+        useClass: AccountService,
+    },
+    {
         provide: PROJECT_SERVICE,
         useClass: ProjectService,
     },
@@ -76,15 +73,14 @@ export const DOMAIN_SERVICES: ClassProvider[] = [
 ];
 
 export {
-    ACCOUNT_SERVICE,
     PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
-    DEPT_ACCOUNT_ASSIGNMENT_SERVICE,
-    TEAM_ACCOUNT_ASSIGNMENT_SERVICE,
     ORG_MEMBERSHIP_SERVICE,
     ORGANIZATION_SERVICE,
     DEPARTMENT_SERVICE,
     CHANGE_LOG_SERVICE,
     AUDIT_LOG_SERVICE,
+    POSITION_SERVICE,
+    ACCOUNT_SERVICE,
     PROJECT_SERVICE,
     INVITE_SERVICE,
     TEAM_SERVICE,

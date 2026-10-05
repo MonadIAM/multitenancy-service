@@ -1,6 +1,4 @@
 export { ProjectAccountAssignment } from "./project-account-assignment.entity";
-export { DeptAccountAssignment } from "./dept-account-assignment.entity";
-export { TeamAccountAssignment } from "./team-account-assignment.entity";
 export { OrgMembership } from "./org-membership.entity";
 export { Organization } from "./organization.entity";
 export { Department } from "./department.entity";

@@ -43,7 +43,7 @@ declare namespace Services {
         namespace ChangeLead {
             type Props = {
                 transaction: ORM.EntityManager;
-                assignment: Nullable<string>;
+                position: Nullable<string>;
                 realm: string;
                 id: string;
             };

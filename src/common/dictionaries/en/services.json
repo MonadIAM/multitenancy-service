@@ -35,14 +35,6 @@
     "ORGANIZATION_MISMATCH": "The membership and project belong to different organizations.",
     "ASSIGNMENTS_NOT_FOUND": "One or more project assignments do not exist."
   },
-  "dept-account-assignment": {
-    "ORGANIZATION_MISMATCH": "The membership and department belong to different organizations.",
-    "ASSIGNMENTS_NOT_FOUND": "One or more department assignments do not exist."
-  },
-  "team-account-assignment": {
-    "ORGANIZATION_MISMATCH": "The membership and team belong to different organizations.",
-    "ASSIGNMENTS_NOT_FOUND": "One or more team assignments do not exist."
-  },
   "invite": {
     "INVITEE_ALREADY_MEMBER": "The invitee already belongs to the organization.",
     "INVALIDATION_SCOPE_REQUIRED": "An account or organization is required to invalidate invitations."

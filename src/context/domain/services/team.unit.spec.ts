@@ -7,7 +7,7 @@ import { TeamStatus } from "~context/enums";
 const REALM_ID      = "00000000-0000-4000-8000-100000000001";
 const DEPARTMENT_ID = "00000000-0000-4000-8000-100000000002";
 const TEAM_ID       = "00000000-0000-4000-8000-100000000003";
-const ASSIGNMENT_ID = "00000000-0000-4000-8000-100000000004";
+const POSITION_ID   = "00000000-0000-4000-8000-100000000004";
 /* eslint-enable prettier/prettier */
 
 const helpers = new TeamUnitHelpers();
@@ -49,33 +49,28 @@ describe("TeamService", () => {
     });
 
     describe("changeLead", () => {
-        it("assigns an active team assignment as lead", async () => {
+        it("assigns an HR position as leadPosition", async () => {
             const team = helpers.createTeam({ id: TEAM_ID });
-            const assignment = helpers.createTeamAccountAssignment({
-                id: ASSIGNMENT_ID,
-                team,
-            });
-            const { service, repositories, transaction } = helpers.service({
+            const { service, transaction } = helpers.service({
                 teams: [team],
             });
-            repositories.teamAssignments.findUniqueOrThrow.mockImplementation(() => Promise.resolve(assignment));
 
             await service.changeLead({
                 id: TEAM_ID,
-                assignment: ASSIGNMENT_ID,
+                position: POSITION_ID,
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
             });
 
-            expect(team.lead).toBe(assignment);
+            expect(team.leadPosition).toBe(POSITION_ID);
         });
     });
 
     describe("update / changeLead", () => {
-        it("updates team metadata and unassigns its lead", async () => {
+        it("updates team metadata and unassigns its leadPosition", async () => {
             const team = helpers.createTeam({ id: TEAM_ID });
-            team.assignLead({ assignment: helpers.createTeamAccountAssignment({ team }) });
-            const { service, repositories, transaction } = helpers.service({ teams: [team] });
+            team.assignLead({ position: POSITION_ID });
+            const { service, transaction } = helpers.service({ teams: [team] });
 
             await service.update({
                 id: TEAM_ID,
@@ -84,15 +79,14 @@ describe("TeamService", () => {
                 transaction: transaction.entityManager,
             });
             await service.changeLead({
-                assignment: null,
+                position: null,
                 id: TEAM_ID,
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
             });
 
             expect(team.name).toBe("Updated");
-            expect(team.lead).toBeUndefined();
-            expect(repositories.teamAssignments.findUniqueOrThrow).not.toHaveBeenCalled();
+            expect(team.leadPosition).toBeUndefined();
         });
     });
 

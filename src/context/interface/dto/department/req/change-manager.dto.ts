@@ -10,7 +10,7 @@ export class ChangeManagerBodyDTO {
     @ValidateIf((_, value) => value !== null)
     @Validator.IsUUID()
     @ApiProperty({ required: true, type: String, format: "uuid", nullable: true })
-    declare public assignment: Nullable<string>;
+    declare public position: Nullable<string>;
 
     @Expose()
     @Validator.IsString()

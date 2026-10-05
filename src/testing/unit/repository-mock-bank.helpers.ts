@@ -19,8 +19,6 @@ export class RepositoryMockBank extends EntityFactoryRegistry implements Unit.Do
 
         return {
             projectAssignments: this.baseRepository("ProjectAccountAssignment", props.projectAssignments ?? []),
-            departmentAssignments: this.baseRepository("DeptAccountAssignment", props.departmentAssignments ?? []),
-            teamAssignments: this.baseRepository("TeamAccountAssignment", props.teamAssignments ?? []),
             organizations: this.lookupRepository("Organization", organizations),
             memberships: this.baseRepository("OrgMembership", memberships),
             departments: this.lookupRepository("Department", departments),

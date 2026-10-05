@@ -3,8 +3,8 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 import { Extract, FormatResponse, RequirePermission, Reauthentication, Swagger } from "~common/decorators";
 import { TEAM_COMMANDS } from "~context/application/commands";
-import { SuccessMessageDTO } from "~common/dto";
 import { TEAM_QUERIES } from "~context/application/queries";
+import { SuccessMessageDTO } from "~common/dto";
 import { PermissionCode } from "~context/enums";
 
 import {
@@ -57,11 +57,7 @@ export class TeamController {
     @Get()
     @HttpCode(OK)
     @FormatResponse(TeamDTO)
-    @RequirePermission(
-        PermissionCode.TEAM_READ_PERSONAL,
-        PermissionCode.TEAM_READ_ABSOLUTE,
-        PermissionCode.TEAM_READ_COMMON,
-    )
+    @RequirePermission(PermissionCode.TEAM_READ_ABSOLUTE, PermissionCode.TEAM_READ_COMMON)
     @ApiResponse({ status: OK, type: TeamDTO })
     @ApiOperation({
         summary: "Returns a scoped team record by identifier",
@@ -87,11 +83,7 @@ export class TeamController {
     @Post("list")
     @HttpCode(OK)
     @FormatResponse(ListDTO)
-    @RequirePermission(
-        PermissionCode.TEAM_READ_PERSONAL,
-        PermissionCode.TEAM_READ_ABSOLUTE,
-        PermissionCode.TEAM_READ_COMMON,
-    )
+    @RequirePermission(PermissionCode.TEAM_READ_ABSOLUTE, PermissionCode.TEAM_READ_COMMON)
     @ApiResponse({ status: OK, type: ListDTO })
     @ApiOperation({
         summary: "Returns a scoped paginated list of team records",
@@ -126,11 +118,7 @@ export class TeamController {
     @HttpCode(OK)
     @Post("list/lookup")
     @FormatResponse(LookupListDTO)
-    @RequirePermission(
-        PermissionCode.TEAM_READ_PERSONAL,
-        PermissionCode.TEAM_READ_COMMON,
-        PermissionCode.TEAM_READ_ABSOLUTE,
-    )
+    @RequirePermission(PermissionCode.TEAM_READ_COMMON, PermissionCode.TEAM_READ_ABSOLUTE)
     @ApiResponse({ status: OK, type: LookupListDTO })
     @ApiOperation({
         summary: "Returns a scoped lookup list of team records",
@@ -225,7 +213,7 @@ export class TeamController {
     @FormatResponse(SuccessMessageDTO)
     @ApiResponse({ status: OK, type: SuccessMessageDTO })
     @ApiOperation({
-        summary: "Changes the lead of team",
+        summary: "Changes the leadPosition of team",
         security: [{ identity: [] }],
     })
     @Swagger.Exceptions(

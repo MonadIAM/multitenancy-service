@@ -66,24 +66,6 @@
     "BULK_RESTORED_COUNT": "Restored project assignments: {count}",
     "BULK_PURGED_COUNT": "Deleted project assignments: {count}"
   },
-  "dept-account-assignment": {
-    "CREATED": "Account assigned to department",
-    "REVOKED": "Department assignment revoked",
-    "RESTORED": "Department assignment restored",
-    "PURGED": "Department assignment deleted",
-    "BULK_REVOKED_COUNT": "Revoked department assignments: {count}",
-    "BULK_RESTORED_COUNT": "Restored department assignments: {count}",
-    "BULK_PURGED_COUNT": "Deleted department assignments: {count}"
-  },
-  "team-account-assignment": {
-    "CREATED": "Account assigned to team",
-    "REVOKED": "Team assignment revoked",
-    "RESTORED": "Team assignment restored",
-    "PURGED": "Team assignment deleted",
-    "BULK_REVOKED_COUNT": "Revoked team assignments: {count}",
-    "BULK_RESTORED_COUNT": "Restored team assignments: {count}",
-    "BULK_PURGED_COUNT": "Deleted team assignments: {count}"
-  },
   "invite": {
     "CREATED": "Invitation created",
     "DECLINED": "Invitation declined",

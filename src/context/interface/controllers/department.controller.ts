@@ -57,11 +57,7 @@ export class DepartmentController {
     @Get()
     @HttpCode(OK)
     @FormatResponse(DepartmentDTO)
-    @RequirePermission(
-        PermissionCode.DEPARTMENT_READ_PERSONAL,
-        PermissionCode.DEPARTMENT_READ_ABSOLUTE,
-        PermissionCode.DEPARTMENT_READ_COMMON,
-    )
+    @RequirePermission(PermissionCode.DEPARTMENT_READ_ABSOLUTE, PermissionCode.DEPARTMENT_READ_COMMON)
     @ApiResponse({ status: OK, type: DepartmentDTO })
     @ApiOperation({
         summary: "Returns a scoped department record by identifier",
@@ -87,11 +83,7 @@ export class DepartmentController {
     @Post("list")
     @HttpCode(OK)
     @FormatResponse(ListDTO)
-    @RequirePermission(
-        PermissionCode.DEPARTMENT_READ_PERSONAL,
-        PermissionCode.DEPARTMENT_READ_ABSOLUTE,
-        PermissionCode.DEPARTMENT_READ_COMMON,
-    )
+    @RequirePermission(PermissionCode.DEPARTMENT_READ_ABSOLUTE, PermissionCode.DEPARTMENT_READ_COMMON)
     @ApiResponse({ status: OK, type: ListDTO })
     @ApiOperation({
         summary: "Returns a scoped paginated list of department records",
@@ -126,11 +118,7 @@ export class DepartmentController {
     @HttpCode(OK)
     @Post("list/lookup")
     @FormatResponse(LookupListDTO)
-    @RequirePermission(
-        PermissionCode.DEPARTMENT_READ_PERSONAL,
-        PermissionCode.DEPARTMENT_READ_ABSOLUTE,
-        PermissionCode.DEPARTMENT_READ_COMMON,
-    )
+    @RequirePermission(PermissionCode.DEPARTMENT_READ_ABSOLUTE, PermissionCode.DEPARTMENT_READ_COMMON)
     @ApiResponse({ status: OK, type: LookupListDTO })
     @ApiOperation({
         summary: "Returns a scoped lookup list of department records",
@@ -224,7 +212,7 @@ export class DepartmentController {
     @RequirePermission(PermissionCode.DEPARTMENT_CHANGE_MANAGER)
     @ApiResponse({ status: OK, type: SuccessMessageDTO })
     @ApiOperation({
-        summary: "Changes the manager of department",
+        summary: "Changes the managerPosition of department",
         security: [{ identity: [] }],
     })
     @Swagger.Exceptions(

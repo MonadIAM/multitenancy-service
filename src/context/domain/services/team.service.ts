@@ -1,12 +1,9 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
+import { LockMode } from "@mikro-orm/core";
 
-import { AssignmentStatus, DepartmentStatus } from "~context/enums";
+import { DEPARTMENT_REPOSITORY, TEAM_REPOSITORY } from "~context/infrastructure/repositories";
+import { DepartmentStatus } from "~context/enums";
 import { Exception } from "~common/exceptions";
-import {
-    TEAM_ACCOUNT_ASSIGNMENT_REPOSITORY,
-    DEPARTMENT_REPOSITORY,
-    TEAM_REPOSITORY,
-} from "~context/infrastructure/repositories";
 
 import { Team } from "../entities";
 
@@ -15,8 +12,6 @@ export class TeamService implements Services.Team.Contract {
     private readonly dictionaryPath = "services.team";
 
     public constructor(
-        @Inject(TEAM_ACCOUNT_ASSIGNMENT_REPOSITORY)
-        private readonly assignmentRepository: Repositories.TeamAccountAssignment.Contract,
         @Inject(DEPARTMENT_REPOSITORY)
         private readonly departmentRepository: Repositories.Department.Contract,
         @Inject(TEAM_REPOSITORY)
@@ -53,22 +48,15 @@ export class TeamService implements Services.Team.Contract {
     }
 
     public async changeLead(props: Services.Team.ChangeLead.Props): Services.Team.ChangeLead.Result {
-        const { transaction, assignment, realm, id } = props;
-        const [team, lead] = await Promise.all([
-            this.teamRepository.findUniqueOrThrow({
-                where: { id, organization: { realm } },
-                transaction,
-            }),
-            assignment
-                ? this.assignmentRepository.findUniqueOrThrow({
-                      where: { id: assignment, team: id, status: AssignmentStatus.ACTIVE },
-                      transaction,
-                  })
-                : null,
-        ]);
+        const { transaction, position, realm, id } = props;
+        const team = await this.teamRepository.findUniqueOrThrow({
+            options: { lockMode: LockMode.PESSIMISTIC_WRITE, refresh: true },
+            where: { id, organization: { realm } },
+            transaction,
+        });
 
-        if (lead) {
-            team.assignLead({ assignment: lead });
+        if (position) {
+            team.assignLead({ position });
         } else {
             team.unassignLead();
         }

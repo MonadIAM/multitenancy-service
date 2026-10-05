@@ -7,7 +7,6 @@ export class DepartmentUnitHelpers extends DomainServiceCoreUnitHelpers implemen
         const repositories = this.repositories(props);
         return {
             service: new DepartmentService(
-                this.contract<Repositories.DeptAccountAssignment.Contract>(repositories.departmentAssignments),
                 this.contract<Repositories.Organization.Contract>(repositories.organizations),
                 this.contract<Repositories.Department.Contract>(repositories.departments),
             ),

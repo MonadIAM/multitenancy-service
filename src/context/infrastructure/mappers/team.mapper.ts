@@ -19,8 +19,8 @@ export class TeamMapper implements Repositories.Mappers.Contract<Entities.Team, 
         if (filters.department) {
             where.department = { id: ORMAdapter.applyStringFilter(filters.department) };
         }
-        if (filters.lead) {
-            where.lead = { id: ORMAdapter.applyStringFilter(filters.lead) };
+        if (filters.leadPosition) {
+            where.leadPosition = ORMAdapter.applyStringFilter(filters.leadPosition);
         }
         if (filters.name) {
             where.name = ORMAdapter.applyStringFilter(filters.name);

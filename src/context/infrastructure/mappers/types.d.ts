@@ -196,8 +196,8 @@ declare global {
                     archivedAt?: OrdinalFilterDTO<Date>;
                     updatedAt?: OrdinalFilterDTO<Date>;
                     createdAt?: OrdinalFilterDTO<Date>;
+                    managerPosition?: LinkFilterDTO;
                     organization?: LinkFilterDTO;
-                    manager?: LinkFilterDTO;
                     status?: StringFilterDTO;
                     name?: StringFilterDTO;
                     id?: StringFilterDTO;
@@ -208,29 +208,6 @@ declare global {
                     updatedAt?: QueryOrder;
                     createdAt?: QueryOrder;
                     name?: QueryOrder;
-                };
-
-                interface Types {
-                    Filters: Filters;
-                    Sort: Sort;
-                }
-            }
-
-            namespace DeptAccountAssignment {
-                type Filters = {
-                    assignedAt?: OrdinalFilterDTO<Date>;
-                    updatedAt?: OrdinalFilterDTO<Date>;
-                    organization?: LinkFilterDTO;
-                    department?: LinkFilterDTO;
-                    assignedBy?: LinkFilterDTO;
-                    account?: LinkFilterDTO;
-                    status?: StringFilterDTO;
-                    id?: StringFilterDTO;
-                };
-
-                type Sort = {
-                    assignedAt?: QueryOrder;
-                    updatedAt?: QueryOrder;
                 };
 
                 interface Types {
@@ -245,9 +222,9 @@ declare global {
                     updatedAt?: OrdinalFilterDTO<Date>;
                     createdAt?: OrdinalFilterDTO<Date>;
                     organization?: LinkFilterDTO;
+                    leadPosition?: LinkFilterDTO;
                     department?: LinkFilterDTO;
                     status?: StringFilterDTO;
-                    lead?: LinkFilterDTO;
                     name?: StringFilterDTO;
                     id?: StringFilterDTO;
                 };
@@ -257,29 +234,6 @@ declare global {
                     updatedAt?: QueryOrder;
                     createdAt?: QueryOrder;
                     name?: QueryOrder;
-                };
-
-                interface Types {
-                    Filters: Filters;
-                    Sort: Sort;
-                }
-            }
-
-            namespace TeamAccountAssignment {
-                type Filters = {
-                    assignedAt?: OrdinalFilterDTO<Date>;
-                    updatedAt?: OrdinalFilterDTO<Date>;
-                    organization?: LinkFilterDTO;
-                    assignedBy?: LinkFilterDTO;
-                    account?: LinkFilterDTO;
-                    status?: StringFilterDTO;
-                    team?: LinkFilterDTO;
-                    id?: StringFilterDTO;
-                };
-
-                type Sort = {
-                    assignedAt?: QueryOrder;
-                    updatedAt?: QueryOrder;
                 };
 
                 interface Types {

@@ -7,8 +7,6 @@ declare namespace Unit.Domain {
         namespace Repositories {
             type Props = {
                 projectAssignments?: Entities.ProjectAccountAssignment[];
-                departmentAssignments?: Entities.DeptAccountAssignment[];
-                teamAssignments?: Entities.TeamAccountAssignment[];
                 memberships?: Entities.OrgMembership[];
                 organizations?: Entities.Organization[];
                 departments?: Entities.Department[];
@@ -38,14 +36,12 @@ declare namespace Unit.Domain {
 
         interface Contract {
             projectAssignments: Base;
-            departmentAssignments: Base;
-            teamAssignments: Base;
-            memberships: Base;
             organizations: Lookup;
             departments: Lookup;
+            memberships: Base;
             changeLogs: Base;
-            auditLogs: Base;
             projects: Lookup;
+            auditLogs: Base;
             invites: Invite;
             teams: Lookup;
         }

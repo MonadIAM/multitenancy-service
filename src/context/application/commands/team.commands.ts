@@ -1,11 +1,14 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 
+import { ActionType, EntityType, KafkaTopic, PositionTopicAction } from "~context/enums";
 import { TRANSACTIONAL_SERVICE } from "~common/transaction-manager";
 import { TEAM_SERVICE } from "~context/domain/services";
-import { ActionType, EntityType } from "~context/enums";
+
+import { TeamMapper } from "../mappers/team.mapper";
 
 @Injectable({ scope: Scope.DEFAULT })
 export class TeamCommands implements Commands.Team.Contract {
+    private readonly mapper: Commands.Mappers.Team.Contract;
     private readonly dictionaryPath = "commands.team";
     private readonly resource = "Team";
 
@@ -14,7 +17,9 @@ export class TeamCommands implements Commands.Team.Contract {
         private readonly transactionalService: TransactionManager.Service.PublicContract,
         @Inject(TEAM_SERVICE)
         private readonly teamService: Services.Team.CommandContract,
-    ) {}
+    ) {
+        this.mapper = new TeamMapper();
+    }
 
     public async create(props: Commands.Team.Create.Props): Commands.Team.Create.Result {
         const { input, realm } = props;
@@ -55,10 +60,15 @@ export class TeamCommands implements Commands.Team.Contract {
     }
 
     public async changeLead(props: Commands.Team.ChangeLead.Props): Commands.Team.ChangeLead.Result {
-        const { input, realm, id } = props;
+        const { input, actor, realm, id } = props;
 
         await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.referencePayload,
+                actionType: PositionTopicAction.REFERENCE_REQUESTED,
+                destinationTopic: KafkaTopic.POSITION,
+            },
             audit: {
                 actionType: ActionType.UPDATE,
                 entityType: EntityType.TEAM,
@@ -66,11 +76,12 @@ export class TeamCommands implements Commands.Team.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.teamService.changeLead({ assignment: input.assignment, transaction, realm, id });
+                const team = await this.teamService.changeLead({ position: input.position, transaction, realm, id });
+                return { team, actor, realm };
             },
         });
 
-        if (input.assignment) {
+        if (input.position) {
             return { message: `${this.dictionaryPath}.LEAD_ASSIGNED` };
         } else {
             return { message: `${this.dictionaryPath}.LEAD_UNASSIGNED` };
@@ -124,10 +135,15 @@ export class TeamCommands implements Commands.Team.Contract {
     }
 
     public async purge(props: Commands.Team.Purge.Props): Commands.Team.Purge.Result {
-        const { input, realm } = props;
+        const { input, actor, realm } = props;
 
-        const teams = await this.transactionalService.run({
+        const { teams } = await this.transactionalService.run({
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.purgePayload,
+                actionType: PositionTopicAction.TEAM_PURGED,
+                destinationTopic: KafkaTopic.POSITION,
+            },
             audit: {
                 actionType: ActionType.DELETE,
                 entityType: EntityType.TEAM,
@@ -135,7 +151,8 @@ export class TeamCommands implements Commands.Team.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.teamService.purge({ identifiers: input.identifiers, transaction, realm });
+                const teams = await this.teamService.purge({ identifiers: input.identifiers, transaction, realm });
+                return { teams, actor, realm };
             },
         });
 

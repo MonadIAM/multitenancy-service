@@ -77,8 +77,8 @@
           "enumItems": [],
           "mappedType": "uuid"
         },
-        "manager_id": {
-          "name": "manager_id",
+        "manager_position_id": {
+          "name": "manager_position_id",
           "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
@@ -118,6 +118,40 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "previous_position": {
+          "name": "previous_position",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "process": {
+          "name": "process",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "unique": false,
           "length": null,
           "precision": null,
@@ -198,11 +232,11 @@
         },
         {
           "columnNames": [
-            "manager_id"
+            "manager_position_id"
           ],
           "composite": false,
           "constraint": false,
-          "keyName": "department_manager_idx",
+          "keyName": "department_manager_position_idx",
           "primary": false,
           "unique": false
         },
@@ -241,20 +275,6 @@
       "checks": [],
       "triggers": [],
       "foreignKeys": {
-        "department_manager_assignment_fk": {
-          "columnNames": [
-            "manager_id",
-            "id"
-          ],
-          "constraintName": "department_manager_assignment_fk",
-          "localTableName": "multitenancy.department",
-          "referencedColumnNames": [
-            "id",
-            "department_id"
-          ],
-          "referencedTableName": "multitenancy.dept_account_assignment",
-          "deleteRule": "set null (manager_id)"
-        },
         "department_organization_id_foreign": {
           "columnNames": [
             "organization_id"
@@ -265,258 +285,6 @@
             "id"
           ],
           "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict"
-        }
-      },
-      "comment": null
-    },
-    {
-      "name": "dept_account_assignment",
-      "schema": "multitenancy",
-      "columns": {
-        "assigned_at": {
-          "name": "assigned_at",
-          "type": "timestamptz(3)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": 3,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
-        },
-        "assigned_by": {
-          "name": "assigned_by",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "department_id": {
-          "name": "department_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": true,
-          "nullable": false,
-          "unique": true,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "membership_id": {
-          "name": "membership_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": true,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "status": {
-          "name": "status",
-          "type": "multitenancy.assignment_status",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [
-            "ACTIVE",
-            "REVOKED"
-          ],
-          "mappedType": "unknown",
-          "nativeEnumName": "multitenancy.assignment_status"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz(3)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "unique": false,
-          "length": 3,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
-        },
-        "version": {
-          "name": "version",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": "1",
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        }
-      },
-      "indexes": [
-        {
-          "columnNames": [
-            "department_id"
-          ],
-          "composite": false,
-          "constraint": false,
-          "keyName": "dept_account_assignment_department_idx",
-          "primary": false,
-          "unique": false
-        },
-        {
-          "columnNames": [
-            "id",
-            "department_id"
-          ],
-          "composite": true,
-          "constraint": true,
-          "keyName": "dept_account_assignment_id_department_unique",
-          "primary": false,
-          "unique": true
-        },
-        {
-          "columnNames": [
-            "membership_id",
-            "department_id"
-          ],
-          "composite": true,
-          "constraint": true,
-          "keyName": "dept_account_assignment_membership_department_unique",
-          "primary": false,
-          "unique": true
-        },
-        {
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "keyName": "dept_account_assignment_pkey",
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "triggers": [],
-      "foreignKeys": {
-        "dept_account_assignment_organization_id_foreign": {
-          "columnNames": [
-            "organization_id"
-          ],
-          "constraintName": "dept_account_assignment_organization_id_foreign",
-          "localTableName": "multitenancy.dept_account_assignment",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict"
-        },
-        "dept_assignment_department_organization_fk": {
-          "columnNames": [
-            "department_id",
-            "organization_id"
-          ],
-          "constraintName": "dept_assignment_department_organization_fk",
-          "localTableName": "multitenancy.dept_account_assignment",
-          "referencedColumnNames": [
-            "id",
-            "organization_id"
-          ],
-          "referencedTableName": "multitenancy.department",
-          "deleteRule": "restrict"
-        },
-        "dept_assignment_membership_organization_fk": {
-          "columnNames": [
-            "membership_id",
-            "organization_id"
-          ],
-          "constraintName": "dept_assignment_membership_organization_fk",
-          "localTableName": "multitenancy.dept_account_assignment",
-          "referencedColumnNames": [
-            "id",
-            "organization_id"
-          ],
-          "referencedTableName": "multitenancy.org_membership",
           "deleteRule": "restrict"
         }
       },
@@ -2072,8 +1840,8 @@
           "enumItems": [],
           "mappedType": "uuid"
         },
-        "lead_id": {
-          "name": "lead_id",
+        "lead_position_id": {
+          "name": "lead_position_id",
           "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
@@ -2113,6 +1881,40 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "previous_position": {
+          "name": "previous_position",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "process": {
+          "name": "process",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "unique": false,
           "length": null,
           "precision": null,
@@ -2204,11 +2006,11 @@
         },
         {
           "columnNames": [
-            "lead_id"
+            "lead_position_id"
           ],
           "composite": false,
           "constraint": false,
-          "keyName": "team_lead_idx",
+          "keyName": "team_lead_position_idx",
           "primary": false,
           "unique": false
         },
@@ -2261,20 +2063,6 @@
           "referencedTableName": "multitenancy.department",
           "deleteRule": "restrict"
         },
-        "team_lead_assignment_fk": {
-          "columnNames": [
-            "lead_id",
-            "id"
-          ],
-          "constraintName": "team_lead_assignment_fk",
-          "localTableName": "multitenancy.team",
-          "referencedColumnNames": [
-            "id",
-            "team_id"
-          ],
-          "referencedTableName": "multitenancy.team_account_assignment",
-          "deleteRule": "set null (lead_id)"
-        },
         "team_organization_id_foreign": {
           "columnNames": [
             "organization_id"
@@ -2285,258 +2073,6 @@
             "id"
           ],
           "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict"
-        }
-      },
-      "comment": null
-    },
-    {
-      "name": "team_account_assignment",
-      "schema": "multitenancy",
-      "columns": {
-        "assigned_at": {
-          "name": "assigned_at",
-          "type": "timestamptz(3)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": 3,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
-        },
-        "assigned_by": {
-          "name": "assigned_by",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": true,
-          "nullable": false,
-          "unique": true,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "membership_id": {
-          "name": "membership_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": true,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "status": {
-          "name": "status",
-          "type": "multitenancy.assignment_status",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [
-            "ACTIVE",
-            "REVOKED"
-          ],
-          "mappedType": "unknown",
-          "nativeEnumName": "multitenancy.assignment_status"
-        },
-        "team_id": {
-          "name": "team_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "uuid"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz(3)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "unique": false,
-          "length": 3,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "datetime"
-        },
-        "version": {
-          "name": "version",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": "1",
-          "comment": null,
-          "collation": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        }
-      },
-      "indexes": [
-        {
-          "columnNames": [
-            "id",
-            "team_id"
-          ],
-          "composite": true,
-          "constraint": true,
-          "keyName": "team_account_assignment_id_team_unique",
-          "primary": false,
-          "unique": true
-        },
-        {
-          "columnNames": [
-            "membership_id",
-            "team_id"
-          ],
-          "composite": true,
-          "constraint": true,
-          "keyName": "team_account_assignment_membership_team_unique",
-          "primary": false,
-          "unique": true
-        },
-        {
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "keyName": "team_account_assignment_pkey",
-          "primary": true,
-          "unique": true
-        },
-        {
-          "columnNames": [
-            "team_id"
-          ],
-          "composite": false,
-          "constraint": false,
-          "keyName": "team_account_assignment_team_idx",
-          "primary": false,
-          "unique": false
-        }
-      ],
-      "checks": [],
-      "triggers": [],
-      "foreignKeys": {
-        "team_account_assignment_organization_id_foreign": {
-          "columnNames": [
-            "organization_id"
-          ],
-          "constraintName": "team_account_assignment_organization_id_foreign",
-          "localTableName": "multitenancy.team_account_assignment",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict"
-        },
-        "team_assignment_membership_organization_fk": {
-          "columnNames": [
-            "membership_id",
-            "organization_id"
-          ],
-          "constraintName": "team_assignment_membership_organization_fk",
-          "localTableName": "multitenancy.team_account_assignment",
-          "referencedColumnNames": [
-            "id",
-            "organization_id"
-          ],
-          "referencedTableName": "multitenancy.org_membership",
-          "deleteRule": "restrict"
-        },
-        "team_assignment_team_organization_fk": {
-          "columnNames": [
-            "team_id",
-            "organization_id"
-          ],
-          "constraintName": "team_assignment_team_organization_fk",
-          "localTableName": "multitenancy.team_account_assignment",
-          "referencedColumnNames": [
-            "id",
-            "organization_id"
-          ],
-          "referencedTableName": "multitenancy.team",
           "deleteRule": "restrict"
         }
       },

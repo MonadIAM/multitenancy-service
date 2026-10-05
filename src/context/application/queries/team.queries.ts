@@ -1,12 +1,12 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 
-import { AssignmentStatus, OrgMembershipStatus, PermissionCode, QueryMode } from "~context/enums";
 import { TEAM_REPOSITORY } from "~context/infrastructure/repositories";
+import { PermissionCode, QueryMode } from "~context/enums";
 
 @Injectable({ scope: Scope.DEFAULT })
 export class TeamQueries implements Queries.Team.Contract {
     private readonly populate = {
-        DETAILED: ["organization", "department", "lead.membership"] as const,
+        DETAILED: ["organization", "department"] as const,
         COMPACT: [] as const,
     };
 
@@ -66,18 +66,6 @@ export class TeamQueries implements Queries.Team.Contract {
 
             if (props.permissions.includes(PermissionCode.TEAM_READ_COMMON)) {
                 prefilter.$or.push({ organization: { realm: props.realm } });
-            }
-
-            if (props.permissions.includes(PermissionCode.TEAM_READ_PERSONAL)) {
-                prefilter.$or.push({
-                    assignments: {
-                        status: AssignmentStatus.ACTIVE,
-                        membership: {
-                            status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
-                            account: props.actor,
-                        },
-                    },
-                });
             }
 
             return prefilter;

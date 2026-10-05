@@ -12,19 +12,22 @@ declare global {
                 archivedAt?: Date;
                 version: number;
 
+                previousPosition?: string;
+                leadPosition?: string;
                 description: string;
                 status: TeamStatus;
+                process?: string;
                 name: string;
 
-                lead?: Entities.TeamAccountAssignment;
                 organization: Entities.Organization;
                 department: Entities.Department;
 
-                assignments: ORM.Collection<Entities.TeamAccountAssignment>;
-
+                releasePosition(positions: string[]): void;
+                completePosition(rejected: boolean): void;
                 assignLead(props: AssignLead.Props): void;
                 update(props: ChangeDataProps): void;
                 unassignLead(): void;
+                assertReady(): void;
                 canPurge(): void;
                 restore(): void;
                 archive(): void;
@@ -39,7 +42,7 @@ declare global {
 
             namespace AssignLead {
                 type Props = {
-                    assignment: Entities.TeamAccountAssignment;
+                    position: string;
                 };
             }
 

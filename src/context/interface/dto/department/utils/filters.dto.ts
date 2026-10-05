@@ -25,7 +25,7 @@ export class FiltersDTO implements Repositories.Mappers.Department.Filters {
     @Validator.ValidateNested()
     @Type(() => LinkFilterDTO)
     @ApiProperty({ required: false, type: LinkFilterDTO })
-    public manager?: LinkFilterDTO;
+    public managerPosition?: LinkFilterDTO;
 
     @Expose()
     @Validator.IsOptional()

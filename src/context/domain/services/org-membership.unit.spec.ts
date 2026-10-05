@@ -127,18 +127,10 @@ describe("OrgMembershipService", () => {
                 const projectAssignment = helpers.createProjectAccountAssignment({
                     membership,
                 });
-                const departmentAssignment = helpers.createDeptAccountAssignment({
-                    membership,
-                });
-                const teamAssignment = helpers.createTeamAccountAssignment({
-                    membership,
-                });
                 const { service, services, repositories, transaction } = helpers.service({
                     memberships: [membership],
                 });
                 services.projectAssignments.clean.mockImplementation(() => Promise.resolve([projectAssignment]));
-                services.departmentAssignments.clean.mockImplementation(() => Promise.resolve([departmentAssignment]));
-                services.teamAssignments.clean.mockImplementation(() => Promise.resolve([teamAssignment]));
 
                 const result = await service[operation]({
                     account: membership.account,
@@ -161,14 +153,6 @@ describe("OrgMembershipService", () => {
                     memberships: [MEMBERSHIP_ID],
                     transaction: transaction.entityManager,
                 });
-                expect(services.departmentAssignments.clean).toHaveBeenCalledWith({
-                    memberships: [MEMBERSHIP_ID],
-                    transaction: transaction.entityManager,
-                });
-                expect(services.teamAssignments.clean).toHaveBeenCalledWith({
-                    memberships: [MEMBERSHIP_ID],
-                    transaction: transaction.entityManager,
-                });
                 expect(result).toEqual({
                     access: [
                         {
@@ -179,8 +163,6 @@ describe("OrgMembershipService", () => {
                     memberships: [membership],
                     assignments: {
                         project: [projectAssignment],
-                        department: [departmentAssignment],
-                        team: [teamAssignment],
                     },
                 });
             },

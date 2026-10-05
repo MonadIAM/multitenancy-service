@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 
 import { DepartmentQueriesUnitHelpers } from "~testing/unit/query-services/department.helpers";
-import { QueryMode, ResponseViewType, PermissionCode, OrgMembershipStatus, AssignmentStatus } from "~context/enums";
+import { QueryMode, ResponseViewType, PermissionCode } from "~context/enums";
 
 const ACTOR = "actor-account";
 const REALM = "realm-a";
@@ -14,50 +14,11 @@ describe("DepartmentQueries", () => {
         it.each([
             { name: "no read permission", permissions: [], expected: { $or: [] } },
             {
-                name: "personal",
-                permissions: [PermissionCode.DEPARTMENT_READ_PERSONAL],
-                expected: {
-                    $or: [
-                        {
-                            assignments: {
-                                membership: {
-                                    status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
-                                    account: ACTOR,
-                                },
-                                status: AssignmentStatus.ACTIVE,
-                            },
-                        },
-                    ],
-                },
-            },
-            {
                 name: "common",
                 permissions: [PermissionCode.DEPARTMENT_READ_COMMON],
                 expected: { $or: [{ organization: { realm: REALM } }] },
             },
-            {
-                name: "combined",
-                permissions: [PermissionCode.DEPARTMENT_READ_COMMON, PermissionCode.DEPARTMENT_READ_PERSONAL],
-                expected: {
-                    $or: [
-                        ...[{ organization: { realm: REALM } }],
-                        {
-                            assignments: {
-                                membership: {
-                                    status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
-                                    account: ACTOR,
-                                },
-                                status: AssignmentStatus.ACTIVE,
-                            },
-                        },
-                    ],
-                },
-            },
-            {
-                name: "absolute",
-                permissions: [PermissionCode.DEPARTMENT_READ_ABSOLUTE, PermissionCode.DEPARTMENT_READ_PERSONAL],
-                expected: {},
-            },
+            { name: "absolute", permissions: [PermissionCode.DEPARTMENT_READ_ABSOLUTE], expected: {} },
         ])("applies $name visibility to single and paged reads", async ({ permissions, expected }) => {
             const { queries, departmentRepository: repository } = helpers.queries();
             const entity = helpers.createDepartment();

@@ -14,8 +14,6 @@ declare namespace Repositories {
             type Result = Promise<
                 (
                     | Entities.ProjectAccountAssignment
-                    | Entities.DeptAccountAssignment
-                    | Entities.TeamAccountAssignment
                     | Entities.Invite
                     | Entities.Team
                     | Entities.Department

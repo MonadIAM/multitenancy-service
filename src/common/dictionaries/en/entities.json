@@ -49,15 +49,5 @@
     "ALREADY_REVOKED": "Project assignment is already revoked",
     "ALREADY_ACTIVE": "Project assignment is already active",
     "CANNOT_PURGE_ACTIVE": "An active project assignment cannot be deleted"
-  },
-  "dept-account-assignment": {
-    "ALREADY_REVOKED": "Department assignment is already revoked",
-    "ALREADY_ACTIVE": "Department assignment is already active",
-    "CANNOT_PURGE_ACTIVE": "An active department assignment cannot be deleted"
-  },
-  "team-account-assignment": {
-    "ALREADY_REVOKED": "Team assignment is already revoked",
-    "ALREADY_ACTIVE": "Team assignment is already active",
-    "CANNOT_PURGE_ACTIVE": "An active team assignment cannot be deleted"
   }
 }

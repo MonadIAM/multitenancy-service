@@ -7,7 +7,7 @@ import { DepartmentStatus } from "~context/enums";
 const REALM_ID        = "00000000-0000-4000-8000-100000000001";
 const ORGANIZATION_ID = "00000000-0000-4000-8000-100000000002";
 const DEPARTMENT_ID   = "00000000-0000-4000-8000-100000000003";
-const ASSIGNMENT_ID   = "00000000-0000-4000-8000-100000000004";
+const POSITION_ID     = "00000000-0000-4000-8000-100000000004";
 /* eslint-enable prettier/prettier */
 
 const helpers = new DepartmentUnitHelpers();
@@ -38,7 +38,7 @@ describe("DepartmentService", () => {
             });
 
             expect(repositories.organizations.findUniqueOrThrow).toHaveBeenCalledWith({
-                where: { status: "ACTIVE", id: ORGANIZATION_ID, realm: REALM_ID },
+                where: { id: ORGANIZATION_ID, realm: REALM_ID },
                 transaction: transaction.entityManager,
             });
             expect(result.organization).toBe(organization);
@@ -47,33 +47,28 @@ describe("DepartmentService", () => {
     });
 
     describe("changeManager", () => {
-        it("assigns an active department assignment as manager", async () => {
+        it("assigns an HR position as managerPosition", async () => {
             const department = helpers.createDepartment({ id: DEPARTMENT_ID });
-            const assignment = helpers.createDeptAccountAssignment({
-                id: ASSIGNMENT_ID,
-                department,
-            });
-            const { service, repositories, transaction } = helpers.service({
+            const { service, transaction } = helpers.service({
                 departments: [department],
             });
-            repositories.departmentAssignments.findUniqueOrThrow.mockImplementation(() => Promise.resolve(assignment));
 
             await service.changeManager({
                 id: DEPARTMENT_ID,
-                assignment: ASSIGNMENT_ID,
+                position: POSITION_ID,
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
             });
 
-            expect(department.manager).toBe(assignment);
+            expect(department.managerPosition).toBe(POSITION_ID);
         });
     });
 
     describe("update / changeManager", () => {
-        it("updates department metadata and unassigns its manager", async () => {
+        it("updates department metadata and unassigns its managerPosition", async () => {
             const department = helpers.createDepartment({ id: DEPARTMENT_ID });
-            department.assignManager({ assignment: helpers.createDeptAccountAssignment({ department }) });
-            const { service, repositories, transaction } = helpers.service({ departments: [department] });
+            department.assignManager({ position: POSITION_ID });
+            const { service, transaction } = helpers.service({ departments: [department] });
 
             await service.update({
                 id: DEPARTMENT_ID,
@@ -82,15 +77,14 @@ describe("DepartmentService", () => {
                 transaction: transaction.entityManager,
             });
             await service.changeManager({
-                assignment: null,
+                position: null,
                 id: DEPARTMENT_ID,
                 realm: REALM_ID,
                 transaction: transaction.entityManager,
             });
 
             expect(department.name).toBe("Updated");
-            expect(department.manager).toBeUndefined();
-            expect(repositories.departmentAssignments.findUniqueOrThrow).not.toHaveBeenCalled();
+            expect(department.managerPosition).toBeUndefined();
         });
     });
 

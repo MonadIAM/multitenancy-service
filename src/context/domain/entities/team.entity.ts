@@ -1,4 +1,3 @@
-import { Collection } from "@mikro-orm/core";
 import { randomUUID } from "node:crypto";
 
 import { Exception } from "~common/exceptions";
@@ -13,15 +12,15 @@ export class Team implements Entities.Team.Contract {
     public archivedAt?: Date;
     public version: number = 1;
 
+    public previousPosition?: string;
+    public leadPosition?: string;
     public description: string;
     public status: TeamStatus;
+    public process?: string;
     public name: string;
 
-    public lead?: Entities.TeamAccountAssignment;
     public organization: Entities.Organization;
     public department: Entities.Department;
-
-    public assignments = new Collection<Entities.TeamAccountAssignment>(this);
 
     public constructor(props: Entities.Team.ConstructorProps) {
         this.createdAt = new Date();
@@ -34,20 +33,26 @@ export class Team implements Entities.Team.Contract {
         this.name = props.name;
     }
 
-    public assignLead({ assignment }: Entities.Team.AssignLead.Props): void {
-        if (this.lead?.id === assignment.id) {
+    public assignLead({ position }: Entities.Team.AssignLead.Props): void {
+        this.assertReady();
+
+        if (this.leadPosition === position) {
             throw Exception.invariantViolation({
                 messageKey: `${Team.dictionaryPath}.NO_CHANGES_DETECTED`,
             });
         } else {
-            this.lead = assignment;
+            this.previousPosition = this.leadPosition;
+            this.leadPosition = position;
+            this.process = randomUUID();
             this.updatedAt = new Date();
         }
     }
 
     public unassignLead(): void {
-        if (this.lead) {
-            this.lead = undefined;
+        if (this.leadPosition) {
+            this.leadPosition = undefined;
+            this.previousPosition = undefined;
+            this.process = undefined;
             this.updatedAt = new Date();
         } else {
             throw Exception.invariantViolation({
@@ -100,6 +105,33 @@ export class Team implements Entities.Team.Contract {
         } else {
             this.status = TeamStatus.ACTIVE;
             this.archivedAt = undefined;
+            this.updatedAt = new Date();
+        }
+    }
+
+    public assertReady(): void {
+        if (this.process) {
+            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+        }
+    }
+
+    public completePosition(rejected: boolean): void {
+        if (rejected) {
+            this.leadPosition = this.previousPosition;
+            this.updatedAt = new Date();
+        }
+
+        this.previousPosition = undefined;
+        this.process = undefined;
+    }
+
+    public releasePosition(positions: string[]): void {
+        if (this.previousPosition && positions.includes(this.previousPosition)) {
+            this.previousPosition = undefined;
+        }
+
+        if (!this.process && this.leadPosition && positions.includes(this.leadPosition)) {
+            this.leadPosition = undefined;
             this.updatedAt = new Date();
         }
     }

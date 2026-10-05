@@ -1,6 +1,4 @@
 export { ProjectAccountAssignmentSchema } from "./project-account-assignment.schema";
-export { DeptAccountAssignmentSchema } from "./dept-account-assignment.schema";
-export { TeamAccountAssignmentSchema } from "./team-account-assignment.schema";
 export { OrgMembershipSchema } from "./org-membership.schema";
 export { OrganizationSchema } from "./organization.schema";
 export { DepartmentSchema } from "./department.schema";

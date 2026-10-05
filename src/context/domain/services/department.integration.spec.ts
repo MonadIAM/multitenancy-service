@@ -10,7 +10,7 @@ const helpers = new DepartmentIntegrationHelpers();
 describe("DepartmentService integration", () => {
     const suite = postgresSuite({
         repository: (context) => helpers.service(context),
-        fixture: (manager) => new CoreFixture(manager),
+        fixture: (managerPosition) => new CoreFixture(managerPosition),
     });
 
     describe("create / archive", () => {

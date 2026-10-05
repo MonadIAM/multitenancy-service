@@ -4,7 +4,6 @@ import { Expose, Type } from "class-transformer";
 import { TeamStatus } from "~context/enums";
 import { Validator } from "~common/validator";
 
-import { TeamAccountAssignmentLookupDTO } from "../../team-account-assignment";
 import { OrganizationLookupDTO } from "../../organization";
 import { DepartmentLookupDTO } from "../../department";
 
@@ -29,10 +28,9 @@ export class TeamDTO {
 
     @Expose()
     @Validator.IsOptional()
-    @Validator.ValidateNested()
-    @Type(() => TeamAccountAssignmentLookupDTO)
-    @ApiProperty({ required: false, type: TeamAccountAssignmentLookupDTO })
-    declare public lead?: TeamAccountAssignmentLookupDTO;
+    @Validator.IsUUID()
+    @ApiProperty({ required: false, type: String, format: "uuid" })
+    declare public leadPosition?: string;
 
     @Expose()
     @Validator.IsString()

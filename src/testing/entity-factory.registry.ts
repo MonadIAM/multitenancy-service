@@ -3,8 +3,6 @@ import { ChangeSetType } from "@mikro-orm/core";
 import { AuditLog, ChangeLog } from "~common/transaction-manager/entities";
 import {
     ProjectAccountAssignment,
-    DeptAccountAssignment,
-    TeamAccountAssignment,
     OrgMembership,
     Organization,
     Department,
@@ -13,10 +11,12 @@ import {
     Team,
 } from "~context/domain/entities";
 
-const REALM_ID = "00000000-0000-4000-8000-000000000001";
+/* eslint-disable prettier/prettier */
+const REALM_ID   = "00000000-0000-4000-8000-000000000001";
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
-const ACTOR_ID = "00000000-0000-4000-8000-000000000003";
-const ROLE_ID = "00000000-0000-4000-8000-000000000004";
+const ACTOR_ID   = "00000000-0000-4000-8000-000000000003";
+const ROLE_ID    = "00000000-0000-4000-8000-000000000004";
+/* eslint-enable prettier/prettier */
 
 export class EntityFactoryRegistry implements Testing.EntityFactory.Contract {
     public createOrganization(props: Testing.EntityFactory.CreateOrganization.Props = {}): Entities.Organization {
@@ -103,47 +103,6 @@ export class EntityFactoryRegistry implements Testing.EntityFactory.Contract {
                     }),
                 assignedBy: props.assignedBy ?? ACTOR_ID,
                 project,
-            }),
-            props,
-        );
-    }
-
-    public createDeptAccountAssignment(
-        props: Testing.EntityFactory.CreateDeptAccountAssignment.Props = {},
-    ): Entities.DeptAccountAssignment {
-        const department =
-            props.department ??
-            this.createDepartment({ organization: props.membership?.organization ?? this.createOrganization() });
-        return this.entity(
-            new DeptAccountAssignment({
-                ...props,
-                membership:
-                    props.membership ??
-                    this.createOrgMembership({
-                        organization: department.organization,
-                    }),
-                assignedBy: props.assignedBy ?? ACTOR_ID,
-                department,
-            }),
-            props,
-        );
-    }
-
-    public createTeamAccountAssignment(
-        props: Testing.EntityFactory.CreateTeamAccountAssignment.Props = {},
-    ): Entities.TeamAccountAssignment {
-        const team =
-            props.team ?? this.createTeam({ organization: props.membership?.organization ?? this.createOrganization() });
-        return this.entity(
-            new TeamAccountAssignment({
-                ...props,
-                membership:
-                    props.membership ??
-                    this.createOrgMembership({
-                        organization: team.organization,
-                    }),
-                assignedBy: props.assignedBy ?? ACTOR_ID,
-                team,
             }),
             props,
         );

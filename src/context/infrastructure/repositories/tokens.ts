@@ -1,6 +1,4 @@
 export const PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY = Symbol("Repositories.ProjectAccountAssignment.Contract");
-export const DEPT_ACCOUNT_ASSIGNMENT_REPOSITORY = Symbol("Repositories.DeptAccountAssignment.Contract");
-export const TEAM_ACCOUNT_ASSIGNMENT_REPOSITORY = Symbol("Repositories.TeamAccountAssignment.Contract");
 export const ORG_MEMBERSHIP_REPOSITORY = Symbol("Repositories.OrgMembership.Contract");
 export const ORGANIZATION_REPOSITORY = Symbol("Repositories.Organization.Contract");
 export const DEPARTMENT_REPOSITORY = Symbol("Repositories.Department.Contract");

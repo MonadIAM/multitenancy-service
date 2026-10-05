@@ -48,7 +48,7 @@ declare namespace Commands {
         namespace ChangeManager {
             type Props = {
                 input: {
-                    assignment: Nullable<string>;
+                    position: Nullable<string>;
                     reason: string;
                 };
                 context: Extract.Meta;

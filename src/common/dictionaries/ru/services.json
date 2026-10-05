@@ -35,14 +35,6 @@
     "ORGANIZATION_MISMATCH": "Членство и проект принадлежат разным организациям.",
     "ASSIGNMENTS_NOT_FOUND": "Одно или несколько назначений на проекты не существуют."
   },
-  "dept-account-assignment": {
-    "ORGANIZATION_MISMATCH": "Членство и подразделение принадлежат разным организациям.",
-    "ASSIGNMENTS_NOT_FOUND": "Одно или несколько назначений в подразделения не существуют."
-  },
-  "team-account-assignment": {
-    "ORGANIZATION_MISMATCH": "Членство и команда принадлежат разным организациям.",
-    "ASSIGNMENTS_NOT_FOUND": "Одно или несколько назначений в команды не существуют."
-  },
   "invite": {
     "INVITEE_ALREADY_MEMBER": "Приглашаемый уже состоит в организации.",
     "INVALIDATION_SCOPE_REQUIRED": "Для инвалидирования приглашений требуется аккаунт или организация."

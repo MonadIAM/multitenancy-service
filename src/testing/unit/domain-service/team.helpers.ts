@@ -7,7 +7,6 @@ export class TeamUnitHelpers extends DomainServiceCoreUnitHelpers implements Uni
         const repositories = this.repositories(props);
         return {
             service: new TeamService(
-                this.contract<Repositories.TeamAccountAssignment.Contract>(repositories.teamAssignments),
                 this.contract<Repositories.Department.Contract>(repositories.departments),
                 this.contract<Repositories.Team.Contract>(repositories.teams),
             ),

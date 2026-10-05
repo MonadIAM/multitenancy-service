@@ -1,22 +1,20 @@
 import { ClassProvider } from "@nestjs/common";
 
 import { ProjectAccountAssignmentCommands } from "./project-account-assignment.commands";
-import { DeptAccountAssignmentCommands } from "./dept-account-assignment.commands";
-import { TeamAccountAssignmentCommands } from "./team-account-assignment.commands";
 import { OrgMembershipCommands } from "./org-membership.commands";
 import { OrganizationCommands } from "./organization.commands";
 import { DepartmentCommands } from "./department.commands";
+import { PositionCommands } from "./position.commands";
 import { AccountCommands } from "./account.commands";
 import { ProjectCommands } from "./project.commands";
 import { InviteCommands } from "./invite.commands";
 import { TeamCommands } from "./team.commands";
 import {
     PROJECT_ACCOUNT_ASSIGNMENT_COMMANDS,
-    DEPT_ACCOUNT_ASSIGNMENT_COMMANDS,
-    TEAM_ACCOUNT_ASSIGNMENT_COMMANDS,
     ORG_MEMBERSHIP_COMMANDS,
     ORGANIZATION_COMMANDS,
     DEPARTMENT_COMMANDS,
+    POSITION_COMMANDS,
     ACCOUNT_COMMANDS,
     PROJECT_COMMANDS,
     INVITE_COMMANDS,
@@ -29,14 +27,6 @@ export const COMMANDS: ClassProvider[] = [
         useClass: ProjectAccountAssignmentCommands,
     },
     {
-        provide: DEPT_ACCOUNT_ASSIGNMENT_COMMANDS,
-        useClass: DeptAccountAssignmentCommands,
-    },
-    {
-        provide: TEAM_ACCOUNT_ASSIGNMENT_COMMANDS,
-        useClass: TeamAccountAssignmentCommands,
-    },
-    {
         provide: ORG_MEMBERSHIP_COMMANDS,
         useClass: OrgMembershipCommands,
     },
@@ -47,6 +37,10 @@ export const COMMANDS: ClassProvider[] = [
     {
         provide: DEPARTMENT_COMMANDS,
         useClass: DepartmentCommands,
+    },
+    {
+        provide: POSITION_COMMANDS,
+        useClass: PositionCommands,
     },
     {
         provide: ACCOUNT_COMMANDS,
@@ -68,11 +62,10 @@ export const COMMANDS: ClassProvider[] = [
 
 export {
     PROJECT_ACCOUNT_ASSIGNMENT_COMMANDS,
-    DEPT_ACCOUNT_ASSIGNMENT_COMMANDS,
-    TEAM_ACCOUNT_ASSIGNMENT_COMMANDS,
     ORG_MEMBERSHIP_COMMANDS,
     ORGANIZATION_COMMANDS,
     DEPARTMENT_COMMANDS,
+    POSITION_COMMANDS,
     ACCOUNT_COMMANDS,
     PROJECT_COMMANDS,
     INVITE_COMMANDS,

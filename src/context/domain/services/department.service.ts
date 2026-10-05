@@ -1,12 +1,8 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
+import { LockMode } from "@mikro-orm/core";
 
-import { AssignmentStatus, OrganizationStatus } from "~context/enums";
+import { ORGANIZATION_REPOSITORY, DEPARTMENT_REPOSITORY } from "~context/infrastructure/repositories";
 import { Exception } from "~common/exceptions";
-import {
-    DEPT_ACCOUNT_ASSIGNMENT_REPOSITORY,
-    ORGANIZATION_REPOSITORY,
-    DEPARTMENT_REPOSITORY,
-} from "~context/infrastructure/repositories";
 
 import { Department } from "../entities";
 
@@ -15,8 +11,6 @@ export class DepartmentService implements Services.Department.Contract {
     private readonly dictionaryPath = "services.department";
 
     public constructor(
-        @Inject(DEPT_ACCOUNT_ASSIGNMENT_REPOSITORY)
-        private readonly assignmentRepository: Repositories.DeptAccountAssignment.Contract,
         @Inject(ORGANIZATION_REPOSITORY)
         private readonly organizationRepository: Repositories.Organization.Contract,
         @Inject(DEPARTMENT_REPOSITORY)
@@ -26,7 +20,7 @@ export class DepartmentService implements Services.Department.Contract {
     public async create(props: Services.Department.Create.Props): Services.Department.Create.Result {
         const { transaction, input, realm } = props;
         const organization = await this.organizationRepository.findUniqueOrThrow({
-            where: { status: OrganizationStatus.ACTIVE, id: input.organization, realm },
+            where: { id: input.organization, realm },
             transaction,
         });
 
@@ -52,22 +46,15 @@ export class DepartmentService implements Services.Department.Contract {
     }
 
     public async changeManager(props: Services.Department.ChangeManager.Props): Services.Department.ChangeManager.Result {
-        const { transaction, assignment, realm, id } = props;
-        const [department, manager] = await Promise.all([
-            this.departmentRepository.findUniqueOrThrow({
-                where: { id, organization: { realm } },
-                transaction,
-            }),
-            assignment
-                ? this.assignmentRepository.findUniqueOrThrow({
-                      where: { status: AssignmentStatus.ACTIVE, id: assignment, department: id },
-                      transaction,
-                  })
-                : null,
-        ]);
+        const { transaction, position, realm, id } = props;
+        const department = await this.departmentRepository.findUniqueOrThrow({
+            options: { lockMode: LockMode.PESSIMISTIC_WRITE, refresh: true },
+            where: { id, organization: { realm } },
+            transaction,
+        });
 
-        if (manager) {
-            department.assignManager({ assignment: manager });
+        if (position) {
+            department.assignManager({ position });
         } else {
             department.unassignManager();
         }

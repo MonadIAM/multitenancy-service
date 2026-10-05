@@ -1,6 +1,4 @@
 export { ProjectAccountAssignmentMapper } from "./project-account-assignment.mapper";
-export { DeptAccountAssignmentMapper } from "./dept-account-assignment.mapper";
-export { TeamAccountAssignmentMapper } from "./team-account-assignment.mapper";
 export { OrgMembershipMapper } from "./org-membership.mapper";
 export { OrganizationMapper } from "./organization.mapper";
 export { DepartmentMapper } from "./department.mapper";

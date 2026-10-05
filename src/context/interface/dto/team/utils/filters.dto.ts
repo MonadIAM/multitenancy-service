@@ -32,7 +32,7 @@ export class FiltersDTO implements Repositories.Mappers.Team.Filters {
     @Validator.ValidateNested()
     @Type(() => LinkFilterDTO)
     @ApiProperty({ required: false, type: LinkFilterDTO })
-    public lead?: LinkFilterDTO;
+    public leadPosition?: LinkFilterDTO;
 
     @Expose()
     @Validator.IsOptional()

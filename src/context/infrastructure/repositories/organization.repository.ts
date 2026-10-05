@@ -6,8 +6,6 @@ import { ExceptionMapper } from "~common/exceptions";
 import { BaseRepository } from "~common/mixins";
 import {
     ProjectAccountAssignment,
-    DeptAccountAssignment,
-    TeamAccountAssignment,
     OrgMembership,
     Organization,
     Department,
@@ -40,13 +38,11 @@ export class OrganizationRepository
         const where = { organization: { $in: identifiers } };
         const groups = await Promise.all([
             transaction.find(ProjectAccountAssignment, where),
-            transaction.find(DeptAccountAssignment, where),
-            transaction.find(TeamAccountAssignment, where),
-            transaction.find(Invite, where),
-            transaction.find(Team, where),
+            transaction.find(OrgMembership, where),
             transaction.find(Department, where),
             transaction.find(Project, where),
-            transaction.find(OrgMembership, where),
+            transaction.find(Invite, where),
+            transaction.find(Team, where),
         ]);
 
         return groups.flat();

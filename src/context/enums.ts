@@ -23,11 +23,10 @@ export enum InviteQueryScope {
 export enum EntityType {
     /* eslint-disable prettier/prettier */
     PROJECT_ACCOUNT_ASSIGNMENT = "PROJECT_ACCOUNT_ASSIGNMENT",
-    DEPT_ACCOUNT_ASSIGNMENT    = "DEPT_ACCOUNT_ASSIGNMENT",
-    TEAM_ACCOUNT_ASSIGNMENT    = "TEAM_ACCOUNT_ASSIGNMENT",
     ORG_MEMBERSHIP             = "ORG_MEMBERSHIP",
     ORGANIZATION               = "ORGANIZATION",
     DEPARTMENT                 = "DEPARTMENT",
+    POSITION                   = "POSITION",
     PROJECT                    = "PROJECT",
     INVITE                     = "INVITE",
     TEAM                       = "TEAM",

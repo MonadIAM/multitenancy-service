@@ -19,8 +19,8 @@ export class DepartmentMapper implements Repositories.Mappers.Contract<
         if (filters.organization) {
             where.organization = { id: ORMAdapter.applyStringFilter(filters.organization) };
         }
-        if (filters.manager) {
-            where.manager = { id: ORMAdapter.applyStringFilter(filters.manager) };
+        if (filters.managerPosition) {
+            where.managerPosition = ORMAdapter.applyStringFilter(filters.managerPosition);
         }
         if (filters.name) {
             where.name = ORMAdapter.applyStringFilter(filters.name);

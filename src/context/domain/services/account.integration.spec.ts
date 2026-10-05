@@ -6,8 +6,6 @@ import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import {
     ProjectAccountAssignment,
-    DeptAccountAssignment,
-    TeamAccountAssignment,
     OrgMembership,
     Organization,
     Department,
@@ -36,15 +34,11 @@ describe("AccountService integration", () => {
             const projectAssignment = await suite
                 .fixtures()
                 .createProjectAccountAssignment({ membership: owned.owner, project });
-            const departmentAssignment = await suite
-                .fixtures()
-                .createDeptAccountAssignment({ membership: owned.owner, department });
-            const teamAssignment = await suite.fixtures().createTeamAccountAssignment({ membership: owned.owner, team });
             await suite.transaction(async (transaction) => {
                 await Promise.all([
                     transaction.nativeUpdate(Project, project.id, { manager: projectAssignment.id }),
-                    transaction.nativeUpdate(Department, department.id, { manager: departmentAssignment.id }),
-                    transaction.nativeUpdate(Team, team.id, { lead: teamAssignment.id }),
+                    transaction.nativeUpdate(Department, department.id, { managerPosition: randomUUID() }),
+                    transaction.nativeUpdate(Team, team.id, { leadPosition: randomUUID() }),
                 ]);
             });
             const membership = await suite.fixtures().createOrgMembership({ organization: foreign, account });
@@ -72,13 +66,11 @@ describe("AccountService integration", () => {
                         transaction.count(Team, { organization: owned.id }),
                         transaction.count(Invite, { organization: owned.id }),
                         transaction.count(ProjectAccountAssignment, { organization: owned.id }),
-                        transaction.count(DeptAccountAssignment, { organization: owned.id }),
-                        transaction.count(TeamAccountAssignment, { organization: owned.id }),
                         transaction.count(OrgMembership, { account }),
                         transaction.count(ProjectAccountAssignment, { membership: { id: membership.id } }),
                     ]),
                 ),
-            ).resolves.toEqual(Array(11).fill(0));
+            ).resolves.toEqual(Array(9).fill(0));
             await expect(
                 suite.transaction((transaction) => transaction.count(Organization, { id: foreign.id })),
             ).resolves.toBe(1);

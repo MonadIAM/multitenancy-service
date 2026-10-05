@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 
 import { TeamQueriesUnitHelpers } from "~testing/unit/query-services/team.helpers";
-import { QueryMode, ResponseViewType, PermissionCode, OrgMembershipStatus, AssignmentStatus } from "~context/enums";
+import { QueryMode, ResponseViewType, PermissionCode } from "~context/enums";
 
 const ACTOR = "actor-account";
 const REALM = "realm-a";
@@ -14,50 +14,11 @@ describe("TeamQueries", () => {
         it.each([
             { name: "no read permission", permissions: [], expected: { $or: [] } },
             {
-                name: "personal",
-                permissions: [PermissionCode.TEAM_READ_PERSONAL],
-                expected: {
-                    $or: [
-                        {
-                            assignments: {
-                                membership: {
-                                    status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
-                                    account: ACTOR,
-                                },
-                                status: AssignmentStatus.ACTIVE,
-                            },
-                        },
-                    ],
-                },
-            },
-            {
                 name: "common",
                 permissions: [PermissionCode.TEAM_READ_COMMON],
                 expected: { $or: [{ organization: { realm: REALM } }] },
             },
-            {
-                name: "combined",
-                permissions: [PermissionCode.TEAM_READ_COMMON, PermissionCode.TEAM_READ_PERSONAL],
-                expected: {
-                    $or: [
-                        ...[{ organization: { realm: REALM } }],
-                        {
-                            assignments: {
-                                membership: {
-                                    status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
-                                    account: ACTOR,
-                                },
-                                status: AssignmentStatus.ACTIVE,
-                            },
-                        },
-                    ],
-                },
-            },
-            {
-                name: "absolute",
-                permissions: [PermissionCode.TEAM_READ_ABSOLUTE, PermissionCode.TEAM_READ_PERSONAL],
-                expected: {},
-            },
+            { name: "absolute", permissions: [PermissionCode.TEAM_READ_ABSOLUTE], expected: {} },
         ])("applies $name visibility to single and paged reads", async ({ permissions, expected }) => {
             const { queries, teamRepository: repository } = helpers.queries();
             const entity = helpers.createTeam();
