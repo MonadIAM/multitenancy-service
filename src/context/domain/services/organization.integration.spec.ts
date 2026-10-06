@@ -8,7 +8,15 @@ import { ConcurrencyIntegrationHelpers } from "~testing/integration/concurrency.
 import { RealmType, OrganizationStatus, OrgMembershipStatus } from "~context/enums";
 import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
-import { Organization, OrgMembership } from "~context/domain/entities";
+import {
+    ProjectAccountAssignment,
+    Organization,
+    OrgMembership,
+    Department,
+    Project,
+    Invite,
+    Team,
+} from "~context/domain/entities";
 
 const helpers = new OrganizationIntegrationHelpers();
 
@@ -469,6 +477,77 @@ describe("OrganizationService integration", () => {
             await expect(
                 suite.transaction((transaction) => transaction.count(Organization, { id: target.id })),
             ).resolves.toBe(0);
+        });
+    });
+
+    describe("purge cascades", () => {
+        it("deletes all owned rows while preserving another organization and collecting project realms", async () => {
+            const organization = await suite.fixtures().createOrganization();
+            const foreign = await suite.fixtures().createOrganization();
+            const project = await suite.fixtures().createProject({ organization });
+            const department = await suite.fixtures().createDepartment({ organization });
+            await suite.fixtures().createTeam({ department });
+            await suite.fixtures().createInvite({ organization });
+            const assignment = await suite
+                .fixtures()
+                .createProjectAccountAssignment({ project, membership: organization.owner });
+            await suite.transaction(async (transaction) => {
+                await transaction.nativeUpdate(Project, project.id, { manager: assignment.id });
+                await transaction.nativeUpdate(Organization, organization.id, { status: OrganizationStatus.REVOKED });
+            });
+
+            const result = await suite.transaction(async (transaction) => {
+                const result = await suite.repository().organizationService.purge({
+                    identifiers: [organization.id],
+                    actor: organization.owner.account,
+                    global: false,
+                    transaction,
+                });
+                await transaction.flush();
+                return result;
+            });
+
+            expect(result.realms.map(({ realm }) => realm).sort()).toEqual([organization.realm, project.realm].sort());
+            await expect(
+                suite.transaction((transaction) =>
+                    Promise.all([
+                        transaction.count(Organization, organization.id),
+                        transaction.count(OrgMembership, { organization: organization.id }),
+                        transaction.count(Project, { organization: organization.id }),
+                        transaction.count(ProjectAccountAssignment, { organization: organization.id }),
+                        transaction.count(Department, { organization: organization.id }),
+                        transaction.count(Team, { organization: organization.id }),
+                        transaction.count(Invite, { organization: organization.id }),
+                        transaction.count(Organization, foreign.id),
+                        transaction.count(OrgMembership, foreign.owner.id),
+                    ]),
+                ),
+            ).resolves.toEqual([0, 0, 0, 0, 0, 0, 0, 1, 1]);
+        });
+
+        it("still rejects deleting a department with teams", async () => {
+            const organization = await suite.fixtures().createOrganization();
+            const department = await suite.fixtures().createDepartment({ organization });
+            const team = await suite.fixtures().createTeam({ department });
+
+            const result = suite.transaction((transaction) => transaction.nativeDelete(Department, department.id));
+
+            await expect(result).rejects.toThrow();
+            await expect(suite.transaction((transaction) => transaction.count(Team, team.id))).resolves.toBe(1);
+        });
+
+        it("still rejects deleting a membership with project assignments", async () => {
+            const organization = await suite.fixtures().createOrganization();
+            const membership = await suite.fixtures().createOrgMembership({ organization });
+            const project = await suite.fixtures().createProject({ organization });
+            const assignment = await suite.fixtures().createProjectAccountAssignment({ membership, project });
+
+            const result = suite.transaction((transaction) => transaction.nativeDelete(OrgMembership, membership.id));
+
+            await expect(result).rejects.toThrow();
+            await expect(
+                suite.transaction((transaction) => transaction.count(ProjectAccountAssignment, assignment.id)),
+            ).resolves.toBe(1);
         });
     });
 });

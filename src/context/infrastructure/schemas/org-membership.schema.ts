@@ -21,8 +21,14 @@ export const OrgMembershipSchema = new EntitySchema<OrgMembership>({
     ],
 
     indexes: [
-        { name: "org_membership_account_idx", properties: ["account"] },
-        { name: "org_membership_status_idx", properties: ["status"] },
+        {
+            name: "org_membership_account_idx",
+            properties: ["account"],
+        },
+        {
+            name: "org_membership_status_idx",
+            properties: ["status"],
+        },
     ],
 
     properties: {
@@ -33,7 +39,7 @@ export const OrgMembershipSchema = new EntitySchema<OrgMembership>({
             entity: () => Organization,
             fieldName: "organization_id",
             inversedBy: "memberships",
-            deleteRule: "no action",
+            deleteRule: "cascade",
             deferMode: DeferMode.INITIALLY_DEFERRED,
         },
         account: { type: "uuid", fieldName: "account_id" },

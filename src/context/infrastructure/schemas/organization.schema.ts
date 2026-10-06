@@ -9,7 +9,12 @@ export const OrganizationSchema = new EntitySchema<Organization>({
     tableName: "organization",
     schema: "multitenancy",
 
-    uniques: [{ name: "organization_realm_unique", properties: ["realm"] }],
+    uniques: [
+        {
+            name: "organization_realm_unique",
+            properties: ["realm"],
+        },
+    ],
 
     indexes: [
         {
@@ -17,7 +22,10 @@ export const OrganizationSchema = new EntitySchema<Organization>({
             expression:
                 'CREATE INDEX "organization_title_trgm_idx" ON "multitenancy"."organization" USING gin ("title" gin_trgm_ops)',
         },
-        { name: "organization_owner_idx", columns: [{ name: "owner_id" }] },
+        {
+            name: "organization_owner_idx",
+            properties: ["owner"],
+        },
     ],
 
     properties: {

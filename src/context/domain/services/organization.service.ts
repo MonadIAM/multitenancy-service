@@ -278,7 +278,7 @@ export class OrganizationService implements Services.Organization.Contract {
                 entity.canPurge();
             }
 
-            return this.removeGraph({ organizations: entities, transaction });
+            return this.remove({ organizations: entities, transaction });
         }
     }
 
@@ -294,23 +294,22 @@ export class OrganizationService implements Services.Organization.Contract {
             transaction,
         });
 
-        return this.removeGraph({ organizations, transaction });
+        return this.remove({ organizations, transaction });
     }
 
-    private async removeGraph(props: Services.Organization.CollectRealms.Props): Services.Organization.Purge.Result {
+    private async remove(props: Services.Organization.CollectRealms.Props): Services.Organization.Purge.Result {
         const { organizations, transaction } = props;
-        const [realms, dependents] = await Promise.all([
+        const [realms, pending] = await Promise.all([
             this.collectRealms({ organizations, transaction }),
-            this.organizationRepository.findDependents({ identifiers: organizations.map(({ id }) => id), transaction }),
+            this.organizationRepository.hasPendingProcesses({
+                identifiers: organizations.map(({ id }) => id),
+                transaction,
+            }),
         ]);
 
-        if (
-            organizations.some(({ process }) => process) ||
-            dependents.some((entity) => "process" in entity && entity.process)
-        ) {
+        if (organizations.some(({ process }) => process) || pending) {
             throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
         } else {
-            transaction.remove(dependents);
             transaction.remove(organizations);
 
             return { organizations, realms };
@@ -328,6 +327,7 @@ export class OrganizationService implements Services.Organization.Contract {
                     $nin: [ProjectStatus.PROVISIONING, ProjectStatus.FAILED],
                 },
             },
+            options: { disableIdentityMap: true },
             transaction,
         });
 

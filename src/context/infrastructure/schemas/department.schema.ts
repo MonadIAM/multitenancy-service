@@ -22,8 +22,14 @@ export const DepartmentSchema = new EntitySchema<Department>({
             expression:
                 'CREATE INDEX "department_name_trgm_idx" ON "multitenancy"."department" USING gin ("name" gin_trgm_ops)',
         },
-        { name: "department_organization_idx", properties: ["organization"] },
-        { name: "department_manager_position_idx", properties: ["managerPosition"] },
+        {
+            name: "department_organization_idx",
+            properties: ["organization"],
+        },
+        {
+            name: "department_manager_position_idx",
+            properties: ["managerPosition"],
+        },
     ],
 
     properties: {
@@ -46,7 +52,7 @@ export const DepartmentSchema = new EntitySchema<Department>({
             kind: "m:1",
             entity: () => Organization,
             fieldName: "organization_id",
-            deleteRule: "restrict",
+            deleteRule: "cascade",
         },
 
         archivedAt: { type: "timestamptz", length: 3, nullable: true },

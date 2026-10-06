@@ -177,11 +177,11 @@
           "comment": null,
           "collation": null,
           "enumItems": [
-            "ACTIVE",
-            "ARCHIVED"
+            "ARCHIVED",
+            "ACTIVE"
           ],
-          "mappedType": "unknown",
-          "nativeEnumName": "multitenancy.department_status"
+          "mappedType": "enum",
+          "nativeEnumName": "department_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -241,15 +241,13 @@
           "unique": false
         },
         {
-          "columnNames": [
-            "name"
-          ],
+          "columnNames": [],
           "composite": false,
           "constraint": false,
           "keyName": "department_name_trgm_idx",
           "primary": false,
           "unique": false,
-          "type": "gin"
+          "expression": "CREATE INDEX \"department_name_trgm_idx\" ON \"multitenancy\".\"department\" USING gin (\"name\" gin_trgm_ops)"
         },
         {
           "columnNames": [
@@ -285,7 +283,7 @@
             "id"
           ],
           "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict"
+          "deleteRule": "cascade"
         }
       },
       "comment": null
@@ -470,8 +468,8 @@
             "EXPIRED",
             "PENDING"
           ],
-          "mappedType": "unknown",
-          "nativeEnumName": "multitenancy.invite_status"
+          "mappedType": "enum",
+          "nativeEnumName": "invite_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -529,7 +527,7 @@
           "keyName": "invite_pending_invitee_organization_unique",
           "primary": false,
           "unique": true,
-          "where": "status = ANY (ARRAY['PENDING'::multitenancy.invite_status, 'ACCEPTING'::multitenancy.invite_status])"
+          "where": "status in ('PENDING', 'ACCEPTING')"
         },
         {
           "columnNames": [
@@ -566,7 +564,7 @@
             "id"
           ],
           "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict"
+          "deleteRule": "cascade"
         }
       },
       "comment": null
@@ -749,8 +747,8 @@
             "ACTIVE",
             "LEFT"
           ],
-          "mappedType": "unknown",
-          "nativeEnumName": "multitenancy.org_membership_status"
+          "mappedType": "enum",
+          "nativeEnumName": "org_membership_status"
         },
         "suspended_at": {
           "name": "suspended_at",
@@ -871,6 +869,7 @@
             "id"
           ],
           "referencedTableName": "multitenancy.organization",
+          "deleteRule": "cascade",
           "deferMode": "deferred"
         }
       },
@@ -1053,8 +1052,8 @@
             "ACTIVE",
             "REVOKED"
           ],
-          "mappedType": "unknown",
-          "nativeEnumName": "multitenancy.organization_status"
+          "mappedType": "enum",
+          "nativeEnumName": "organization_status"
         },
         "title": {
           "name": "title",
@@ -1111,9 +1110,10 @@
       "indexes": [
         {
           "columnNames": [
-            "owner_id"
+            "owner_id",
+            "id"
           ],
-          "composite": false,
+          "composite": true,
           "constraint": false,
           "keyName": "organization_owner_idx",
           "primary": false,
@@ -1140,15 +1140,13 @@
           "unique": true
         },
         {
-          "columnNames": [
-            "title"
-          ],
+          "columnNames": [],
           "composite": false,
           "constraint": false,
           "keyName": "organization_title_trgm_idx",
           "primary": false,
           "unique": false,
-          "type": "gin"
+          "expression": "CREATE INDEX \"organization_title_trgm_idx\" ON \"multitenancy\".\"organization\" USING gin (\"title\" gin_trgm_ops)"
         }
       ],
       "checks": [],
@@ -1361,12 +1359,12 @@
           "collation": null,
           "enumItems": [
             "PROVISIONING",
-            "ACTIVE",
             "ARCHIVED",
-            "FAILED"
+            "FAILED",
+            "ACTIVE"
           ],
-          "mappedType": "unknown",
-          "nativeEnumName": "multitenancy.project_status"
+          "mappedType": "enum",
+          "nativeEnumName": "project_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -1417,24 +1415,24 @@
         },
         {
           "columnNames": [
-            "manager_id"
+            "manager_id",
+            "id",
+            "organization_id"
           ],
-          "composite": false,
+          "composite": true,
           "constraint": false,
           "keyName": "project_manager_idx",
           "primary": false,
           "unique": false
         },
         {
-          "columnNames": [
-            "name"
-          ],
+          "columnNames": [],
           "composite": false,
           "constraint": false,
           "keyName": "project_name_trgm_idx",
           "primary": false,
           "unique": false,
-          "type": "gin"
+          "expression": "CREATE INDEX \"project_name_trgm_idx\" ON \"multitenancy\".\"project\" USING gin (\"name\" gin_trgm_ops)"
         },
         {
           "columnNames": [
@@ -1473,16 +1471,18 @@
         "project_manager_assignment_fk": {
           "columnNames": [
             "manager_id",
-            "id"
+            "id",
+            "organization_id"
           ],
           "constraintName": "project_manager_assignment_fk",
           "localTableName": "multitenancy.project",
           "referencedColumnNames": [
             "id",
-            "project_id"
+            "project_id",
+            "organization_id"
           ],
           "referencedTableName": "multitenancy.project_account_assignment",
-          "deleteRule": "set null (manager_id)"
+          "deleteRule": "set null (\"manager_id\")"
         },
         "project_organization_id_foreign": {
           "columnNames": [
@@ -1494,7 +1494,7 @@
             "id"
           ],
           "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict"
+          "deleteRule": "cascade"
         }
       },
       "comment": null
@@ -1620,11 +1620,11 @@
           "comment": null,
           "collation": null,
           "enumItems": [
-            "ACTIVE",
-            "REVOKED"
+            "REVOKED",
+            "ACTIVE"
           ],
-          "mappedType": "unknown",
-          "nativeEnumName": "multitenancy.assignment_status"
+          "mappedType": "enum",
+          "nativeEnumName": "assignment_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -1665,7 +1665,8 @@
         {
           "columnNames": [
             "id",
-            "project_id"
+            "project_id",
+            "organization_id"
           ],
           "composite": true,
           "constraint": true,
@@ -1676,6 +1677,7 @@
         {
           "columnNames": [
             "membership_id",
+            "organization_id",
             "project_id"
           ],
           "composite": true,
@@ -1696,9 +1698,10 @@
         },
         {
           "columnNames": [
-            "project_id"
+            "project_id",
+            "organization_id"
           ],
-          "composite": false,
+          "composite": true,
           "constraint": false,
           "keyName": "project_account_assignment_project_idx",
           "primary": false,
@@ -1718,7 +1721,7 @@
             "id"
           ],
           "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict"
+          "deleteRule": "cascade"
         },
         "project_assignment_membership_organization_fk": {
           "columnNames": [
@@ -1940,11 +1943,11 @@
           "comment": null,
           "collation": null,
           "enumItems": [
-            "ACTIVE",
-            "ARCHIVED"
+            "ARCHIVED",
+            "ACTIVE"
           ],
-          "mappedType": "unknown",
-          "nativeEnumName": "multitenancy.team_status"
+          "mappedType": "enum",
+          "nativeEnumName": "team_status"
         },
         "updated_at": {
           "name": "updated_at",
@@ -2015,15 +2018,13 @@
           "unique": false
         },
         {
-          "columnNames": [
-            "name"
-          ],
+          "columnNames": [],
           "composite": false,
           "constraint": false,
           "keyName": "team_name_trgm_idx",
           "primary": false,
           "unique": false,
-          "type": "gin"
+          "expression": "CREATE INDEX \"team_name_trgm_idx\" ON \"multitenancy\".\"team\" USING gin (\"name\" gin_trgm_ops)"
         },
         {
           "columnNames": [
@@ -2073,7 +2074,7 @@
             "id"
           ],
           "referencedTableName": "multitenancy.organization",
-          "deleteRule": "restrict"
+          "deleteRule": "cascade"
         }
       },
       "comment": null
@@ -2808,16 +2809,16 @@
       "name": "assignment_status",
       "schema": "multitenancy",
       "items": [
-        "ACTIVE",
-        "REVOKED"
+        "REVOKED",
+        "ACTIVE"
       ]
     },
     "multitenancy.department_status": {
       "name": "department_status",
       "schema": "multitenancy",
       "items": [
-        "ACTIVE",
-        "ARCHIVED"
+        "ARCHIVED",
+        "ACTIVE"
       ]
     },
     "multitenancy.invite_status": {
@@ -2859,17 +2860,17 @@
       "schema": "multitenancy",
       "items": [
         "PROVISIONING",
-        "ACTIVE",
         "ARCHIVED",
-        "FAILED"
+        "FAILED",
+        "ACTIVE"
       ]
     },
     "multitenancy.team_status": {
       "name": "team_status",
       "schema": "multitenancy",
       "items": [
-        "ACTIVE",
-        "ARCHIVED"
+        "ARCHIVED",
+        "ACTIVE"
       ]
     }
   }

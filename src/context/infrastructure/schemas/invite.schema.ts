@@ -18,7 +18,10 @@ export const InviteSchema = new EntitySchema<Invite>({
     ],
 
     indexes: [
-        { name: "invite_inviter_idx", properties: ["inviter"] },
+        {
+            name: "invite_inviter_idx",
+            properties: ["inviter"],
+        },
         {
             name: "invite_status_expires_at_idx",
             properties: ["status", "expiresAt"],
@@ -39,7 +42,7 @@ export const InviteSchema = new EntitySchema<Invite>({
             kind: "m:1",
             entity: () => Organization,
             fieldName: "organization_id",
-            deleteRule: "restrict",
+            deleteRule: "cascade",
         },
         role: { type: "uuid", fieldName: "role_id", nullable: true },
 

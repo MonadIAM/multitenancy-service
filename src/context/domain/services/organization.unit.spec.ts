@@ -154,7 +154,40 @@ describe("OrganizationService", () => {
             });
 
             expect(canPurgeSpy).toHaveBeenCalledTimes(1);
-            expect(transaction.remove).toHaveBeenCalledWith([organization]);
+            expect(transaction.remove.mock.calls).toEqual([[[organization]]]);
+        });
+    });
+
+    describe("purge / purgeOwned", () => {
+        it.each(["purge", "purgeOwned"] as const)("rejects %s while a child process is pending", async (method) => {
+            const organization = helpers.createOrganization({ status: OrganizationStatus.REVOKED });
+            const { service, transaction, hasPendingProcesses } = helpers.service({ organizations: [organization] });
+            hasPendingProcesses.mockResolvedValue(true);
+
+            const result = service[method]({
+                identifiers: [organization.id],
+                account: ACTOR_ID,
+                actor: ACTOR_ID,
+                global: false,
+                transaction: transaction.entityManager,
+            });
+
+            await expect(result).rejects.toThrow("services.workflow.OPERATION_CONFLICT");
+            expect(hasPendingProcesses).toHaveBeenCalledWith({
+                identifiers: [organization.id],
+                transaction: transaction.entityManager,
+            });
+            expect(transaction.remove).not.toHaveBeenCalled();
+        });
+
+        it("rejects owner cleanup while the organization itself has a pending process", async () => {
+            const organization = helpers.createOrganization({ process: "pending-process" });
+            const { service, transaction } = helpers.service({ organizations: [organization] });
+
+            const result = service.purgeOwned({ account: ACTOR_ID, transaction: transaction.entityManager });
+
+            await expect(result).rejects.toThrow("services.workflow.OPERATION_CONFLICT");
+            expect(transaction.remove).not.toHaveBeenCalled();
         });
     });
 });

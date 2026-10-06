@@ -14,18 +14,18 @@ export const ProjectAccountAssignmentSchema = new EntitySchema<ProjectAccountAss
     uniques: [
         {
             name: "project_account_assignment_membership_project_unique",
-            columns: [{ name: "membership_id" }, { name: "project_id" }],
+            properties: ["membership", "project"],
         },
         {
             name: "project_account_assignment_id_project_unique",
-            columns: [{ name: "id" }, { name: "project_id" }],
+            properties: ["id", "project"],
         },
     ],
 
     indexes: [
         {
             name: "project_account_assignment_project_idx",
-            columns: [{ name: "project_id" }],
+            properties: ["project"],
         },
     ],
 
@@ -35,7 +35,7 @@ export const ProjectAccountAssignmentSchema = new EntitySchema<ProjectAccountAss
             kind: "m:1",
             entity: () => Organization,
             fieldName: "organization_id",
-            deleteRule: "restrict",
+            deleteRule: "cascade",
         },
         membership: {
             kind: "m:1",

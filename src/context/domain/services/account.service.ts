@@ -38,7 +38,7 @@ export class AccountService implements Services.Account.Contract {
         });
 
         const memberships = await this.membershipRepository.find({
-            options: { refresh: true },
+            options: { refresh: true, disableIdentityMap: true },
             where: { account },
             transaction,
         });

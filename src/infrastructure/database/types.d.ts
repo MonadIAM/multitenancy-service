@@ -125,6 +125,11 @@ declare global {
         };
 
         type Database = {
+            "multitenancy.org_membership": Columns<Entities.OrgMembership>;
+            "multitenancy.department": Columns<Entities.Department>;
+            "multitenancy.project": Columns<Entities.Project>;
+            "multitenancy.invite": Columns<Entities.Invite>;
+            "multitenancy.team": Columns<Entities.Team>;
             "system.inbox": Columns<SystemEntities.Inbox>;
             "system.audit_log": AuditLogColumns;
             "system.change_log": ChangeLogColumns;

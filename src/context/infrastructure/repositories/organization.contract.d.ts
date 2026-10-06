@@ -4,23 +4,21 @@ declare namespace Repositories {
             Entities.Organization,
             Repositories.Mappers.Organization.Types
         > {
+            hasPendingProcesses: HasPendingProcesses.Signature;
             getLookupList: GetLookupList.Signature;
-            findDependents: FindDependents.Signature;
         }
 
-        namespace FindDependents {
-            type Props = { identifiers: string[]; transaction: ORM.EntityManager };
+        type PendingProcessesRow = {
+            pending: boolean;
+        };
 
-            type Result = Promise<
-                (
-                    | Entities.ProjectAccountAssignment
-                    | Entities.Invite
-                    | Entities.Team
-                    | Entities.Department
-                    | Entities.Project
-                    | Entities.OrgMembership
-                )[]
-            >;
+        namespace HasPendingProcesses {
+            type Props = {
+                transaction: ORM.EntityManager;
+                identifiers: string[];
+            };
+
+            type Result = Promise<boolean>;
 
             type Signature = (props: Props) => Result;
         }

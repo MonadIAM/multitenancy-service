@@ -11,7 +11,10 @@ export const ProjectSchema = new EntitySchema<Project>({
     schema: "multitenancy",
 
     uniques: [
-        { name: "project_realm_unique", properties: ["realm"] },
+        {
+            name: "project_realm_unique",
+            properties: ["realm"],
+        },
         {
             name: "project_id_organization_unique",
             properties: ["id", "organization"],
@@ -23,8 +26,14 @@ export const ProjectSchema = new EntitySchema<Project>({
             name: "project_name_trgm_idx",
             expression: 'CREATE INDEX "project_name_trgm_idx" ON "multitenancy"."project" USING gin ("name" gin_trgm_ops)',
         },
-        { name: "project_organization_idx", properties: ["organization"] },
-        { name: "project_manager_idx", columns: [{ name: "manager_id" }] },
+        {
+            name: "project_organization_idx",
+            properties: ["organization"],
+        },
+        {
+            name: "project_manager_idx",
+            properties: ["manager"],
+        },
     ],
 
     properties: {
@@ -39,14 +48,14 @@ export const ProjectSchema = new EntitySchema<Project>({
             kind: "m:1",
             entity: () => Organization,
             fieldName: "organization_id",
-            deleteRule: "restrict",
+            deleteRule: "cascade",
         },
         manager: {
             kind: "m:1",
             entity: () => ProjectAccountAssignment,
-            joinColumns: ["manager_id", "id"],
-            columnTypes: ["uuid", "uuid"],
-            referencedColumnNames: ["id", "project_id"],
+            joinColumns: ["manager_id", "id", "organization_id"],
+            columnTypes: ["uuid", "uuid", "uuid"],
+            referencedColumnNames: ["id", "project_id", "organization_id"],
             ownColumns: ["manager_id"],
             deleteRule: 'set null ("manager_id")',
             nullable: true,

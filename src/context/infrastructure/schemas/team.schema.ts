@@ -22,9 +22,18 @@ export const TeamSchema = new EntitySchema<Team>({
             name: "team_name_trgm_idx",
             expression: 'CREATE INDEX "team_name_trgm_idx" ON "multitenancy"."team" USING gin ("name" gin_trgm_ops)',
         },
-        { name: "team_lead_position_idx", properties: ["leadPosition"] },
-        { name: "team_organization_idx", properties: ["organization"] },
-        { name: "team_department_idx", properties: ["department"] },
+        {
+            name: "team_lead_position_idx",
+            properties: ["leadPosition"],
+        },
+        {
+            name: "team_organization_idx",
+            properties: ["organization"],
+        },
+        {
+            name: "team_department_idx",
+            properties: ["department"],
+        },
     ],
 
     properties: {
@@ -46,7 +55,7 @@ export const TeamSchema = new EntitySchema<Team>({
             kind: "m:1",
             entity: () => Organization,
             fieldName: "organization_id",
-            deleteRule: "restrict",
+            deleteRule: "cascade",
         },
         department: {
             kind: "m:1",

@@ -4,15 +4,8 @@ import { raw } from "@mikro-orm/postgresql";
 
 import { ExceptionMapper } from "~common/exceptions";
 import { BaseRepository } from "~common/mixins";
-import {
-    ProjectAccountAssignment,
-    OrgMembership,
-    Organization,
-    Department,
-    Project,
-    Invite,
-    Team,
-} from "~context/domain/entities";
+import { Organization } from "~context/domain/entities";
+import { kysely } from "~infrastructure/database";
 
 import { OrganizationMapper } from "../mappers";
 
@@ -31,21 +24,68 @@ export class OrganizationRepository
         super();
     }
 
-    public async findDependents(
-        props: Repositories.Organization.FindDependents.Props,
-    ): Repositories.Organization.FindDependents.Result {
-        const { identifiers, transaction } = props;
-        const where = { organization: { $in: identifiers } };
-        const groups = await Promise.all([
-            transaction.find(ProjectAccountAssignment, where),
-            transaction.find(OrgMembership, where),
-            transaction.find(Department, where),
-            transaction.find(Project, where),
-            transaction.find(Invite, where),
-            transaction.find(Team, where),
-        ]);
+    public async hasPendingProcesses(
+        props: Repositories.Organization.HasPendingProcesses.Props,
+    ): Repositories.Organization.HasPendingProcesses.Result {
+        try {
+            const { identifiers, transaction } = props;
 
-        return groups.flat();
+            if (identifiers.length) {
+                const query = kysely
+                    .selectNoFrom((eb) =>
+                        eb
+                            .exists(
+                                eb
+                                    .selectFrom("multitenancy.project")
+                                    .select("id")
+                                    .where("organization_id", "in", identifiers)
+                                    .where("process", "is not", null)
+                                    .unionAll(
+                                        eb
+                                            .selectFrom("multitenancy.org_membership")
+                                            .select("id")
+                                            .where("organization_id", "in", identifiers)
+                                            .where("process", "is not", null),
+                                    )
+                                    .unionAll(
+                                        eb
+                                            .selectFrom("multitenancy.invite")
+                                            .select("id")
+                                            .where("organization_id", "in", identifiers)
+                                            .where("process", "is not", null),
+                                    )
+                                    .unionAll(
+                                        eb
+                                            .selectFrom("multitenancy.department")
+                                            .select("id")
+                                            .where("organization_id", "in", identifiers)
+                                            .where("process", "is not", null),
+                                    )
+                                    .unionAll(
+                                        eb
+                                            .selectFrom("multitenancy.team")
+                                            .select("id")
+                                            .where("organization_id", "in", identifiers)
+                                            .where("process", "is not", null),
+                                    ),
+                            )
+                            .as("pending"),
+                    )
+                    .compile();
+
+                const [result] = await transaction.execute<Repositories.Organization.PendingProcessesRow[]>(
+                    query.sql,
+                    [...query.parameters],
+                    "all",
+                );
+
+                return result.pending;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            throw ExceptionMapper.fromORM(error, this.resource);
+        }
     }
 
     public async getLookupList(
