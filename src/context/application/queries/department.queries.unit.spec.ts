@@ -1,101 +1,90 @@
 import { describe, expect, it } from "@jest/globals";
 
 import { DepartmentQueriesUnitHelpers } from "~testing/unit/query-services/department.helpers";
-import { QueryMode, ResponseViewType, PermissionCode } from "~context/enums";
+import { QueryMode, ResponseViewType } from "~context/enums";
+import { PublicLinkOperator, PublicStringOperator } from "~infrastructure/database/enums";
 
-const ACTOR = "actor-account";
+const ORGANIZATION = "organization-a";
 const REALM = "realm-a";
 const ID = "entity-a";
 const PAGINATION: Pagination = { currentPage: 2, elementsPerPage: 10 };
 const helpers = new DepartmentQueriesUnitHelpers();
 
 describe("DepartmentQueries", () => {
-    describe("findUnique / findMany", () => {
-        it.each([
-            { name: "no read permission", permissions: [], expected: { $or: [] } },
-            {
-                name: "common",
-                permissions: [PermissionCode.DEPARTMENT_READ_COMMON],
-                expected: { $or: [{ organization: { realm: REALM } }] },
-            },
-            { name: "absolute", permissions: [PermissionCode.DEPARTMENT_READ_ABSOLUTE], expected: {} },
-        ])("applies $name visibility to single and paged reads", async ({ permissions, expected }) => {
-            const { queries, departmentRepository: repository } = helpers.queries();
-            const entity = helpers.createDepartment();
-            repository.findUniqueOrThrow.mockResolvedValue(entity);
-            repository.findMany.mockResolvedValue([[entity], 1]);
+    it("scopes single reads by organization and realm", async () => {
+        const { queries, departmentRepository: repository } = helpers.queries();
+        repository.findUniqueOrThrow.mockResolvedValue(helpers.createDepartment());
+        const props = { organization: ORGANIZATION, realm: REALM, view: ResponseViewType.COMPACT };
 
-            await queries.findUnique({
-                mode: QueryMode.DEFAULT,
-                view: ResponseViewType.COMPACT,
-                actor: ACTOR,
-                realm: REALM,
-                permissions,
-                department: ID,
-            });
-            await queries.findMany({
-                mode: QueryMode.DEFAULT,
-                view: ResponseViewType.COMPACT,
-                actor: ACTOR,
-                realm: REALM,
-                permissions,
-                pagination: PAGINATION,
-                filters: {},
-                sort: {},
-            });
+        await queries.findUnique({ ...props, department: ID });
 
-            expect(repository.findUniqueOrThrow.mock.calls).toEqual([
-                [expect.objectContaining({ where: { id: ID, ...expected } })],
-            ]);
-            expect(repository.findMany.mock.calls).toEqual([[expect.objectContaining({ prefilter: expected })]]);
-        });
-
-        it("uses management scope without imposing the caller's membership", async () => {
-            const { queries, departmentRepository: repository } = helpers.queries();
-            repository.findMany.mockResolvedValue([[], 0]);
-            repository.findUniqueOrThrow.mockResolvedValue(helpers.createDepartment());
-
-            await queries.findUnique({ mode: QueryMode.MANAGE, view: ResponseViewType.COMPACT, department: ID });
-            await queries.findMany({
-                mode: QueryMode.MANAGE,
-                view: ResponseViewType.COMPACT,
-                pagination: PAGINATION,
-                filters: {},
-                sort: {},
-            });
-
-            expect(repository.findUniqueOrThrow.mock.calls).toEqual([[expect.objectContaining({ where: { id: ID } })]]);
-            expect(repository.findMany.mock.calls).toEqual([[expect.objectContaining({ prefilter: {} })]]);
-        });
+        expect(repository.findUniqueOrThrow.mock.calls).toEqual([
+            [expect.objectContaining({ where: { id: ID, organization: { id: ORGANIZATION, realm: REALM } } })],
+        ]);
     });
 
-    describe("getLookupList", () => {
-        it.each([QueryMode.DEFAULT, QueryMode.MANAGE])(
-            "%s scopes lookup results as well as ordinary lists",
-            async (mode) => {
-                const { queries, departmentRepository: repository } = helpers.queries();
-                repository.getLookupList.mockResolvedValue([[], 0]);
+    it("scopes list reads by organization and realm", async () => {
+        const { queries, departmentRepository: repository } = helpers.queries();
+        const props = { organization: ORGANIZATION, realm: REALM, view: ResponseViewType.COMPACT };
 
-                await queries.getLookupList({
-                    mode,
-                    actor: ACTOR,
-                    realm: REALM,
-                    organization: "organization-a",
-                    permissions: [],
-                    pagination: PAGINATION,
-                    term: "search",
-                });
+        await queries.findMany({ ...props, mode: QueryMode.DEFAULT, pagination: PAGINATION, filters: {}, sort: {} });
 
-                expect(repository.getLookupList.mock.calls).toEqual([
-                    [
-                        expect.objectContaining({
-                            organization: "organization-a",
-                            term: "search",
-                            prefilter: mode === QueryMode.DEFAULT ? { $or: [] } : undefined,
-                        }),
-                    ],
-                ]);
-            },
-        );
+        expect(repository.findMany.mock.calls).toEqual([
+            [expect.objectContaining({ prefilter: { organization: { id: ORGANIZATION, realm: REALM } }, filters: {} })],
+        ]);
+    });
+
+    it("allows management lists to select organization as a filter without a realm prefilter", async () => {
+        const { queries, departmentRepository: repository } = helpers.queries();
+        const filters = { organization: { operator: PublicLinkOperator.EQUAL, value: ORGANIZATION } };
+
+        await queries.findMany({
+            mode: QueryMode.MANAGE,
+            view: ResponseViewType.COMPACT,
+            pagination: PAGINATION,
+            filters,
+            sort: {},
+        });
+
+        expect(repository.findMany.mock.calls).toEqual([[expect.objectContaining({ prefilter: undefined, filters })]]);
+    });
+
+    it("passes the required realm to graph reads", async () => {
+        const { queries, departmentRepository: repository } = helpers.queries();
+        const scope = { organization: ORGANIZATION, realm: REALM };
+
+        await queries.getHierarchyGraph(scope);
+
+        expect(repository.getHierarchyGraph.mock.calls).toEqual([[scope]]);
+    });
+
+    it("passes the required realm to lookup reads", async () => {
+        const { queries, departmentRepository: repository } = helpers.queries();
+        const props = { organization: ORGANIZATION, realm: REALM, pagination: PAGINATION, term: "search" };
+
+        await queries.getLookupList(props);
+
+        expect(repository.getLookupList.mock.calls).toEqual([[props]]);
+    });
+
+    describe.each([ResponseViewType.COMPACT, ResponseViewType.DETAILED])("view %s", (view) => {
+        it.each(["ancestors", "descendants"] as const)("passes filters, scope and populate for %s", async (direction) => {
+            const { queries, departmentRepository: repository } = helpers.queries();
+            const filters = { name: { operator: PublicStringOperator.EQUAL, value: "Department" } };
+            const scope = { organization: ORGANIZATION, realm: REALM, pagination: PAGINATION, filters };
+            const populate = view === ResponseViewType.DETAILED ? ["organization"] : [];
+
+            if (direction === "ancestors") {
+                await queries.findAncestors({ ...scope, descendant: ID, view });
+            } else {
+                await queries.findDescendants({ ...scope, ancestor: ID, view });
+            }
+
+            if (direction === "ancestors") {
+                expect(repository.findAncestors.mock.calls).toEqual([[{ ...scope, descendant: ID, populate }]]);
+            } else {
+                expect(repository.findDescendants.mock.calls).toEqual([[{ ...scope, ancestor: ID, populate }]]);
+            }
+        });
     });
 });

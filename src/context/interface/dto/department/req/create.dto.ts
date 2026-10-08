@@ -6,9 +6,17 @@ import { Validator } from "~common/validator";
 @ApiSchema({ name: "DepartmentCreateBody" })
 export class CreateBodyDTO {
     @Expose()
+    @Validator.IsOptional()
     @Validator.IsUUID()
-    @ApiProperty({ required: true, type: String, format: "uuid" })
-    declare public organization: string;
+    @ApiProperty({ required: false, type: String, format: "uuid" })
+    declare public parent?: string;
+
+    @Expose()
+    @Validator.IsOptional()
+    @Validator.IsArray()
+    @Validator.IsUUID(undefined, { each: true })
+    @ApiProperty({ required: false, type: [String] })
+    declare public children?: string[];
 
     @Expose()
     @Validator.IsString()
@@ -29,4 +37,9 @@ export class CreateQueryDTO {
     @Validator.IsUUID()
     @ApiProperty({ required: true, type: String, format: "uuid" })
     declare public realm: string;
+
+    @Expose()
+    @Validator.IsUUID()
+    @ApiProperty({ required: true, type: String, format: "uuid" })
+    declare public organization: string;
 }

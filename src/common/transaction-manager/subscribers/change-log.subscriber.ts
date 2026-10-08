@@ -3,6 +3,7 @@ import { Injectable, Inject } from "@nestjs/common";
 
 import { LOG_MASKING_SERVICE, OUTBOX_SERVICE } from "~common/transaction-manager/services";
 import { ChangeLog, AuditLog, Outbox } from "~common/transaction-manager/entities";
+import { ExternalChanges } from "~infrastructure/database/utils/external-changes";
 import { OperationContext } from "~common/transaction-manager/utilities";
 import { DeltaChanges } from "~common/transaction-manager/value-objects";
 
@@ -21,7 +22,9 @@ export class ChangeLogSubscriber implements ORM.EventSubscriber {
     public async onFlush({ uow, em }: ORM.FlushEventArgs): Promise<void> {
         const context = this.operationContext.get();
         if (context?.changeLogEnabled) {
-            const changeSets = uow.getChangeSets().filter((set) => !EXCLUDED_ENTITIES.has(set.meta.className));
+            const changeSets = [...uow.getChangeSets(), ...ExternalChanges.drain({ entityManager: em })].filter(
+                (set) => !EXCLUDED_ENTITIES.has(set.meta.className),
+            );
 
             if (changeSets.length) {
                 for await (const changeSet of changeSets) {

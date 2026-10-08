@@ -22,7 +22,7 @@ export class DepartmentCommands implements Commands.Department.Contract {
     }
 
     public async create(props: Commands.Department.Create.Props): Commands.Department.Create.Result {
-        const { input, realm } = props;
+        const { input, organization } = props;
 
         await this.transactionalService.run({
             resource: this.resource,
@@ -33,15 +33,20 @@ export class DepartmentCommands implements Commands.Department.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.departmentService.create({ input, transaction, realm });
+                return await this.departmentService.create({
+                    realm: props.realm,
+                    organization,
+                    transaction,
+                    input,
+                });
             },
         });
 
         return { message: `${this.dictionaryPath}.CREATED` };
     }
 
-    public async update(props: Commands.Department.Update.Props): Commands.Department.Update.Result {
-        const { input, realm, id } = props;
+    public async move(props: Commands.Department.Move.Props): Commands.Department.Move.Result {
+        const { input, organization } = props;
 
         await this.transactionalService.run({
             resource: this.resource,
@@ -52,7 +57,37 @@ export class DepartmentCommands implements Commands.Department.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                await this.departmentService.update({ patch: input.patch, transaction, realm, id });
+                await this.departmentService.move({
+                    ...input,
+                    realm: props.realm,
+                    organization,
+                    transaction,
+                });
+            },
+        });
+
+        return { message: `${this.dictionaryPath}.MOVED` };
+    }
+
+    public async update(props: Commands.Department.Update.Props): Commands.Department.Update.Result {
+        const { input, organization, id } = props;
+
+        await this.transactionalService.run({
+            resource: this.resource,
+            audit: {
+                entityType: EntityType.DEPARTMENT,
+                actionType: ActionType.UPDATE,
+                ...props,
+            },
+            changeLog: true,
+            execute: async (transaction) => {
+                await this.departmentService.update({
+                    patch: input.patch,
+                    realm: props.realm,
+                    organization,
+                    transaction,
+                    id,
+                });
             },
         });
 
@@ -60,7 +95,7 @@ export class DepartmentCommands implements Commands.Department.Contract {
     }
 
     public async changeManager(props: Commands.Department.ChangeManager.Props): Commands.Department.ChangeManager.Result {
-        const { input, actor, realm, id } = props;
+        const { input, actor, realm, organization, id } = props;
 
         await this.transactionalService.run({
             resource: this.resource,
@@ -78,8 +113,9 @@ export class DepartmentCommands implements Commands.Department.Contract {
             execute: async (transaction) => {
                 const department = await this.departmentService.changeManager({
                     position: input.position,
+                    realm: props.realm,
+                    organization,
                     transaction,
-                    realm,
                     id,
                 });
                 return { department, actor, realm };
@@ -94,7 +130,7 @@ export class DepartmentCommands implements Commands.Department.Contract {
     }
 
     public async archive(props: Commands.Department.Archive.Props): Commands.Department.Archive.Result {
-        const { input, realm } = props;
+        const { input, organization } = props;
 
         const departments = await this.transactionalService.run({
             resource: this.resource,
@@ -105,7 +141,12 @@ export class DepartmentCommands implements Commands.Department.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.departmentService.archive({ identifiers: input.identifiers, transaction, realm });
+                return await this.departmentService.archive({
+                    identifiers: input.identifiers,
+                    realm: props.realm,
+                    organization,
+                    transaction,
+                });
             },
         });
 
@@ -117,7 +158,7 @@ export class DepartmentCommands implements Commands.Department.Contract {
     }
 
     public async restore(props: Commands.Department.Restore.Props): Commands.Department.Restore.Result {
-        const { input, realm } = props;
+        const { input, organization } = props;
 
         const departments = await this.transactionalService.run({
             resource: this.resource,
@@ -128,7 +169,12 @@ export class DepartmentCommands implements Commands.Department.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                return await this.departmentService.restore({ identifiers: input.identifiers, transaction, realm });
+                return await this.departmentService.restore({
+                    identifiers: input.identifiers,
+                    realm: props.realm,
+                    organization,
+                    transaction,
+                });
             },
         });
 
@@ -140,9 +186,9 @@ export class DepartmentCommands implements Commands.Department.Contract {
     }
 
     public async purge(props: Commands.Department.Purge.Props): Commands.Department.Purge.Result {
-        const { input, actor, realm } = props;
+        const { id, actor, realm, organization } = props;
 
-        const { departments } = await this.transactionalService.run({
+        await this.transactionalService.run({
             resource: this.resource,
             outbox: {
                 payloadMapper: this.mapper.purgePayload,
@@ -156,19 +202,17 @@ export class DepartmentCommands implements Commands.Department.Contract {
             },
             changeLog: true,
             execute: async (transaction) => {
-                const departments = await this.departmentService.purge({
-                    identifiers: input.identifiers,
+                const department = await this.departmentService.purge({
+                    realm: props.realm,
+                    organization,
                     transaction,
-                    realm,
+                    id,
                 });
-                return { departments, actor, realm };
+
+                return { departments: [department], actor, realm };
             },
         });
 
-        if (departments.length > 1) {
-            return { message: `${this.dictionaryPath}.BULK_PURGED_COUNT`, params: { count: departments.length } };
-        } else {
-            return { message: `${this.dictionaryPath}.PURGED` };
-        }
+        return { message: `${this.dictionaryPath}.PURGED` };
     }
 }

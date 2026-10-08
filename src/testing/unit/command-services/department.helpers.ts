@@ -18,6 +18,7 @@ export class DepartmentCommandsUnitHelpers
             create: jest.fn<Services.Department.CommandContract["create"]>(),
             update: jest.fn<Services.Department.CommandContract["update"]>(),
             purge: jest.fn<Services.Department.CommandContract["purge"]>(),
+            move: jest.fn<Services.Department.CommandContract["move"]>(),
         };
 
         return {

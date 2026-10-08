@@ -5,6 +5,7 @@ import { StringValue } from "ms";
 import {
     EntityDictionary as OriginEntityDictionary,
     EventSubscriber as OriginEventSubscriber,
+    EntityMetadata as OriginEntityMetadata,
     FlushEventArgs as OriginFlushEventArgs,
     FindAllOptions as OriginFindAllOptions,
     QBFilterQuery as OriginQBFilterQuery,
@@ -15,6 +16,7 @@ import {
     FindOptions as OriginFindOptions,
     EntityClass as OriginEntityClass,
     UnknownType as OriginUnknownType,
+    EntityData as OriginEntityData,
     UnitOfWork as OriginUnitOfWork,
     Collection as OriginCollection,
     ChangeSet as OriginChangeSet,
@@ -84,6 +86,32 @@ declare global {
             [K in keyof E as E[K] extends RawColumnValue ? CamelToSnakeCase<K & string> : never]: E[K];
         };
 
+        namespace ExternalChanges {
+            namespace Record {
+                type Props<Entity extends ORM.AnyEntity> = {
+                    entityManager: ORM.FlushEventArgs["em"];
+                    changes: ORM.ChangeSet<Entity>[];
+                };
+
+                type Result = void;
+
+                type Signature = <Entity extends ORM.AnyEntity>(props: Props<Entity>) => Result;
+            }
+
+            namespace Drain {
+                type Props = {
+                    entityManager: ORM.FlushEventArgs["em"];
+                };
+
+                type Result = ORM.ChangeSet<ORM.AnyEntity>[];
+
+                type Signature = (props: Props) => Result;
+            }
+        }
+
+        type EntityData<E> = OriginEntityData<E>;
+        type EntityMetadata<E> = OriginEntityMetadata<E>;
+
         type ForeignKeys<Entity> = {
             [
                 Key in keyof Entity as Entity[Key] extends RawColumnValue
@@ -126,6 +154,8 @@ declare global {
 
         type Database = {
             "multitenancy.org_membership": Columns<Entities.OrgMembership>;
+            "multitenancy.department_closure": Columns<Entities.DepartmentClosure>;
+            "multitenancy.organization": Omit<Columns<Entities.Organization>, "realm"> & { realm_id: string };
             "multitenancy.department": Columns<Entities.Department>;
             "multitenancy.project": Columns<Entities.Project>;
             "multitenancy.invite": Columns<Entities.Invite>;

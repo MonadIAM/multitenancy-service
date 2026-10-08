@@ -1,7 +1,7 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 
 import { DEPARTMENT_REPOSITORY } from "~context/infrastructure/repositories";
-import { PermissionCode, QueryMode } from "~context/enums";
+import { QueryMode } from "~context/enums";
 
 @Injectable({ scope: Scope.DEFAULT })
 export class DepartmentQueries implements Queries.Department.Contract {
@@ -16,26 +16,21 @@ export class DepartmentQueries implements Queries.Department.Contract {
     ) {}
 
     public findUnique(props: Queries.Department.FindUnique.Props): Queries.Department.FindUnique.Result {
-        const where: ORM.Prefilter<Entities.Department> = {
-            id: props.department,
-        };
-
-        if (props.mode === QueryMode.DEFAULT) {
-            Object.assign(where, this.buildReadScope(props));
-        }
-
         return this.departmentRepository.findUniqueOrThrow({
             options: { populate: this.populate[props.view] },
-            where,
+            where: {
+                id: props.department,
+                organization: {
+                    id: props.organization,
+                    realm: props.realm,
+                },
+            },
         });
     }
 
     public findMany(props: Queries.Department.FindMany.Props): Queries.Department.FindMany.Result {
-        const prefilter: ORM.Prefilter<Entities.Department> = {};
-
-        if (props.mode === QueryMode.DEFAULT) {
-            Object.assign(prefilter, this.buildReadScope(props));
-        }
+        const prefilter =
+            props.mode === QueryMode.DEFAULT ? { organization: { id: props.organization, realm: props.realm } } : undefined;
 
         return this.departmentRepository.findMany({
             options: { populate: this.populate[props.view] },
@@ -47,29 +42,42 @@ export class DepartmentQueries implements Queries.Department.Contract {
     }
 
     public getLookupList(props: Queries.Department.GetLookupList.Props): Queries.Department.GetLookupList.Result {
-        const prefilter = props.mode === QueryMode.DEFAULT ? this.buildReadScope(props) : undefined;
-
         return this.departmentRepository.getLookupList({
             organization: props.organization,
             pagination: props.pagination,
+            realm: props.realm,
             term: props.term,
-            prefilter,
         });
     }
 
-    public buildReadScope(props: Queries.Department.BuildReadScope.Props): Queries.Department.BuildReadScope.Result {
-        const prefilter: ORM.Prefilter<Entities.Department> = {};
+    public getHierarchyGraph(
+        props: Queries.Department.GetHierarchyGraph.Props,
+    ): Queries.Department.GetHierarchyGraph.Result {
+        return this.departmentRepository.getHierarchyGraph({
+            organization: props.organization,
+            realm: props.realm,
+        });
+    }
 
-        if (props.permissions.includes(PermissionCode.DEPARTMENT_READ_ABSOLUTE)) {
-            return prefilter;
-        } else {
-            prefilter.$or = [];
+    public findAncestors(props: Queries.Department.FindAncestors.Props): Queries.Department.FindAncestors.Result {
+        return this.departmentRepository.findAncestors({
+            organization: props.organization,
+            populate: this.populate[props.view],
+            filters: props.filters,
+            descendant: props.descendant,
+            pagination: props.pagination,
+            realm: props.realm,
+        });
+    }
 
-            if (props.permissions.includes(PermissionCode.DEPARTMENT_READ_COMMON)) {
-                prefilter.$or.push({ organization: { realm: props.realm } });
-            }
-
-            return prefilter;
-        }
+    public findDescendants(props: Queries.Department.FindDescendants.Props): Queries.Department.FindDescendants.Result {
+        return this.departmentRepository.findDescendants({
+            organization: props.organization,
+            populate: this.populate[props.view],
+            filters: props.filters,
+            ancestor: props.ancestor,
+            pagination: props.pagination,
+            realm: props.realm,
+        });
     }
 }

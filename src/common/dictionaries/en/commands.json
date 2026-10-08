@@ -32,7 +32,7 @@
     "PURGED": "Department deleted",
     "BULK_ARCHIVED_COUNT": "Archived departments: {count}",
     "BULK_RESTORED_COUNT": "Restored departments: {count}",
-    "BULK_PURGED_COUNT": "Deleted departments: {count}"
+    "MOVED": "Department moved."
   },
   "team": {
     "CREATED": "Team created",

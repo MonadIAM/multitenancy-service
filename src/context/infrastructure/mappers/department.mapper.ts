@@ -16,9 +16,6 @@ export class DepartmentMapper implements Repositories.Mappers.Contract<
         if (filters.id) {
             where.id = ORMAdapter.applyStringFilter(filters.id);
         }
-        if (filters.organization) {
-            where.organization = { id: ORMAdapter.applyStringFilter(filters.organization) };
-        }
         if (filters.managerPosition) {
             where.managerPosition = ORMAdapter.applyStringFilter(filters.managerPosition);
         }
@@ -36,6 +33,9 @@ export class DepartmentMapper implements Repositories.Mappers.Contract<
         }
         if (filters.createdAt) {
             where.createdAt = ORMAdapter.applyOrdinalFilter<Date>(filters.createdAt);
+        }
+        if ("organization" in filters && filters.organization) {
+            where.organization = { id: ORMAdapter.applyStringFilter(filters.organization) };
         }
 
         return where;

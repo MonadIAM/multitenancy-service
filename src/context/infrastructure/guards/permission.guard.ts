@@ -42,7 +42,7 @@ export class PermissionGuard implements CanActivate {
         }
 
         const request = context.switchToHttp().getRequest<Req<{ Querystring: { realm?: string } }>>();
-        const realm = request.query?.realm ?? SYSTEM_REALM_ID;
+        const realm = globalPermissions ? SYSTEM_REALM_ID : (request.query?.realm ?? SYSTEM_REALM_ID);
         const account = request.session?.account;
         const realms = request.session?.realms;
 
@@ -54,18 +54,32 @@ export class PermissionGuard implements CanActivate {
             throw Exception.forbidden({ messageKey: `${this.dictionaryPath}.REALM_REQUIRED` });
         }
 
+        const globalMatched = await this.accessCacheService.checkPermissions({
+            realm: SYSTEM_REALM_ID,
+            globalOnly: true,
+            permissions,
+            account,
+        });
+
+        if (Object.keys(globalMatched).length) {
+            request.metadata = { ...request.metadata, permissions: globalMatched };
+            return true;
+        }
+
+        if (globalPermissions) {
+            throw Exception.forbidden({ messageKey: `${this.dictionaryPath}.INSUFFICIENT_PERMISSIONS` });
+        }
+
         if (!realms?.length) {
             throw Exception.forbidden({ messageKey: `${this.dictionaryPath}.REALM_SCOPE_MISSING` });
         }
 
-        if (globalPermissions && !(realms.length === 1 && realms[0] === SYSTEM_REALM_ID)) {
-            throw Exception.forbidden({ messageKey: `${this.dictionaryPath}.GLOBAL_SCOPE_REQUIRES_DIRECT_LOGIN` });
-        } else if (!realms.includes(realm)) {
+        if (!realms.includes(realm)) {
             throw Exception.forbidden({ messageKey: `${this.dictionaryPath}.REALM_OUT_OF_SESSION_SCOPE` });
         }
 
         const matched = await this.accessCacheService.checkPermissions({
-            globalOnly: Boolean(globalPermissions),
+            globalOnly: false,
             permissions,
             account,
             realm,

@@ -121,3 +121,10 @@ export enum InviteStatus {
     PENDING     = "PENDING",
     /* eslint-enable prettier/prettier */
 }
+
+export enum MoveMode {
+    /* eslint-disable prettier/prettier */
+    SUBTREE  = "SUBTREE",
+    PARALLEL = "PARALLEL",
+    /* eslint-enable prettier/prettier */
+}

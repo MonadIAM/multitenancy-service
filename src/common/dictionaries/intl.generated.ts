@@ -39,7 +39,7 @@ export type I18nTranslations = {
             "PURGED": string;
             "BULK_ARCHIVED_COUNT": string;
             "BULK_RESTORED_COUNT": string;
-            "BULK_PURGED_COUNT": string;
+            "MOVED": string;
         };
         "team": {
             "CREATED": string;
@@ -153,7 +153,6 @@ export type I18nTranslations = {
             "REALM_REQUIRED": string;
             "REALM_SCOPE_MISSING": string;
             "REALM_OUT_OF_SESSION_SCOPE": string;
-            "GLOBAL_SCOPE_REQUIRES_DIRECT_LOGIN": string;
             "INSUFFICIENT_PERMISSIONS": string;
         };
         "authn": {
@@ -190,6 +189,10 @@ export type I18nTranslations = {
         };
         "department": {
             "DEPARTMENTS_NOT_FOUND": string;
+            "CREATE_CHILD_NOT_DIRECT_DESCENDANT": string;
+            "REPARENT_TARGET_IS_SELF": string;
+            "REPARENT_TARGET_ALREADY_PARENT": string;
+            "REPARENT_TARGET_IN_SUBTREE": string;
         };
         "team": {
             "TEAMS_NOT_FOUND": string;

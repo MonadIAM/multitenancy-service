@@ -5,20 +5,13 @@ import { LinkFilterDTO, OrdinalFilterDTO, StringFilterDTO } from "~common/dto";
 import { Validator } from "~common/validator";
 
 @ApiSchema({ name: "DepartmentFilters" })
-export class FiltersDTO implements Repositories.Mappers.Department.Filters {
+export class FiltersDTO implements Repositories.Mappers.Department.DefaultFilters {
     @Expose()
     @Validator.IsOptional()
     @Validator.ValidateNested()
     @Type(() => StringFilterDTO)
     @ApiProperty({ required: false, type: StringFilterDTO })
     public id?: StringFilterDTO;
-
-    @Expose()
-    @Validator.IsOptional()
-    @Validator.ValidateNested()
-    @Type(() => LinkFilterDTO)
-    @ApiProperty({ required: false, type: LinkFilterDTO })
-    public organization?: LinkFilterDTO;
 
     @Expose()
     @Validator.IsOptional()
@@ -61,4 +54,14 @@ export class FiltersDTO implements Repositories.Mappers.Department.Filters {
     @Type(() => OrdinalFilterDTO)
     @ApiProperty({ required: false, type: OrdinalFilterDTO })
     public createdAt?: OrdinalFilterDTO<Date>;
+}
+
+@ApiSchema({ name: "DepartmentManageFilters" })
+export class ManageFiltersDTO extends FiltersDTO implements Repositories.Mappers.Department.ManageFilters {
+    @Expose()
+    @Validator.IsOptional()
+    @Validator.ValidateNested()
+    @Type(() => LinkFilterDTO)
+    @ApiProperty({ required: false, type: LinkFilterDTO })
+    public organization?: LinkFilterDTO;
 }

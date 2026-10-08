@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, jest } from "@jest/globals";
 import { ChangeSetType } from "@mikro-orm/postgresql";
 
 import { ChangeLogSubscriberUnitHelpers } from "~testing/unit/transaction-manager/change-log-subscriber.helpers";
+import { ExternalChanges } from "~infrastructure/database/utils/external-changes";
 import { ChangeLog, Outbox } from "~common/transaction-manager/entities";
 import { DeltaChanges } from "~common/transaction-manager/value-objects";
 import { KafkaTopic } from "~context/enums";
@@ -14,6 +15,22 @@ describe("ChangeLogSubscriber", () => {
     });
 
     describe("onFlush", () => {
+        it("archives external closure changes once, even without managed entity changes", async () => {
+            const operationContext = helpers.operationContext();
+            const { subscriber } = helpers.subscriber({ operationContext });
+            const transaction = helpers.transaction();
+            const uow = helpers.uow({ changeSets: [] });
+            ExternalChanges.record({ entityManager: transaction.entityManager, changes: [helpers.changeSet()] });
+
+            await operationContext.run({ changeLogEnabled: true, auditEntry: "audit-entry" }, () =>
+                subscriber.onFlush(helpers.flushEventArgs({ uow: uow.uow, em: transaction.entityManager })),
+            );
+
+            expect(transaction.persist).toHaveBeenCalledWith(expect.any(ChangeLog));
+            expect(transaction.persist).toHaveBeenCalledWith(expect.any(Outbox));
+            expect(ExternalChanges.drain({ entityManager: transaction.entityManager })).toEqual([]);
+        });
+
         it("does nothing when operation context is absent", async () => {
             const { subscriber } = helpers.subscriber();
             const transaction = helpers.transaction();
@@ -207,12 +224,12 @@ describe("ChangeLogSubscriber", () => {
         });
 
         it("builds create deltas from payload values", async () => {
-            const changeLog = await helpers.flushSingleChangeLog({
-                changeSet: helpers.changeSet({
-                    payload: { name: "Created Name", code: "example.created" },
-                    type: ChangeSetType.CREATE,
-                }),
+            const changeSet = helpers.changeSet({
+                payload: { name: "Created Name", code: "example.created" },
+                type: ChangeSetType.CREATE,
             });
+
+            const changeLog = await helpers.flushSingleChangeLog({ changeSet });
 
             expect(changeLog.delta).toEqual({
                 name: { old: null, new: "Created Name" },
@@ -221,13 +238,13 @@ describe("ChangeLogSubscriber", () => {
         });
 
         it("builds update deltas from original entity values", async () => {
-            const changeLog = await helpers.flushSingleChangeLog({
-                changeSet: helpers.changeSet({
-                    originalEntity: { name: "Old Name" },
-                    payload: { name: "Updated Name" },
-                    type: ChangeSetType.UPDATE,
-                }),
+            const changeSet = helpers.changeSet({
+                originalEntity: { name: "Old Name" },
+                payload: { name: "Updated Name" },
+                type: ChangeSetType.UPDATE,
             });
+
+            const changeLog = await helpers.flushSingleChangeLog({ changeSet });
 
             expect(changeLog.delta).toEqual({
                 name: { old: "Old Name", new: "Updated Name" },
@@ -235,12 +252,12 @@ describe("ChangeLogSubscriber", () => {
         });
 
         it("uses null as old value when update original entity is absent", async () => {
-            const changeLog = await helpers.flushSingleChangeLog({
-                changeSet: helpers.changeSet({
-                    payload: { name: "Updated Name" },
-                    type: ChangeSetType.UPDATE,
-                }),
+            const changeSet = helpers.changeSet({
+                payload: { name: "Updated Name" },
+                type: ChangeSetType.UPDATE,
             });
+
+            const changeLog = await helpers.flushSingleChangeLog({ changeSet });
 
             expect(changeLog.delta).toEqual({
                 name: { old: null, new: "Updated Name" },
@@ -248,13 +265,13 @@ describe("ChangeLogSubscriber", () => {
         });
 
         it("builds delete deltas from original entity values", async () => {
-            const changeLog = await helpers.flushSingleChangeLog({
-                changeSet: helpers.changeSet({
-                    originalEntity: { name: "Deleted Name", code: "example.deleted" },
-                    type: ChangeSetType.DELETE,
-                    payload: {},
-                }),
+            const changeSet = helpers.changeSet({
+                originalEntity: { name: "Deleted Name", code: "example.deleted" },
+                type: ChangeSetType.DELETE,
+                payload: {},
             });
+
+            const changeLog = await helpers.flushSingleChangeLog({ changeSet });
 
             expect(changeLog.delta).toEqual({
                 name: { old: "Deleted Name", new: null },
@@ -267,13 +284,13 @@ describe("ChangeLogSubscriber", () => {
                 id: "00000000-0000-4000-8000-000000000002",
                 name: "Deleted Name",
             };
-            const changeLog = await helpers.flushSingleChangeLog({
-                changeSet: helpers.changeSet({
-                    entity,
-                    type: ChangeSetType.DELETE,
-                    payload: {},
-                }),
+            const changeSet = helpers.changeSet({
+                entity,
+                type: ChangeSetType.DELETE,
+                payload: {},
             });
+
+            const changeLog = await helpers.flushSingleChangeLog({ changeSet });
 
             expect(changeLog.delta).toEqual({
                 id: { old: entity.id, new: null },

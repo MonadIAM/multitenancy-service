@@ -1,3 +1,4 @@
+export { DepartmentClosure } from "./department-closure.entity";
 export { ProjectAccountAssignment } from "./project-account-assignment.entity";
 export { OrgMembership } from "./org-membership.entity";
 export { Organization } from "./organization.entity";

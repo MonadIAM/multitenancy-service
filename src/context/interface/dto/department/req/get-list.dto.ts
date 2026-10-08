@@ -6,7 +6,7 @@ import { BaseReadQueryDTO, PaginationDTO } from "~common/dto";
 import { Validator } from "~common/validator";
 import { QueryMode } from "~context/enums";
 
-import { FiltersDTO } from "../utils/filters.dto";
+import { FiltersDTO, ManageFiltersDTO } from "../utils/filters.dto";
 import { SortDTO } from "../utils/sort.dto";
 
 @ApiSchema({ name: "DepartmentListBody" })
@@ -40,6 +40,11 @@ export class GetListQueryDTO extends BaseReadQueryDTO {
     @ApiProperty({ required: true, type: String, format: "uuid" })
     declare public realm: string;
 
+    @Expose()
+    @Validator.IsUUID()
+    @ApiProperty({ required: true, type: String, format: "uuid" })
+    declare public organization: string;
+
     public get mode(): QueryMode.DEFAULT {
         return QueryMode.DEFAULT;
     }
@@ -50,4 +55,14 @@ export class ManageGetListQueryDTO extends BaseReadQueryDTO {
     public get mode(): QueryMode.MANAGE {
         return QueryMode.MANAGE;
     }
+}
+
+@ApiSchema({ name: "DepartmentManageListBody" })
+export class ManageGetListBodyDTO extends GetListBodyDTO {
+    @Expose()
+    @IsNotEmptyObject()
+    @Validator.ValidateNested()
+    @Type(() => ManageFiltersDTO)
+    @ApiProperty({ required: true, type: ManageFiltersDTO })
+    declare public filters: ManageFiltersDTO;
 }

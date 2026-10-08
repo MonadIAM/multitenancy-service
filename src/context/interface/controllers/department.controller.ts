@@ -8,10 +8,17 @@ import { SuccessMessageDTO } from "~common/dto";
 import { PermissionCode } from "~context/enums";
 
 import {
+    DepartmentHierarchyGraphDTO,
+    GetDescendantsListQueryDTO,
+    GetHierarchyGraphQueryDTO,
+    GetDescendantsListBodyDTO,
+    GetAncestorsListQueryDTO,
+    GetAncestorsListBodyDTO,
     ChangeManagerQueryDTO,
     GetLookupListQueryDTO,
     ChangeManagerBodyDTO,
     GetLookupListBodyDTO,
+    HierarchyListDTO,
     GetByIdQueryDTO,
     GetListQueryDTO,
     ArchiveQueryDTO,
@@ -26,7 +33,9 @@ import {
     LookupListDTO,
     UpdateBodyDTO,
     CreateBodyDTO,
+    MoveQueryDTO,
     PurgeBodyDTO,
+    MoveBodyDTO,
     ListDTO,
 } from "../dto/department";
 
@@ -73,11 +82,9 @@ export class DepartmentController {
         NOT_FOUND,
     )
     public findUnique(
-        @Query() { realm, department, view, mode }: GetByIdQueryDTO,
-        @Extract.Session() { account: actor }: Extract.Session.Auth,
-        @Extract.Permissions() permissions: string[],
+        @Query() { department, view, organization, realm }: GetByIdQueryDTO,
     ): Queries.Department.FindUnique.Result {
-        return this.queries.findUnique({ mode, realm, department, permissions, actor, view });
+        return this.queries.findUnique({ organization, department, view, realm });
     }
 
     @Post("list")
@@ -99,20 +106,61 @@ export class DepartmentController {
     )
     public findMany(
         @Body() { pagination, filters, sort }: GetListBodyDTO,
-        @Query() { realm, view, mode }: GetListQueryDTO,
-        @Extract.Session() { account: actor }: Extract.Session.Auth,
-        @Extract.Permissions() permissions: string[],
+        @Query() { view, mode, organization, realm }: GetListQueryDTO,
     ): Queries.Department.FindMany.Result {
         return this.queries.findMany({
-            permissions,
+            realm,
             pagination,
             filters,
-            realm,
-            actor,
+            organization,
             mode,
             view,
             sort,
         });
+    }
+
+    @Post("list/ancestors")
+    @HttpCode(OK)
+    @FormatResponse(HierarchyListDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_READ_ABSOLUTE, PermissionCode.DEPARTMENT_READ_COMMON)
+    @ApiResponse({ status: OK, type: HierarchyListDTO })
+    @ApiOperation({ summary: "Returns the ancestor chain of a department, including itself", security: [{ identity: [] }] })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        FORBIDDEN,
+        NOT_FOUND,
+    )
+    public findAncestors(
+        @Body() { pagination, filters }: GetAncestorsListBodyDTO,
+        @Query() { descendant, organization, realm, view }: GetAncestorsListQueryDTO,
+    ): Queries.Department.FindAncestors.Result {
+        return this.queries.findAncestors({ descendant, organization, pagination, filters, realm, view });
+    }
+
+    @Post("list/descendants")
+    @HttpCode(OK)
+    @FormatResponse(HierarchyListDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_READ_ABSOLUTE, PermissionCode.DEPARTMENT_READ_COMMON)
+    @ApiResponse({ status: OK, type: HierarchyListDTO })
+    @ApiOperation({ summary: "Returns a department subtree, including itself", security: [{ identity: [] }] })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        FORBIDDEN,
+        NOT_FOUND,
+    )
+    public findDescendants(
+        @Body() { pagination, filters }: GetDescendantsListBodyDTO,
+        @Query() { ancestor, organization, realm, view }: GetDescendantsListQueryDTO,
+    ): Queries.Department.FindDescendants.Result {
+        return this.queries.findDescendants({ ancestor, organization, pagination, filters, realm, view });
     }
 
     @HttpCode(OK)
@@ -134,19 +182,35 @@ export class DepartmentController {
     )
     public getLookupList(
         @Body() { pagination }: GetLookupListBodyDTO,
-        @Query() { realm, term, mode, organization }: GetLookupListQueryDTO,
-        @Extract.Session() { account: actor }: Extract.Session.Auth,
-        @Extract.Permissions() permissions: string[],
+        @Query() { term, organization, realm }: GetLookupListQueryDTO,
     ): Queries.Department.GetLookupList.Result {
         return this.queries.getLookupList({
             organization,
-            permissions,
-            pagination,
-            actor,
             realm,
-            mode,
+            pagination,
             term,
         });
+    }
+
+    @Get("graph")
+    @HttpCode(OK)
+    @FormatResponse(DepartmentHierarchyGraphDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_READ_ABSOLUTE, PermissionCode.DEPARTMENT_READ_COMMON)
+    @ApiResponse({ status: OK, type: DepartmentHierarchyGraphDTO })
+    @ApiOperation({ summary: "Returns the department hierarchy of an organization", security: [{ identity: [] }] })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        FORBIDDEN,
+        NOT_FOUND,
+    )
+    public getHierarchyGraph(
+        @Query() { organization, realm }: GetHierarchyGraphQueryDTO,
+    ): Queries.Department.GetHierarchyGraph.Result {
+        return this.queries.getHierarchyGraph({ organization, realm });
     }
 
     @Post("create")
@@ -170,12 +234,12 @@ export class DepartmentController {
         CONFLICT,
     )
     public create(
-        @Query() { realm }: CreateQueryDTO,
+        @Query() { realm, organization }: CreateQueryDTO,
         @Body() input: CreateBodyDTO,
         @Extract.Session() { account: actor }: Extract.Session.Auth,
         @Extract.Meta() context: Extract.Meta,
     ): Promise<MessageResult> {
-        return this.commands.create({ context, actor, input, realm });
+        return this.commands.create({ context, actor, input, realm, organization });
     }
 
     @HttpCode(OK)
@@ -198,12 +262,12 @@ export class DepartmentController {
         FORBIDDEN,
     )
     public updateMetadata(
-        @Query() { id, realm }: UpdateQueryDTO,
+        @Query() { id, realm, organization }: UpdateQueryDTO,
         @Body() input: UpdateBodyDTO,
         @Extract.Session() { account: actor }: Extract.Session.Auth,
         @Extract.Meta() context: Extract.Meta,
     ): Promise<MessageResult> {
-        return this.commands.update({ context, actor, input, realm, id });
+        return this.commands.update({ context, actor, input, realm, id, organization });
     }
 
     @HttpCode(OK)
@@ -226,12 +290,12 @@ export class DepartmentController {
         FORBIDDEN,
     )
     public changeManager(
-        @Query() { id, realm }: ChangeManagerQueryDTO,
+        @Query() { id, realm, organization }: ChangeManagerQueryDTO,
         @Body() input: ChangeManagerBodyDTO,
         @Extract.Session() { account: actor }: Extract.Session.Auth,
         @Extract.Meta() context: Extract.Meta,
     ): Promise<MessageResult> {
-        return this.commands.changeManager({ context, actor, input, realm, id });
+        return this.commands.changeManager({ context, actor, input, realm, id, organization });
     }
 
     @HttpCode(OK)
@@ -254,12 +318,12 @@ export class DepartmentController {
         FORBIDDEN,
     )
     public archive(
-        @Query() { realm }: ArchiveQueryDTO,
+        @Query() { realm, organization }: ArchiveQueryDTO,
         @Body() input: ArchiveBodyDTO,
         @Extract.Session() { account: actor }: Extract.Session.Auth,
         @Extract.Meta() context: Extract.Meta,
     ): Promise<MessageResult> {
-        return this.commands.archive({ context, actor, input, realm });
+        return this.commands.archive({ context, actor, input, realm, organization });
     }
 
     @HttpCode(OK)
@@ -282,12 +346,41 @@ export class DepartmentController {
         FORBIDDEN,
     )
     public restore(
-        @Query() { realm }: RestoreQueryDTO,
+        @Query() { realm, organization }: RestoreQueryDTO,
         @Body() input: RestoreBodyDTO,
         @Extract.Session() { account: actor }: Extract.Session.Auth,
         @Extract.Meta() context: Extract.Meta,
     ): Promise<MessageResult> {
-        return this.commands.restore({ context, actor, input, realm });
+        return this.commands.restore({ context, actor, input, realm, organization });
+    }
+
+    @Patch("move")
+    @HttpCode(OK)
+    @FormatResponse(SuccessMessageDTO)
+    @RequirePermission(PermissionCode.DEPARTMENT_UPDATE)
+    @ApiResponse({ status: OK, type: SuccessMessageDTO })
+    @ApiOperation({
+        summary: "Moves a department with or without its descendant departments",
+        security: [{ identity: [] }],
+    })
+    @Swagger.Exceptions(
+        INTERNAL_SERVER_ERROR,
+        UNPROCESSABLE_ENTITY,
+        SERVICE_UNAVAILABLE,
+        REQUEST_TIMEOUT,
+        UNAUTHORIZED,
+        BAD_REQUEST,
+        FORBIDDEN,
+        NOT_FOUND,
+        CONFLICT,
+    )
+    public move(
+        @Query() { realm, organization }: MoveQueryDTO,
+        @Body() input: MoveBodyDTO,
+        @Extract.Session() { account: actor }: Extract.Session.Auth,
+        @Extract.Meta() context: Extract.Meta,
+    ): Commands.Department.Move.Result {
+        return this.commands.move({ realm, input, actor, context, organization });
     }
 
     @HttpCode(OK)
@@ -297,7 +390,7 @@ export class DepartmentController {
     @RequirePermission(PermissionCode.DEPARTMENT_PURGE)
     @ApiResponse({ status: OK, type: SuccessMessageDTO })
     @ApiOperation({
-        summary: "Permanently deletes department records",
+        summary: "Permanently deletes a department",
         security: [{ identity: [] }],
     })
     @Swagger.Exceptions(
@@ -311,11 +404,11 @@ export class DepartmentController {
         FORBIDDEN,
     )
     public purge(
-        @Query() { realm }: PurgeQueryDTO,
+        @Query() { id, realm, organization }: PurgeQueryDTO,
         @Body() input: PurgeBodyDTO,
         @Extract.Session() { account: actor }: Extract.Session.Auth,
         @Extract.Meta() context: Extract.Meta,
     ): Promise<MessageResult> {
-        return this.commands.purge({ context, actor, input, realm });
+        return this.commands.purge({ context, actor, input, id, realm, organization });
     }
 }

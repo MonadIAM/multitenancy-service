@@ -7,9 +7,12 @@ declare namespace Unit.Queries.Department {
         type Result = {
             queries: globalThis.Queries.Department.Contract;
             departmentRepository: {
+                getHierarchyGraph: Jest.Mock<Repositories.Department.QueryContract["getHierarchyGraph"]>;
                 findUniqueOrThrow: Jest.Mock<Repositories.Department.QueryContract["findUniqueOrThrow"]>;
-                findMany: Jest.Mock<Repositories.Department.QueryContract["findMany"]>;
+                findDescendants: Jest.Mock<Repositories.Department.QueryContract["findDescendants"]>;
+                findAncestors: Jest.Mock<Repositories.Department.QueryContract["findAncestors"]>;
                 getLookupList: Jest.Mock<Repositories.Department.QueryContract["getLookupList"]>;
+                findMany: Jest.Mock<Repositories.Department.QueryContract["findMany"]>;
             };
         };
 

@@ -1,3 +1,5 @@
+import { jest } from "@jest/globals";
+
 import { DepartmentService } from "~context/domain/services/department.service";
 
 import { DomainServiceCoreUnitHelpers } from "../core.helpers";
@@ -8,7 +10,28 @@ export class DepartmentUnitHelpers extends DomainServiceCoreUnitHelpers implemen
         return {
             service: new DepartmentService(
                 this.contract<Repositories.Organization.Contract>(repositories.organizations),
-                this.contract<Repositories.Department.Contract>(repositories.departments),
+                this.contract<Repositories.Department.Contract>({
+                    ...repositories.departments,
+                    getDescendants: jest.fn<Repositories.Department.Contract["getDescendants"]>().mockResolvedValue([]),
+                    getAncestors: jest.fn<Repositories.Department.Contract["getAncestors"]>().mockResolvedValue([]),
+                }),
+                {
+                    move: jest
+                        .fn<Repositories.DepartmentClosure.Contract["move"]>()
+                        .mockResolvedValue({ removedPaths: [], upsertedPaths: [] }),
+                    moveSubtrees: jest
+                        .fn<Repositories.DepartmentClosure.Contract["moveSubtrees"]>()
+                        .mockResolvedValue({ removedPaths: [], upsertedPaths: [] }),
+                    decreaseTransitiveDepth: jest
+                        .fn<Repositories.DepartmentClosure.Contract["decreaseTransitiveDepth"]>()
+                        .mockResolvedValue(undefined),
+                    existsTransitivePath: jest
+                        .fn<Repositories.DepartmentClosure.Contract["existsTransitivePath"]>()
+                        .mockResolvedValue(false),
+                    insertNewHierarchy: jest
+                        .fn<Repositories.DepartmentClosure.Contract["insertNewHierarchy"]>()
+                        .mockResolvedValue(undefined),
+                },
             ),
             transaction: this.transaction(),
             services: this.services(),

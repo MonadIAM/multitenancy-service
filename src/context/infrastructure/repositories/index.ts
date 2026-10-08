@@ -1,6 +1,7 @@
 import { ClassProvider } from "@nestjs/common";
 
 import { ProjectAccountAssignmentRepository } from "./project-account-assignment.repository";
+import { DepartmentClosureRepository } from "./department-closure.repository";
 import { OrgMembershipRepository } from "./org-membership.repository";
 import { OrganizationRepository } from "./organization.repository";
 import { DepartmentRepository } from "./department.repository";
@@ -11,6 +12,7 @@ import { InviteRepository } from "./invite.repository";
 import { TeamRepository } from "./team.repository";
 import {
     PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY,
+    DEPARTMENT_CLOSURE_REPOSITORY,
     ORG_MEMBERSHIP_REPOSITORY,
     ORGANIZATION_REPOSITORY,
     DEPARTMENT_REPOSITORY,
@@ -25,6 +27,10 @@ export const REPOSITORIES: ClassProvider[] = [
     {
         provide: PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY,
         useClass: ProjectAccountAssignmentRepository,
+    },
+    {
+        provide: DEPARTMENT_CLOSURE_REPOSITORY,
+        useClass: DepartmentClosureRepository,
     },
     {
         provide: ORG_MEMBERSHIP_REPOSITORY,
@@ -62,6 +68,7 @@ export const REPOSITORIES: ClassProvider[] = [
 
 export {
     PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY,
+    DEPARTMENT_CLOSURE_REPOSITORY,
     ORG_MEMBERSHIP_REPOSITORY,
     ORGANIZATION_REPOSITORY,
     DEPARTMENT_REPOSITORY,

@@ -3,7 +3,6 @@ import { Expose } from "class-transformer";
 
 import { BaseReadQueryDTO } from "~common/dto";
 import { Validator } from "~common/validator";
-import { QueryMode } from "~context/enums";
 
 @ApiSchema({ name: "DepartmentGetByIdQuery" })
 export class GetByIdQueryDTO extends BaseReadQueryDTO {
@@ -15,21 +14,10 @@ export class GetByIdQueryDTO extends BaseReadQueryDTO {
     @Expose()
     @Validator.IsUUID()
     @ApiProperty({ required: true, type: String, format: "uuid" })
-    declare public department: string;
+    declare public organization: string;
 
-    public get mode(): QueryMode.DEFAULT {
-        return QueryMode.DEFAULT;
-    }
-}
-
-@ApiSchema({ name: "DepartmentManageGetByIdQuery" })
-export class ManageGetByIdQueryDTO extends BaseReadQueryDTO {
     @Expose()
     @Validator.IsUUID()
     @ApiProperty({ required: true, type: String, format: "uuid" })
     declare public department: string;
-
-    public get mode(): QueryMode.MANAGE {
-        return QueryMode.MANAGE;
-    }
 }

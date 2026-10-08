@@ -192,16 +192,19 @@ declare global {
             }
 
             namespace Department {
-                type Filters = {
+                type DefaultFilters = {
                     archivedAt?: OrdinalFilterDTO<Date>;
                     updatedAt?: OrdinalFilterDTO<Date>;
                     createdAt?: OrdinalFilterDTO<Date>;
                     managerPosition?: LinkFilterDTO;
-                    organization?: LinkFilterDTO;
                     status?: StringFilterDTO;
                     name?: StringFilterDTO;
                     id?: StringFilterDTO;
                 };
+
+                type ManageFilters = DefaultFilters & { organization?: LinkFilterDTO };
+
+                type Filters = DefaultFilters | ManageFilters;
 
                 type Sort = {
                     archivedAt?: QueryOrder;

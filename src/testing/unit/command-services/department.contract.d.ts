@@ -9,7 +9,7 @@ declare namespace Unit.Commands.Department {
             departmentService: Jest.Mocked<
                 Pick<
                     Services.Department.CommandContract,
-                    "changeManager" | "archive" | "restore" | "create" | "update" | "purge"
+                    "move" | "changeManager" | "archive" | "restore" | "create" | "update" | "purge"
                 >
             >;
         };

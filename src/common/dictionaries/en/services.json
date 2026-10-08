@@ -21,7 +21,11 @@
     "PROJECTS_NOT_FOUND": "One or more projects do not exist."
   },
   "department": {
-    "DEPARTMENTS_NOT_FOUND": "One or more departments do not exist."
+    "DEPARTMENTS_NOT_FOUND": "One or more departments do not exist.",
+    "CREATE_CHILD_NOT_DIRECT_DESCENDANT": "Selected departments must be direct children of the specified parent, or roots when no parent is specified.",
+    "REPARENT_TARGET_IS_SELF": "A department cannot be its own parent.",
+    "REPARENT_TARGET_ALREADY_PARENT": "The department already has this parent.",
+    "REPARENT_TARGET_IN_SUBTREE": "A subtree cannot be moved under one of its descendants."
   },
   "team": {
     "TEAMS_NOT_FOUND": "One or more teams do not exist."

@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 
 import { EntityFactoryRegistry } from "~testing/entity-factory.registry";
 import { DeltaChanges } from "~common/transaction-manager/value-objects";
+import { DepartmentClosure } from "~context/domain/entities";
 import { ActionType, EntityType } from "~context/enums";
 
 export class CoreFixture implements Fixtures.Core.Contract {
@@ -72,13 +73,22 @@ export class CoreFixture implements Fixtures.Core.Contract {
     }
 
     public async createDepartment(props: Fixtures.Core.CreateDepartment.Props): Fixtures.Core.CreateDepartment.Result {
-        return await this.persist(
+        const department = await this.persist(
             this.entities.createDepartment({
                 ...props,
                 description: props.description ?? "Test department description",
                 name: props.name ?? "Test Department",
             }),
         );
+        await this.persist(
+            new DepartmentClosure({
+                organization: department.organization,
+                descendant: department,
+                ancestor: department,
+                depth: 0,
+            }),
+        );
+        return department;
     }
 
     public async createTeam(props: Fixtures.Core.CreateTeam.Props): Fixtures.Core.CreateTeam.Result {
