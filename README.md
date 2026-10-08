@@ -1,6 +1,6 @@
-# @monadiam/multitenancy-service
+# @monadiam/organization-service
 
-Multitenancy Service manages organizations, projects, departments, teams,
+Organization Service manages organizations, projects, departments, teams,
 organization memberships, scoped account assignments, and invitations.
 
 ----
@@ -71,8 +71,8 @@ The local service container depends on:
 
 | Dependency          | Address inside Docker network      |
 |:--------------------|:-----------------------------------|
-| PostgreSQL          | `multitenancy-postgresql:5432`     |
-| Redis               | `multitenancy-redis:6379`          |
+| PostgreSQL          | `organization-postgresql:5432`     |
+| Redis               | `organization-redis:6379`          |
 | Kafka               | `kafka:29092`                      |
 | Vault               | `vault:8200`                       |
 | Identity JWKS       | `identity-service-app:4002`        |

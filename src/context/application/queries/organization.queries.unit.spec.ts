@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 
 import { OrganizationQueriesUnitHelpers } from "~testing/unit/query-services/organization.helpers";
-import { QueryMode, ResponseViewType, PermissionCode, OrgMembershipStatus } from "~context/enums";
+import { QueryMode, ResponseViewType, PermissionCode, MembershipStatus } from "~context/enums";
 
 const ACTOR = "actor-account";
 const ID = "entity-a";
@@ -16,7 +16,7 @@ describe("OrganizationQueries", () => {
                 expected: {
                     memberships: {
                         account: ACTOR,
-                        status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
+                        status: { $in: [MembershipStatus.ACTIVE, MembershipStatus.SUSPENDED] },
                     },
                 },
             },
@@ -53,7 +53,7 @@ describe("OrganizationQueries", () => {
                       id: ID,
                       memberships: {
                           account: ACTOR,
-                          status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
+                          status: { $in: [MembershipStatus.ACTIVE, MembershipStatus.SUSPENDED] },
                       },
                   };
 

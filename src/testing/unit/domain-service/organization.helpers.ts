@@ -16,7 +16,7 @@ export class OrganizationUnitHelpers extends DomainServiceCoreUnitHelpers implem
                     ...repositories.organizations,
                     hasPendingProcesses,
                 }),
-                this.contract<Repositories.OrgMembership.Contract>(repositories.memberships),
+                this.contract<Repositories.Membership.Contract>(repositories.memberships),
             ),
             transaction: this.transaction(),
             services: this.services(),

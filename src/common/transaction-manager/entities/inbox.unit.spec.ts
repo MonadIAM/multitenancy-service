@@ -8,13 +8,13 @@ describe("Inbox", () => {
             jest.useFakeTimers().setSystemTime(new Date("2026-09-14T00:00:00.000Z"));
 
             const entity = new Inbox({
-                consumerKey: "multitenancy.placeholder.v1",
+                consumerKey: "organization.placeholder.v1",
                 event: "event-1",
                 source: { topic: "source-topic", partition: 2, offset: "42" },
             });
 
             expect(entity).toEqual({
-                consumerKey: "multitenancy.placeholder.v1",
+                consumerKey: "organization.placeholder.v1",
                 event: "event-1",
                 topic: "source-topic",
                 partition: 2,
@@ -26,7 +26,7 @@ describe("Inbox", () => {
         });
 
         it("keeps source metadata optional", () => {
-            const entity = new Inbox({ consumerKey: "multitenancy.placeholder.v1", event: "event-1" });
+            const entity = new Inbox({ consumerKey: "organization.placeholder.v1", event: "event-1" });
 
             expect(entity.topic).toBeUndefined();
             expect(entity.partition).toBeUndefined();

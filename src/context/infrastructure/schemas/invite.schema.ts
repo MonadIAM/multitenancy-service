@@ -7,7 +7,7 @@ import { InviteStatus } from "~context/enums";
 export const InviteSchema = new EntitySchema<Invite>({
     class: Invite,
     tableName: "invite",
-    schema: "multitenancy",
+    schema: "organization",
 
     uniques: [
         {

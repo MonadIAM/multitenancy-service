@@ -23,7 +23,7 @@ export enum InviteQueryScope {
 export enum EntityType {
     /* eslint-disable prettier/prettier */
     PROJECT_ACCOUNT_ASSIGNMENT = "PROJECT_ACCOUNT_ASSIGNMENT",
-    ORG_MEMBERSHIP             = "ORG_MEMBERSHIP",
+    MEMBERSHIP                 = "MEMBERSHIP",
     ORGANIZATION               = "ORGANIZATION",
     DEPARTMENT                 = "DEPARTMENT",
     POSITION                   = "POSITION",
@@ -93,7 +93,7 @@ export enum TeamStatus {
     /* eslint-enable prettier/prettier */
 }
 
-export enum OrgMembershipStatus {
+export enum MembershipStatus {
     /* eslint-disable prettier/prettier */
     SUSPENDED = "SUSPENDED",
     BLOCKED   = "BLOCKED",

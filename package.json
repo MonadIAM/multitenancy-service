@@ -1,5 +1,5 @@
 {
-  "name": "@monadiam/multitenancy-service",
+  "name": "@monadiam/organization-service",
   "description": "MonadIAM service for organizations, projects, departments, teams, memberships, scoped assignments, and invitations.",
   "author": "Daniil Egorov (https://github.com/Lambdius)",
   "license": "SEE LICENSE IN LICENSE",
@@ -39,12 +39,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MonadIAM/multitenancy-service.git"
+    "url": "git+https://github.com/MonadIAM/organization-service.git"
   },
   "bugs": {
-    "url": "https://github.com/MonadIAM/multitenancy-service/issues"
+    "url": "https://github.com/MonadIAM/organization-service/issues"
   },
-  "homepage": "https://github.com/MonadIAM/multitenancy-service#readme",
+  "homepage": "https://github.com/MonadIAM/organization-service#readme",
   "mikro-orm": {
     "preferTs": true,
     "tsLoader": "tsx",
@@ -63,7 +63,7 @@
     "@mikro-orm/core": "7.1.13",
     "@mikro-orm/nestjs": "7.0.2",
     "@mikro-orm/postgresql": "7.1.13",
-    "@monadiam/shared": "github:MonadIAM/shared#v2.0.14",
+    "@monadiam/shared": "github:MonadIAM/shared#v2.0.15",
     "@nest-lab/throttler-storage-redis": "1.2.0",
     "@nestjs/bullmq": "11.0.5",
     "@nestjs/common": "11.2.1",

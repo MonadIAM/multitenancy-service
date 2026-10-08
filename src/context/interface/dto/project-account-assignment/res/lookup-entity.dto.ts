@@ -4,7 +4,7 @@ import { Expose, Type } from "class-transformer";
 import { AssignmentStatus } from "~context/enums";
 import { Validator } from "~common/validator";
 
-import { OrgMembershipLookupDTO } from "../../org-membership";
+import { MembershipLookupDTO } from "../../membership";
 
 @ApiSchema({ name: "ProjectAccountAssignmentLookup" })
 export class ProjectAccountAssignmentLookupDTO {
@@ -15,9 +15,9 @@ export class ProjectAccountAssignmentLookupDTO {
 
     @Expose()
     @Validator.ValidateNested()
-    @Type(() => OrgMembershipLookupDTO)
-    @ApiProperty({ required: true, type: OrgMembershipLookupDTO })
-    declare public membership: OrgMembershipLookupDTO;
+    @Type(() => MembershipLookupDTO)
+    @ApiProperty({ required: true, type: MembershipLookupDTO })
+    declare public membership: MembershipLookupDTO;
 
     @Expose()
     @Validator.IsEnum(AssignmentStatus)

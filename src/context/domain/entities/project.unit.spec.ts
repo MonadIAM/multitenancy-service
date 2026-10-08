@@ -3,8 +3,8 @@ import { describe, expect, it } from "@jest/globals";
 import { ProjectStatus } from "~context/enums";
 
 import { ProjectAccountAssignment } from "./project-account-assignment.entity";
-import { OrgMembership } from "./org-membership.entity";
 import { Organization } from "./organization.entity";
+import { Membership } from "./membership.entity";
 import { Project } from "./project.entity";
 
 /* eslint-disable prettier/prettier */
@@ -28,7 +28,7 @@ function createProject(): Project {
 }
 
 function createAssignment(project: Project): ProjectAccountAssignment {
-    const membership = new OrgMembership({
+    const membership = new Membership({
         organization: project.organization,
         account: ACCOUNT_ID,
     });

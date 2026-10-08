@@ -32,7 +32,7 @@ export class InviteMapper implements Commands.Mappers.Invite.Contract {
             actor: props.inviter,
             realm: props.organization.realm,
             input: {
-                sourceService: PlatformService.MULTITENANCY_SERVICE,
+                sourceService: PlatformService.ORGANIZATION_SERVICE,
                 template: MessageTemplate.INVITE_RECEIVED,
                 kind: NotificationContentKind.TEMPLATE,
                 category: NotificationCategory.SYSTEM,
@@ -49,7 +49,7 @@ export class InviteMapper implements Commands.Mappers.Invite.Contract {
             actor: props.inviter,
             realm: props.organization.realm,
             input: {
-                sourceService: PlatformService.MULTITENANCY_SERVICE,
+                sourceService: PlatformService.ORGANIZATION_SERVICE,
                 template: MessageTemplate.INVITE_CANCELLED,
                 kind: NotificationContentKind.TEMPLATE,
                 category: NotificationCategory.SYSTEM,

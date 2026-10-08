@@ -1,7 +1,7 @@
 declare namespace Fixtures.Core {
     interface Contract {
         createProjectAccountAssignment: CreateProjectAccountAssignment.Signature;
-        createOrgMembership: CreateOrgMembership.Signature;
+        createMembership: CreateMembership.Signature;
         createOrganization: CreateOrganization.Signature;
         createDepartment: CreateDepartment.Signature;
         createChangeLog: CreateChangeLog.Signature;
@@ -21,12 +21,12 @@ declare namespace Fixtures.Core {
         type Signature = (props?: Props) => Result;
     }
 
-    namespace CreateOrgMembership {
-        type Props = Omit<Partial<Entities.OrgMembership.ConstructorProps>, "organization"> & {
+    namespace CreateMembership {
+        type Props = Omit<Partial<Entities.Membership.ConstructorProps>, "organization"> & {
             organization: Entities.Organization;
         };
 
-        type Result = Promise<Entities.OrgMembership>;
+        type Result = Promise<Entities.Membership>;
 
         type Signature = (props: Props) => Result;
     }
@@ -53,7 +53,7 @@ declare namespace Fixtures.Core {
 
     namespace CreateProjectAccountAssignment {
         type Props = Omit<Partial<Entities.ProjectAccountAssignment.ConstructorProps>, "membership" | "project"> & {
-            membership: Entities.OrgMembership;
+            membership: Entities.Membership;
             project: Entities.Project;
         };
 

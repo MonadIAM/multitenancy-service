@@ -17,7 +17,7 @@ describe("ProjectAccountAssignmentService integration", () => {
     describe("create / clean", () => {
         it("creates and then cleans an assignment by membership", async () => {
             const organization = await suite.fixtures().createOrganization();
-            const membership = await suite.fixtures().createOrgMembership({ organization });
+            const membership = await suite.fixtures().createMembership({ organization });
             const project = await suite.fixtures().createProject({ organization, realm: organization.realm });
 
             const assignment = await suite.transaction((transaction) =>

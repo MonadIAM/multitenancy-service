@@ -5,7 +5,7 @@ declare namespace Fixtures.ProjectAccountAssignment {
 
     namespace FilterScenario {
         type Result = Promise<{
-            membership: Entities.OrgMembership;
+            membership: Entities.Membership;
             project: Entities.Project;
             matched: Entities.ProjectAccountAssignment;
         }>;

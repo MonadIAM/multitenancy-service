@@ -1,6 +1,6 @@
 export const PROJECT_ACCOUNT_ASSIGNMENT_SERVICE = Symbol("Services.ProjectAccountAssignment.Contract");
-export const ORG_MEMBERSHIP_SERVICE = Symbol("Services.OrgMembership.Contract");
 export const ORGANIZATION_SERVICE = Symbol("Services.Organization.Contract");
+export const MEMBERSHIP_SERVICE = Symbol("Services.Membership.Contract");
 export const DEPARTMENT_SERVICE = Symbol("Services.Department.Contract");
 export const CHANGE_LOG_SERVICE = Symbol("Services.ChangeLog.Contract");
 export const AUDIT_LOG_SERVICE = Symbol("Services.AuditLog.Contract");

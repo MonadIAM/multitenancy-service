@@ -8,8 +8,8 @@ export class InviteUnitHelpers extends DomainServiceCoreUnitHelpers implements U
         const services = this.services();
         return {
             service: new InviteService(
-                this.contract<Services.OrgMembership.CommandContract>(services.memberships),
-                this.contract<Repositories.OrgMembership.Contract>(repositories.memberships),
+                this.contract<Services.Membership.CommandContract>(services.memberships),
+                this.contract<Repositories.Membership.Contract>(repositories.memberships),
                 this.contract<Repositories.Organization.Contract>(repositories.organizations),
                 this.contract<Repositories.Invite.Contract>(repositories.invites),
             ),

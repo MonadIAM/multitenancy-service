@@ -7,7 +7,7 @@ declare namespace Unit.Domain {
         namespace Repositories {
             type Props = {
                 projectAssignments?: Entities.ProjectAccountAssignment[];
-                memberships?: Entities.OrgMembership[];
+                memberships?: Entities.Membership[];
                 organizations?: Entities.Organization[];
                 departments?: Entities.Department[];
                 changeLogs?: SystemEntities.ChangeLog[];

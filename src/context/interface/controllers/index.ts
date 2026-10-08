@@ -1,15 +1,15 @@
 import { ProjectAccountAssignmentManageController } from "./manage-project-account-assignment.controller";
 import { ProjectAccountAssignmentController } from "./project-account-assignment.controller";
-import { OrgMembershipManageController } from "./manage-org-membership.controller";
 import { OrganizationManageController } from "./manage-organization.controller";
+import { MembershipManageController } from "./manage-membership.controller";
 import { DepartmentManageController } from "./manage-department.controller";
 import { ChangeLogManageController } from "./manage-change-log.controller";
 import { AuditLogManageController } from "./manage-audit-log.controller";
-import { OrgMembershipController } from "./org-membership.controller";
 import { ProjectManageController } from "./manage-project.controller";
 import { InviteManageController } from "./manage-invite.controller";
 import { OrganizationController } from "./organization.controller";
 import { TeamManageController } from "./manage-team.controller";
+import { MembershipController } from "./membership.controller";
 import { DepartmentController } from "./department.controller";
 import { AuditLogController } from "./audit-log.controller";
 import { ProjectController } from "./project.controller";
@@ -19,15 +19,15 @@ import { TeamController } from "./team.controller";
 export const HTTP_CONTROLLERS = [
     ProjectAccountAssignmentManageController,
     ProjectAccountAssignmentController,
-    OrgMembershipManageController,
     OrganizationManageController,
+    MembershipManageController,
     DepartmentManageController,
     ChangeLogManageController,
     AuditLogManageController,
     ProjectManageController,
-    OrgMembershipController,
     OrganizationController,
     InviteManageController,
+    MembershipController,
     TeamManageController,
     DepartmentController,
     AuditLogController,
@@ -39,15 +39,15 @@ export const HTTP_CONTROLLERS = [
 export {
     ProjectAccountAssignmentManageController,
     ProjectAccountAssignmentController,
-    OrgMembershipManageController,
     OrganizationManageController,
+    MembershipManageController,
     DepartmentManageController,
     ChangeLogManageController,
     AuditLogManageController,
     ProjectManageController,
-    OrgMembershipController,
     OrganizationController,
     InviteManageController,
+    MembershipController,
     TeamManageController,
     DepartmentController,
     AuditLogController,

@@ -12,7 +12,7 @@ declare global {
                 version: number;
 
                 organization: Entities.Organization;
-                membership: Entities.OrgMembership;
+                membership: Entities.Membership;
                 project: Entities.Project;
                 assignedBy: string;
                 status: AssignmentStatus;
@@ -23,7 +23,7 @@ declare global {
             }
 
             type ConstructorProps = {
-                membership: Entities.OrgMembership;
+                membership: Entities.Membership;
                 project: Entities.Project;
                 assignedBy: string;
             };

@@ -28,11 +28,9 @@ export class CoreFixture implements Fixtures.Core.Contract {
         return organization;
     }
 
-    public async createOrgMembership(
-        props: Fixtures.Core.CreateOrgMembership.Props,
-    ): Fixtures.Core.CreateOrgMembership.Result {
+    public async createMembership(props: Fixtures.Core.CreateMembership.Props): Fixtures.Core.CreateMembership.Result {
         return await this.persist(
-            this.entities.createOrgMembership({
+            this.entities.createMembership({
                 ...props,
                 account: props.account ?? randomUUID(),
             }),
@@ -111,7 +109,7 @@ export class CoreFixture implements Fixtures.Core.Contract {
             input: props.input,
             context: {
                 ip: props.context?.ip ?? "127.0.0.1",
-                userAgent: props.context?.userAgent ?? "multitenancy-test",
+                userAgent: props.context?.userAgent ?? "organization-test",
             },
         });
 

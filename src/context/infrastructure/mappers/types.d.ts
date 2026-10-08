@@ -88,7 +88,7 @@ declare global {
                 }
             }
 
-            namespace OrgMembership {
+            namespace Membership {
                 type Filters = {
                     suspendedAt?: OrdinalFilterDTO<Date>;
                     blockedAt?: OrdinalFilterDTO<Date>;

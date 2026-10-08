@@ -1,7 +1,7 @@
 import { EntitySchema } from "@mikro-orm/postgresql";
 
 import { ProjectAccountAssignment } from "~context/domain/entities/project-account-assignment.entity";
-import { OrgMembership } from "~context/domain/entities/org-membership.entity";
+import { Membership } from "~context/domain/entities/membership.entity";
 import { Organization } from "~context/domain/entities/organization.entity";
 import { Project } from "~context/domain/entities/project.entity";
 import { AssignmentStatus } from "~context/enums";
@@ -9,7 +9,7 @@ import { AssignmentStatus } from "~context/enums";
 export const ProjectAccountAssignmentSchema = new EntitySchema<ProjectAccountAssignment>({
     class: ProjectAccountAssignment,
     tableName: "project_account_assignment",
-    schema: "multitenancy",
+    schema: "organization",
 
     uniques: [
         {
@@ -39,7 +39,7 @@ export const ProjectAccountAssignmentSchema = new EntitySchema<ProjectAccountAss
         },
         membership: {
             kind: "m:1",
-            entity: () => OrgMembership,
+            entity: () => Membership,
             joinColumns: ["membership_id", "organization_id"],
             columnTypes: ["uuid", "uuid"],
             referencedColumnNames: ["id", "organization_id"],

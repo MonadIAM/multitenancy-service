@@ -7,7 +7,7 @@ export class RepositoryMockBank extends EntityFactoryRegistry implements Unit.Do
         props: Unit.Domain.RepositoryMockBank.Repositories.Props = {},
     ): Unit.Domain.RepositoryMocks.Contract {
         const organizations = props.organizations ?? [this.createOrganization()];
-        const memberships = props.memberships ?? [this.createOrgMembership({ organization: organizations[0] })];
+        const memberships = props.memberships ?? [this.createMembership({ organization: organizations[0] })];
         const projects = props.projects ?? [this.createProject({ organization: organizations[0] })];
         const departments = props.departments ?? [this.createDepartment({ organization: organizations[0] })];
         const teams = props.teams ?? [
@@ -20,7 +20,7 @@ export class RepositoryMockBank extends EntityFactoryRegistry implements Unit.Do
         return {
             projectAssignments: this.baseRepository("ProjectAccountAssignment", props.projectAssignments ?? []),
             organizations: this.lookupRepository("Organization", organizations),
-            memberships: this.baseRepository("OrgMembership", memberships),
+            memberships: this.baseRepository("Membership", memberships),
             departments: this.lookupRepository("Department", departments),
             changeLogs: this.baseRepository("ChangeLog", props.changeLogs ?? []),
             auditLogs: this.baseRepository("AuditLog", props.auditLogs ?? []),

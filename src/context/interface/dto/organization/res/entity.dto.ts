@@ -4,7 +4,7 @@ import { Expose, Type } from "class-transformer";
 import { OrganizationStatus } from "~context/enums";
 import { Validator } from "~common/validator";
 
-import { OrgMembershipLookupDTO } from "../../org-membership";
+import { MembershipLookupDTO } from "../../membership";
 
 @ApiSchema({ name: "Organization" })
 export class OrganizationDTO {
@@ -27,9 +27,9 @@ export class OrganizationDTO {
 
     @Expose()
     @Validator.ValidateNested()
-    @Type(() => OrgMembershipLookupDTO)
-    @ApiProperty({ required: true, type: OrgMembershipLookupDTO })
-    declare public owner: OrgMembershipLookupDTO;
+    @Type(() => MembershipLookupDTO)
+    @ApiProperty({ required: true, type: MembershipLookupDTO })
+    declare public owner: MembershipLookupDTO;
 
     @Expose()
     @Validator.IsUUID()

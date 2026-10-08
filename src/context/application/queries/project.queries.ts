@@ -1,6 +1,6 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 
-import { AssignmentStatus, OrgMembershipStatus, PermissionCode, QueryMode } from "~context/enums";
+import { AssignmentStatus, MembershipStatus, PermissionCode, QueryMode } from "~context/enums";
 import { PROJECT_REPOSITORY } from "~context/infrastructure/repositories";
 
 @Injectable({ scope: Scope.DEFAULT })
@@ -72,7 +72,7 @@ export class ProjectQueries implements Queries.Project.Contract {
                     assignments: {
                         status: AssignmentStatus.ACTIVE,
                         membership: {
-                            status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
+                            status: { $in: [MembershipStatus.ACTIVE, MembershipStatus.SUSPENDED] },
                             account: props.actor,
                         },
                     },

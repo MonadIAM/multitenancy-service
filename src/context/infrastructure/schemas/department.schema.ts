@@ -7,7 +7,7 @@ import { DepartmentStatus } from "~context/enums";
 export const DepartmentSchema = new EntitySchema<Department>({
     class: Department,
     tableName: "department",
-    schema: "multitenancy",
+    schema: "organization",
 
     uniques: [
         {
@@ -20,7 +20,7 @@ export const DepartmentSchema = new EntitySchema<Department>({
         {
             name: "department_name_trgm_idx",
             expression:
-                'CREATE INDEX "department_name_trgm_idx" ON "multitenancy"."department" USING gin ("name" gin_trgm_ops)',
+                'CREATE INDEX "department_name_trgm_idx" ON "organization"."department" USING gin ("name" gin_trgm_ops)',
         },
         {
             name: "department_organization_idx",

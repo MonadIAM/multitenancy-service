@@ -16,7 +16,7 @@ describe("OrganizationCommands", () => {
         it("creates in a transaction with the required ownership scope", async () => {
             const { commands, organizationService, transaction, run } = helpers.commands();
             const input = { title: "New organization", description: "Description" };
-            const created = { organization: helpers.createOrganization(), membership: helpers.createOrgMembership() };
+            const created = { organization: helpers.createOrganization(), membership: helpers.createMembership() };
             organizationService.create.mockReturnValue(created);
 
             await commands.create({ input, actor: ACTOR, context: CONTEXT });

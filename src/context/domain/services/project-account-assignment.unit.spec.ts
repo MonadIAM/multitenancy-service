@@ -21,7 +21,7 @@ describe("ProjectAccountAssignmentService", () => {
     describe("create", () => {
         it("creates an assignment for an active membership and project in the same organization", async () => {
             const organization = helpers.createOrganization({ realm: REALM_ID });
-            const membership = helpers.createOrgMembership({
+            const membership = helpers.createMembership({
                 id: MEMBERSHIP_ID,
                 organization,
             });
@@ -53,7 +53,7 @@ describe("ProjectAccountAssignmentService", () => {
         });
 
         it("rejects assignments across organizations", async () => {
-            const membership = helpers.createOrgMembership({ id: MEMBERSHIP_ID });
+            const membership = helpers.createMembership({ id: MEMBERSHIP_ID });
             const project = helpers.createProject({
                 id: PROJECT_ID,
                 organization: helpers.createOrganization(),

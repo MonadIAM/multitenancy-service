@@ -1,6 +1,6 @@
 export const PROJECT_ACCOUNT_ASSIGNMENT_COMMANDS = Symbol("Commands.ProjectAccountAssignment.Contract");
-export const ORG_MEMBERSHIP_COMMANDS = Symbol("Commands.OrgMembership.Contract");
 export const ORGANIZATION_COMMANDS = Symbol("Commands.Organization.Contract");
+export const MEMBERSHIP_COMMANDS = Symbol("Commands.Membership.Contract");
 export const DEPARTMENT_COMMANDS = Symbol("Commands.Department.Contract");
 export const PROJECT_COMMANDS = Symbol("Commands.Project.Contract");
 export const INVITE_COMMANDS = Symbol("Commands.Invite.Contract");

@@ -24,11 +24,11 @@ export class DepartmentClosureRepository
 
             // NOTE[SQL-01]: see NOTES.md#SQL-01
             const query = kysely
-                .insertInto("multitenancy.department_closure")
+                .insertInto("organization.department_closure")
                 .columns(CLOSURE_COLUMNS)
                 .expression(
                     kysely
-                        .selectFrom("multitenancy.department_closure as closure")
+                        .selectFrom("organization.department_closure as closure")
                         .select([
                             sql<string>`${organization}::uuid`.as("organization_id"),
                             "closure.ancestor_id",
@@ -63,18 +63,18 @@ export class DepartmentClosureRepository
 
             // NOTE[SQL-02]: see NOTES.md#SQL-02
             const deleteQuery = kysely
-                .deleteFrom("multitenancy.department_closure as closure")
+                .deleteFrom("organization.department_closure as closure")
                 .where("closure.organization_id", "=", organization)
                 .where("closure.descendant_id", "in", (eb) =>
                     eb
-                        .selectFrom("multitenancy.department_closure")
+                        .selectFrom("organization.department_closure")
                         .select("descendant_id")
                         .where("ancestor_id", "in", children)
                         .where("organization_id", "=", organization),
                 )
                 .where("closure.ancestor_id", "in", (eb) =>
                     eb
-                        .selectFrom("multitenancy.department_closure")
+                        .selectFrom("organization.department_closure")
                         .select("ancestor_id")
                         .where("descendant_id", "=", sql<string>`${oldParent}::uuid`)
                         .where("organization_id", "=", organization),
@@ -84,12 +84,12 @@ export class DepartmentClosureRepository
 
             // NOTE[SQL-02]: see NOTES.md#SQL-02
             const insertQuery = kysely
-                .insertInto("multitenancy.department_closure")
+                .insertInto("organization.department_closure")
                 .columns(CLOSURE_COLUMNS)
                 .expression(
                     kysely
-                        .selectFrom("multitenancy.department_closure as new_parent_paths")
-                        .innerJoin("multitenancy.department_closure as moved_subtree_paths", (join) =>
+                        .selectFrom("organization.department_closure as new_parent_paths")
+                        .innerJoin("organization.department_closure as moved_subtree_paths", (join) =>
                             join
                                 .on("moved_subtree_paths.ancestor_id", "in", children)
                                 .on("moved_subtree_paths.organization_id", "=", sql<string>`${organization}::uuid`),
@@ -123,7 +123,7 @@ export class DepartmentClosureRepository
 
             // NOTE[SQL-02]: see NOTES.md#SQL-02
             const query = kysely
-                .updateTable("multitenancy.department_closure")
+                .updateTable("organization.department_closure")
                 .set({ depth: sql<number>`depth - 1` })
                 .where("organization_id", "=", organization)
                 .where("ancestor_id", "!=", department)
@@ -131,8 +131,8 @@ export class DepartmentClosureRepository
                 .where((eb) =>
                     eb.exists(
                         eb
-                            .selectFrom("multitenancy.department_closure as path1")
-                            .innerJoin("multitenancy.department_closure as path2", (join) =>
+                            .selectFrom("organization.department_closure as path1")
+                            .innerJoin("organization.department_closure as path2", (join) =>
                                 join
                                     .on("path1.descendant_id", "=", sql<string>`${department}::uuid`)
                                     .on("path2.ancestor_id", "=", sql<string>`${department}::uuid`)
@@ -140,8 +140,8 @@ export class DepartmentClosureRepository
                                     .on("path2.organization_id", "=", sql<string>`${organization}::uuid`),
                             )
                             .select(sql`1`.as("matched"))
-                            .whereRef("path1.ancestor_id", "=", "multitenancy.department_closure.ancestor_id")
-                            .whereRef("path2.descendant_id", "=", "multitenancy.department_closure.descendant_id"),
+                            .whereRef("path1.ancestor_id", "=", "organization.department_closure.ancestor_id")
+                            .whereRef("path2.descendant_id", "=", "organization.department_closure.descendant_id"),
                     ),
                 )
                 .returning([...CLOSURE_COLUMNS, sql`jsonb_build_object('depth', depth + 1)`.as("previous_state")])
@@ -158,20 +158,20 @@ export class DepartmentClosureRepository
             const { transaction, newParent, target, organization } = props;
 
             const subtree = kysely
-                .selectFrom("multitenancy.department_closure as closure")
+                .selectFrom("organization.department_closure as closure")
                 .select(["closure.descendant_id", "closure.depth as subtree_depth"])
                 .where("closure.ancestor_id", "=", target)
                 .where("closure.organization_id", "=", organization);
 
             const oldAncestors = kysely
-                .selectFrom("multitenancy.department_closure as closure")
+                .selectFrom("organization.department_closure as closure")
                 .select("closure.ancestor_id")
                 .where("closure.descendant_id", "=", target)
                 .where("closure.depth", ">", 0)
                 .where("closure.organization_id", "=", organization);
 
             const newAncestors = kysely
-                .selectFrom("multitenancy.department_closure as closure")
+                .selectFrom("organization.department_closure as closure")
                 .select(["closure.ancestor_id", "closure.depth as ancestor_depth"])
                 .where("closure.descendant_id", "=", sql<string>`${newParent}::uuid`)
                 .where("closure.organization_id", "=", organization);
@@ -181,7 +181,7 @@ export class DepartmentClosureRepository
                 .with("subtree", () => subtree)
                 .with("old_ancestors", () => oldAncestors)
                 .with("new_ancestors", () => newAncestors)
-                .deleteFrom("multitenancy.department_closure")
+                .deleteFrom("organization.department_closure")
                 .where("organization_id", "=", organization)
                 .where("descendant_id", "in", (eb) => eb.selectFrom("subtree").select("descendant_id"))
                 .where("ancestor_id", "in", (eb) => eb.selectFrom("old_ancestors").select("ancestor_id"))
@@ -199,7 +199,7 @@ export class DepartmentClosureRepository
                     (cte) => cte("previous").materialized(),
                     (creator) =>
                         creator
-                            .selectFrom("multitenancy.department_closure as closure")
+                            .selectFrom("organization.department_closure as closure")
                             .select(["closure.ancestor_id", "closure.descendant_id", "closure.depth"])
                             .where("closure.organization_id", "=", organization)
                             .where("closure.descendant_id", "in", (eb) => eb.selectFrom("subtree").select("descendant_id"))
@@ -209,7 +209,7 @@ export class DepartmentClosureRepository
                 )
                 .with("upserted", (creator) =>
                     creator
-                        .insertInto("multitenancy.department_closure")
+                        .insertInto("organization.department_closure")
                         .columns(CLOSURE_COLUMNS)
                         .expression((eb) =>
                             eb

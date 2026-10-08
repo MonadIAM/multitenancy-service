@@ -36,34 +36,34 @@ export class OrganizationRepository
                         eb
                             .exists(
                                 eb
-                                    .selectFrom("multitenancy.project")
+                                    .selectFrom("organization.project")
                                     .select("id")
                                     .where("organization_id", "in", identifiers)
                                     .where("process", "is not", null)
                                     .unionAll(
                                         eb
-                                            .selectFrom("multitenancy.org_membership")
+                                            .selectFrom("organization.membership")
                                             .select("id")
                                             .where("organization_id", "in", identifiers)
                                             .where("process", "is not", null),
                                     )
                                     .unionAll(
                                         eb
-                                            .selectFrom("multitenancy.invite")
+                                            .selectFrom("organization.invite")
                                             .select("id")
                                             .where("organization_id", "in", identifiers)
                                             .where("process", "is not", null),
                                     )
                                     .unionAll(
                                         eb
-                                            .selectFrom("multitenancy.department")
+                                            .selectFrom("organization.department")
                                             .select("id")
                                             .where("organization_id", "in", identifiers)
                                             .where("process", "is not", null),
                                     )
                                     .unionAll(
                                         eb
-                                            .selectFrom("multitenancy.team")
+                                            .selectFrom("organization.team")
                                             .select("id")
                                             .where("organization_id", "in", identifiers)
                                             .where("process", "is not", null),

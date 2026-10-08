@@ -46,7 +46,7 @@
     "BULK_RESTORED_COUNT": "Восстановлено команд: {count}",
     "BULK_PURGED_COUNT": "Удалено команд: {count}"
   },
-  "org-membership": {
+  "membership": {
     "SUSPENDED": "Членство приостановлено",
     "RESUMED": "Членство возобновлено",
     "LEFT": "Членство в организации завершено",

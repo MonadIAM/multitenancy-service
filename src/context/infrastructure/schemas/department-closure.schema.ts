@@ -5,7 +5,7 @@ import { DepartmentClosure, Department, Organization } from "~context/domain/ent
 export const DepartmentClosureSchema = new EntitySchema<DepartmentClosure>({
     class: DepartmentClosure,
     tableName: "department_closure",
-    schema: "multitenancy",
+    schema: "organization",
     indexes: [
         {
             name: "department_closure_ancestor_depth_idx",

@@ -1,14 +1,10 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 
-import { OrganizationStatus, OrgMembershipStatus, InviteStatus } from "~context/enums";
+import { MEMBERSHIP_REPOSITORY, ORGANIZATION_REPOSITORY, INVITE_REPOSITORY } from "~context/infrastructure/repositories";
+import { OrganizationStatus, MembershipStatus, InviteStatus } from "~context/enums";
 import { Exception } from "~common/exceptions";
-import {
-    ORG_MEMBERSHIP_REPOSITORY,
-    ORGANIZATION_REPOSITORY,
-    INVITE_REPOSITORY,
-} from "~context/infrastructure/repositories";
 
-import { ORG_MEMBERSHIP_SERVICE } from "./tokens";
+import { MEMBERSHIP_SERVICE } from "./tokens";
 import { Invite } from "../entities";
 
 @Injectable({ scope: Scope.DEFAULT })
@@ -16,10 +12,10 @@ export class InviteService implements Services.Invite.Contract {
     private readonly dictionaryPath = "services.invite";
 
     public constructor(
-        @Inject(ORG_MEMBERSHIP_SERVICE)
-        private readonly membershipService: Services.OrgMembership.CommandContract,
-        @Inject(ORG_MEMBERSHIP_REPOSITORY)
-        private readonly membershipRepository: Repositories.OrgMembership.Contract,
+        @Inject(MEMBERSHIP_SERVICE)
+        private readonly membershipService: Services.Membership.CommandContract,
+        @Inject(MEMBERSHIP_REPOSITORY)
+        private readonly membershipRepository: Repositories.Membership.Contract,
         @Inject(ORGANIZATION_REPOSITORY)
         private readonly organizationRepository: Repositories.Organization.Contract,
         @Inject(INVITE_REPOSITORY)
@@ -69,7 +65,7 @@ export class InviteService implements Services.Invite.Contract {
             }),
             this.membershipRepository.findUnique({
                 where: {
-                    status: { $ne: OrgMembershipStatus.LEFT },
+                    status: { $ne: MembershipStatus.LEFT },
                     organization: input.organization,
                     account: input.invitee,
                 },

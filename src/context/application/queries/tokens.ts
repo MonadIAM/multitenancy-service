@@ -1,6 +1,6 @@
 export const PROJECT_ACCOUNT_ASSIGNMENT_QUERIES = Symbol("Queries.ProjectAccountAssignment.Contract");
-export const ORG_MEMBERSHIP_QUERIES = Symbol("Queries.OrgMembership.Contract");
 export const ORGANIZATION_QUERIES = Symbol("Queries.Organization.Contract");
+export const MEMBERSHIP_QUERIES = Symbol("Queries.Membership.Contract");
 export const DEPARTMENT_QUERIES = Symbol("Queries.Department.Contract");
 export const CHANGE_LOG_QUERIES = Symbol("Queries.ChangeLog.Contract");
 export const AUDIT_LOG_QUERIES = Symbol("Queries.AuditLog.Contract");

@@ -3,8 +3,8 @@ import { isUUID } from "class-validator";
 
 import { OrganizationStatus } from "~context/enums";
 
-import { OrgMembership } from "./org-membership.entity";
 import { Organization } from "./organization.entity";
+import { Membership } from "./membership.entity";
 
 /* eslint-disable prettier/prettier */
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
@@ -19,8 +19,8 @@ function createOrganization(): Organization {
     });
 }
 
-function createMembership(organization: Organization): OrgMembership {
-    return new OrgMembership({ account: ACCOUNT_ID, organization });
+function createMembership(organization: Organization): Membership {
+    return new Membership({ account: ACCOUNT_ID, organization });
 }
 
 describe("Organization Entity", () => {

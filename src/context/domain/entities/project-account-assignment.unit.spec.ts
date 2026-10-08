@@ -4,8 +4,8 @@ import { isUUID } from "class-validator";
 import { AssignmentStatus } from "~context/enums";
 
 import { ProjectAccountAssignment } from "./project-account-assignment.entity";
-import { OrgMembership } from "./org-membership.entity";
 import { Organization } from "./organization.entity";
+import { Membership } from "./membership.entity";
 import { Project } from "./project.entity";
 
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
@@ -18,7 +18,7 @@ function createAssignment(): ProjectAccountAssignment {
         realm: REALM_ID,
         title: "Organization",
     });
-    const membership = new OrgMembership({ account: ACCOUNT_ID, organization });
+    const membership = new Membership({ account: ACCOUNT_ID, organization });
     const project = new Project({
         description: "Description",
         name: "Project",

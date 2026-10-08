@@ -30,7 +30,7 @@
   "team": {
     "TEAMS_NOT_FOUND": "Одна или несколько команд не существуют."
   },
-  "org-membership": {
+  "membership": {
     "MEMBERSHIP_ALREADY_EXISTS": "Членство в организации уже существует.",
     "MEMBERSHIPS_NOT_FOUND": "Одно или несколько членств не существуют.",
     "OWNER_ACCESS_REQUIRED": "Владелец и кандидат на передачу владения должны сохранять активное членство"

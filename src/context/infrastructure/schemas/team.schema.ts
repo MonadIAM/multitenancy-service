@@ -8,7 +8,7 @@ import { TeamStatus } from "~context/enums";
 export const TeamSchema = new EntitySchema<Team>({
     class: Team,
     tableName: "team",
-    schema: "multitenancy",
+    schema: "organization",
 
     uniques: [
         {
@@ -20,7 +20,7 @@ export const TeamSchema = new EntitySchema<Team>({
     indexes: [
         {
             name: "team_name_trgm_idx",
-            expression: 'CREATE INDEX "team_name_trgm_idx" ON "multitenancy"."team" USING gin ("name" gin_trgm_ops)',
+            expression: 'CREATE INDEX "team_name_trgm_idx" ON "organization"."team" USING gin ("name" gin_trgm_ops)',
         },
         {
             name: "team_lead_position_idx",

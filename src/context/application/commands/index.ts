@@ -1,8 +1,8 @@
 import { ClassProvider } from "@nestjs/common";
 
 import { ProjectAccountAssignmentCommands } from "./project-account-assignment.commands";
-import { OrgMembershipCommands } from "./org-membership.commands";
 import { OrganizationCommands } from "./organization.commands";
+import { MembershipCommands } from "./membership.commands";
 import { DepartmentCommands } from "./department.commands";
 import { PositionCommands } from "./position.commands";
 import { AccountCommands } from "./account.commands";
@@ -11,8 +11,8 @@ import { InviteCommands } from "./invite.commands";
 import { TeamCommands } from "./team.commands";
 import {
     PROJECT_ACCOUNT_ASSIGNMENT_COMMANDS,
-    ORG_MEMBERSHIP_COMMANDS,
     ORGANIZATION_COMMANDS,
+    MEMBERSHIP_COMMANDS,
     DEPARTMENT_COMMANDS,
     POSITION_COMMANDS,
     ACCOUNT_COMMANDS,
@@ -27,12 +27,12 @@ export const COMMANDS: ClassProvider[] = [
         useClass: ProjectAccountAssignmentCommands,
     },
     {
-        provide: ORG_MEMBERSHIP_COMMANDS,
-        useClass: OrgMembershipCommands,
-    },
-    {
         provide: ORGANIZATION_COMMANDS,
         useClass: OrganizationCommands,
+    },
+    {
+        provide: MEMBERSHIP_COMMANDS,
+        useClass: MembershipCommands,
     },
     {
         provide: DEPARTMENT_COMMANDS,
@@ -62,7 +62,7 @@ export const COMMANDS: ClassProvider[] = [
 
 export {
     PROJECT_ACCOUNT_ASSIGNMENT_COMMANDS,
-    ORG_MEMBERSHIP_COMMANDS,
+    MEMBERSHIP_COMMANDS,
     ORGANIZATION_COMMANDS,
     DEPARTMENT_COMMANDS,
     POSITION_COMMANDS,

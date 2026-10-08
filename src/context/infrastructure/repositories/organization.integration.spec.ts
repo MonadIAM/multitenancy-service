@@ -3,7 +3,7 @@ import { QueryOrder } from "@mikro-orm/postgresql";
 import { randomUUID } from "node:crypto";
 
 import { OrganizationFixture } from "~testing/integration/repositories/organization.fixture";
-import { Project, OrgMembership, Invite, Department, Team } from "~context/domain/entities";
+import { Project, Membership, Invite, Department, Team } from "~context/domain/entities";
 import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { PublicStringOperator } from "~infrastructure/database/enums";
 import { OrganizationStatus } from "~context/enums";
@@ -88,7 +88,7 @@ describe("OrganizationRepository", () => {
                             await transaction.nativeUpdate(Project, project.id, patch);
                             break;
                         case "membership":
-                            await transaction.nativeUpdate(OrgMembership, organization.owner.id, patch);
+                            await transaction.nativeUpdate(Membership, organization.owner.id, patch);
                             break;
                         case "invite":
                             await transaction.nativeUpdate(Invite, invite.id, patch);

@@ -7,7 +7,7 @@ export class ServiceMockBank extends RepositoryMockBank implements Unit.Domain.S
         return {
             projectAssignments: { clean: jest.fn(() => Promise.resolve([])) },
             memberships: {
-                join: jest.fn(() => Promise.resolve(this.createOrgMembership())),
+                join: jest.fn(() => Promise.resolve(this.createMembership())),
             },
         };
     }

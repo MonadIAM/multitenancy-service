@@ -46,7 +46,7 @@
     "BULK_RESTORED_COUNT": "Restored teams: {count}",
     "BULK_PURGED_COUNT": "Deleted teams: {count}"
   },
-  "org-membership": {
+  "membership": {
     "SUSPENDED": "Membership suspended",
     "RESUMED": "Membership resumed",
     "LEFT": "Organization membership left",

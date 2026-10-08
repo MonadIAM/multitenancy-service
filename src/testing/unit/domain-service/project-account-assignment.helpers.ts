@@ -13,7 +13,7 @@ export class ProjectAccountAssignmentUnitHelpers
         return {
             service: new ProjectAccountAssignmentService(
                 this.contract<Repositories.ProjectAccountAssignment.Contract>(repositories.projectAssignments),
-                this.contract<Repositories.OrgMembership.Contract>(repositories.memberships),
+                this.contract<Repositories.Membership.Contract>(repositories.memberships),
                 this.contract<Repositories.Project.Contract>(repositories.projects),
             ),
             transaction: this.transaction(),

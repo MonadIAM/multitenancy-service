@@ -1,7 +1,7 @@
 export const PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY = Symbol("Repositories.ProjectAccountAssignment.Contract");
 export const DEPARTMENT_CLOSURE_REPOSITORY = Symbol("Repositories.DepartmentClosure.Contract");
-export const ORG_MEMBERSHIP_REPOSITORY = Symbol("Repositories.OrgMembership.Contract");
 export const ORGANIZATION_REPOSITORY = Symbol("Repositories.Organization.Contract");
+export const MEMBERSHIP_REPOSITORY = Symbol("Repositories.Membership.Contract");
 export const DEPARTMENT_REPOSITORY = Symbol("Repositories.Department.Contract");
 export const CHANGE_LOG_REPOSITORY = Symbol("Repositories.ChangeLog.Contract");
 export const AUDIT_LOG_REPOSITORY = Symbol("Repositories.AuditLog.Contract");

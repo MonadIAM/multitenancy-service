@@ -19,13 +19,13 @@ declare global {
                 realm: string;
                 title: string;
 
-                owner: Entities.OrgMembership;
+                owner: Entities.Membership;
                 pendingOwner?: string;
 
-                memberships: ORM.Collection<Entities.OrgMembership>;
+                memberships: ORM.Collection<Entities.Membership>;
 
-                beginTransfer(membership: Entities.OrgMembership): void;
                 transferOwnership(props: TransferOwnership.Props): void;
+                beginTransfer(membership: Entities.Membership): void;
                 rejectBootstrap(reason: string): void;
                 update(props: ChangeDataProps): void;
                 confirmBootstrap(): void;
@@ -41,7 +41,7 @@ declare global {
                 realm: string;
                 title: string;
                 description: string;
-                owner?: Entities.OrgMembership;
+                owner?: Entities.Membership;
             };
 
             type MutableFields = Pick<Contract, "title" | "description">;
@@ -51,7 +51,7 @@ declare global {
             };
 
             namespace TransferOwnership {
-                type Props = { membership: Entities.OrgMembership };
+                type Props = { membership: Entities.Membership };
             }
         }
     }

@@ -4,7 +4,7 @@ import { Expose, Type } from "class-transformer";
 import { AssignmentStatus } from "~context/enums";
 import { Validator } from "~common/validator";
 
-import { OrgMembershipLookupDTO } from "../../org-membership";
+import { MembershipLookupDTO } from "../../membership";
 import { OrganizationLookupDTO } from "../../organization";
 import { ProjectLookupDTO } from "../../project";
 
@@ -23,9 +23,9 @@ export class ProjectAccountAssignmentDTO {
 
     @Expose()
     @Validator.ValidateNested()
-    @Type(() => OrgMembershipLookupDTO)
-    @ApiProperty({ required: true, type: OrgMembershipLookupDTO })
-    declare public membership: OrgMembershipLookupDTO;
+    @Type(() => MembershipLookupDTO)
+    @ApiProperty({ required: true, type: MembershipLookupDTO })
+    declare public membership: MembershipLookupDTO;
 
     @Expose()
     @Validator.ValidateNested()

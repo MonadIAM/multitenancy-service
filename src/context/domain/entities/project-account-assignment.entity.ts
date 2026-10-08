@@ -12,7 +12,7 @@ export class ProjectAccountAssignment implements Entities.ProjectAccountAssignme
     public version: number = 1;
 
     public organization: Entities.Organization;
-    public membership: Entities.OrgMembership;
+    public membership: Entities.Membership;
     public project: Entities.Project;
     public assignedBy: string;
     public status: AssignmentStatus;

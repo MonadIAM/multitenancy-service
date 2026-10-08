@@ -2,15 +2,11 @@ import { randomUUID } from "node:crypto";
 import { Inject, Injectable, Scope } from "@nestjs/common";
 import { LockMode } from "@mikro-orm/core";
 
-import {
-    ORG_MEMBERSHIP_REPOSITORY,
-    ORGANIZATION_REPOSITORY,
-    PROJECT_REPOSITORY,
-} from "~context/infrastructure/repositories";
-import { OrgMembershipStatus, OrganizationStatus, ProjectStatus } from "~context/enums";
+import { MEMBERSHIP_REPOSITORY, ORGANIZATION_REPOSITORY, PROJECT_REPOSITORY } from "~context/infrastructure/repositories";
+import { MembershipStatus, OrganizationStatus, ProjectStatus } from "~context/enums";
 import { Exception } from "~common/exceptions";
 
-import { OrgMembership, Organization } from "../entities";
+import { Membership, Organization } from "../entities";
 
 @Injectable({ scope: Scope.DEFAULT })
 export class OrganizationService implements Services.Organization.Contract {
@@ -21,8 +17,8 @@ export class OrganizationService implements Services.Organization.Contract {
         private readonly projectRepository: Repositories.Project.Contract,
         @Inject(ORGANIZATION_REPOSITORY)
         private readonly organizationRepository: Repositories.Organization.Contract,
-        @Inject(ORG_MEMBERSHIP_REPOSITORY)
-        private readonly membershipRepository: Repositories.OrgMembership.Contract,
+        @Inject(MEMBERSHIP_REPOSITORY)
+        private readonly membershipRepository: Repositories.Membership.Contract,
     ) {}
 
     public async confirmBootstrap(
@@ -107,7 +103,7 @@ export class OrganizationService implements Services.Organization.Contract {
                         id: organization.pendingOwner,
                         organization: organization.id,
                         account: input.owner,
-                        status: OrgMembershipStatus.ACTIVE,
+                        status: MembershipStatus.ACTIVE,
                     },
                     options: { refresh: true },
                     transaction,
@@ -146,7 +142,7 @@ export class OrganizationService implements Services.Organization.Contract {
     public create(props: Services.Organization.Create.Props): Services.Organization.Create.Result {
         const { transaction, input, actor } = props;
         const organization = new Organization({ ...input, realm: randomUUID() });
-        const membership = new OrgMembership({ organization, account: actor });
+        const membership = new Membership({ organization, account: actor });
 
         organization.transferOwnership({ membership });
         organization.beginBootstrap();
@@ -182,7 +178,7 @@ export class OrganizationService implements Services.Organization.Contract {
             transaction,
         });
         const owner = await this.membershipRepository.findUniqueOrThrow({
-            where: { id: membership, organization: id, status: OrgMembershipStatus.ACTIVE },
+            where: { id: membership, organization: id, status: MembershipStatus.ACTIVE },
             options: { refresh: true },
             transaction,
         });

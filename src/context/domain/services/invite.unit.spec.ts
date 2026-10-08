@@ -44,7 +44,7 @@ describe("InviteService", () => {
             expect(result.organization).toBe(organization);
             expect(transaction.persist).toHaveBeenCalledWith(result);
 
-            repositories.memberships.findUnique.mockImplementation(() => Promise.resolve(helpers.createOrgMembership()));
+            repositories.memberships.findUnique.mockImplementation(() => Promise.resolve(helpers.createMembership()));
 
             await expect(
                 service.create({
@@ -67,7 +67,7 @@ describe("InviteService", () => {
                 id: INVITE_ID,
                 invitee: INVITEE_ID,
             });
-            const membership = helpers.createOrgMembership({
+            const membership = helpers.createMembership({
                 organization: invite.organization,
                 account: INVITEE_ID,
             });

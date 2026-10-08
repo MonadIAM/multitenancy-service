@@ -20,10 +20,10 @@ export class Organization implements Entities.Organization.Contract {
     public realm: string;
     public title: string;
 
-    public owner!: Entities.OrgMembership;
+    public owner!: Entities.Membership;
     public pendingOwner?: string;
 
-    public memberships = new Collection<Entities.OrgMembership>(this);
+    public memberships = new Collection<Entities.Membership>(this);
 
     public constructor(props: Entities.Organization.ConstructorProps) {
         this.createdAt = new Date();
@@ -149,7 +149,7 @@ export class Organization implements Entities.Organization.Contract {
         }
     }
 
-    public beginTransfer(membership: Entities.OrgMembership): void {
+    public beginTransfer(membership: Entities.Membership): void {
         this.assertReady();
 
         if (this.status !== OrganizationStatus.ACTIVE || membership.id === this.owner.id) {

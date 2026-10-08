@@ -33,7 +33,7 @@ export class DepartmentRepository
             const entityManager = transaction ?? this.readManager;
 
             const nodesCTE = kysely
-                .selectFrom("multitenancy.department as department")
+                .selectFrom("organization.department as department")
                 .select([
                     "department.id",
                     "department.name as label",
@@ -42,7 +42,7 @@ export class DepartmentRepository
                 .where("department.organization_id", "=", organization);
 
             const edgesCTE = kysely
-                .selectFrom("multitenancy.department_closure as closure")
+                .selectFrom("organization.department_closure as closure")
                 .select([
                     sql`'edge_' || closure.ancestor_id || '_' || closure.descendant_id`.as("id"),
                     "closure.ancestor_id as source",
@@ -62,7 +62,7 @@ export class DepartmentRepository
                 .where((eb) =>
                     eb.exists(
                         eb
-                            .selectFrom("multitenancy.organization")
+                            .selectFrom("organization.organization")
                             .select("id")
                             .where("id", "=", organization)
                             .where("realm_id", "=", realm),

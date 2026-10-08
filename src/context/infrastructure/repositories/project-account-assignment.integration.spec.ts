@@ -17,7 +17,7 @@ describe("ProjectAccountAssignmentRepository", () => {
     describe("findUniqueOrThrow", () => {
         it("maps the persisted project assignment through the schema", async () => {
             const organization = await suite.fixtures().createOrganization();
-            const membership = await suite.fixtures().createOrgMembership({ organization });
+            const membership = await suite.fixtures().createMembership({ organization });
             const project = await suite.fixtures().createProject({ organization });
             const assignment = await suite.fixtures().createProjectAccountAssignment({ membership, project });
 

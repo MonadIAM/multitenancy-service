@@ -3,7 +3,7 @@ import { ChangeSetType } from "@mikro-orm/core";
 import { AuditLog, ChangeLog } from "~common/transaction-manager/entities";
 import {
     ProjectAccountAssignment,
-    OrgMembership,
+    Membership,
     Organization,
     Department,
     Project,
@@ -30,14 +30,14 @@ export class EntityFactoryRegistry implements Testing.EntityFactory.Contract {
             }),
             state,
         );
-        organization.owner ??= this.createOrgMembership({ organization, account: ownerAccount ?? ACCOUNT_ID });
+        organization.owner ??= this.createMembership({ organization, account: ownerAccount ?? ACCOUNT_ID });
 
         return organization;
     }
 
-    public createOrgMembership(props: Testing.EntityFactory.CreateOrgMembership.Props = {}): Entities.OrgMembership {
+    public createMembership(props: Testing.EntityFactory.CreateMembership.Props = {}): Entities.Membership {
         return this.entity(
-            new OrgMembership({
+            new Membership({
                 ...props,
                 organization: props.organization ?? this.createOrganization(),
                 account: props.account ?? ACCOUNT_ID,
@@ -98,7 +98,7 @@ export class EntityFactoryRegistry implements Testing.EntityFactory.Contract {
                 ...props,
                 membership:
                     props.membership ??
-                    this.createOrgMembership({
+                    this.createMembership({
                         organization: project.organization,
                     }),
                 assignedBy: props.assignedBy ?? ACTOR_ID,

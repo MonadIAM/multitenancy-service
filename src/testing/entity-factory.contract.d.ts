@@ -1,7 +1,7 @@
 declare namespace Testing.EntityFactory {
     interface Contract {
         createProjectAccountAssignment: CreateProjectAccountAssignment.Signature;
-        createOrgMembership: CreateOrgMembership.Signature;
+        createMembership: CreateMembership.Signature;
         createOrganization: CreateOrganization.Signature;
         createDepartment: CreateDepartment.Signature;
         createChangeLog: CreateChangeLog.Signature;
@@ -21,10 +21,10 @@ declare namespace Testing.EntityFactory {
         type Signature = (props?: Props) => Result;
     }
 
-    namespace CreateOrgMembership {
-        type Props = Partial<Entities.OrgMembership.Contract>;
+    namespace CreateMembership {
+        type Props = Partial<Entities.Membership.Contract>;
 
-        type Result = Entities.OrgMembership;
+        type Result = Entities.Membership;
 
         type Signature = (props?: Props) => Result;
     }

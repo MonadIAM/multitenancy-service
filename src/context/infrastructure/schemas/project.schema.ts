@@ -8,7 +8,7 @@ import { ProjectStatus } from "~context/enums";
 export const ProjectSchema = new EntitySchema<Project>({
     class: Project,
     tableName: "project",
-    schema: "multitenancy",
+    schema: "organization",
 
     uniques: [
         {
@@ -24,7 +24,7 @@ export const ProjectSchema = new EntitySchema<Project>({
     indexes: [
         {
             name: "project_name_trgm_idx",
-            expression: 'CREATE INDEX "project_name_trgm_idx" ON "multitenancy"."project" USING gin ("name" gin_trgm_ops)',
+            expression: 'CREATE INDEX "project_name_trgm_idx" ON "organization"."project" USING gin ("name" gin_trgm_ops)',
         },
         {
             name: "project_organization_idx",

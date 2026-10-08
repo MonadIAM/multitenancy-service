@@ -12,7 +12,7 @@ import { KafkaTopic } from "~context/enums";
 export class PositionConsumer implements Consumers.Position.Contract, OnModuleInit {
     private readonly logger = new Logger(PositionConsumer.name);
     private readonly incomingMapper = new KafkaIncomingMapper();
-    private readonly consumerKey = "multitenancy.position.v1";
+    private readonly consumerKey = "organization.position.v1";
 
     public constructor(
         @Inject(POSITION_COMMANDS)

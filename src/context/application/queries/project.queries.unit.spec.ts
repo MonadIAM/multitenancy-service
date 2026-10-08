@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 
+import { QueryMode, ResponseViewType, PermissionCode, MembershipStatus, AssignmentStatus } from "~context/enums";
 import { ProjectQueriesUnitHelpers } from "~testing/unit/query-services/project.helpers";
-import { QueryMode, ResponseViewType, PermissionCode, OrgMembershipStatus, AssignmentStatus } from "~context/enums";
 
 const ACTOR = "actor-account";
 const REALM = "realm-a";
@@ -21,7 +21,7 @@ describe("ProjectQueries", () => {
                         {
                             assignments: {
                                 membership: {
-                                    status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
+                                    status: { $in: [MembershipStatus.ACTIVE, MembershipStatus.SUSPENDED] },
                                     account: ACTOR,
                                 },
                                 status: AssignmentStatus.ACTIVE,
@@ -44,7 +44,7 @@ describe("ProjectQueries", () => {
                         {
                             assignments: {
                                 membership: {
-                                    status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
+                                    status: { $in: [MembershipStatus.ACTIVE, MembershipStatus.SUSPENDED] },
                                     account: ACTOR,
                                 },
                                 status: AssignmentStatus.ACTIVE,

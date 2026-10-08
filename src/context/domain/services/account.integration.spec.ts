@@ -6,8 +6,8 @@ import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import {
     ProjectAccountAssignment,
-    OrgMembership,
     Organization,
+    Membership,
     Department,
     Project,
     Invite,
@@ -41,7 +41,7 @@ describe("AccountService integration", () => {
                     transaction.nativeUpdate(Team, team.id, { leadPosition: randomUUID() }),
                 ]);
             });
-            const membership = await suite.fixtures().createOrgMembership({ organization: foreign, account });
+            const membership = await suite.fixtures().createMembership({ organization: foreign, account });
             const foreignProject = await suite.fixtures().createProject({ organization: foreign });
             const unrelatedProject = await suite.fixtures().createProject({ organization: foreign });
             await suite.fixtures().createProjectAccountAssignment({ membership, project: foreignProject });
@@ -60,13 +60,13 @@ describe("AccountService integration", () => {
                 suite.transaction((transaction) =>
                     Promise.all([
                         transaction.count(Organization, { id: owned.id }),
-                        transaction.count(OrgMembership, { organization: owned.id }),
+                        transaction.count(Membership, { organization: owned.id }),
                         transaction.count(Project, { organization: owned.id }),
                         transaction.count(Department, { organization: owned.id }),
                         transaction.count(Team, { organization: owned.id }),
                         transaction.count(Invite, { organization: owned.id }),
                         transaction.count(ProjectAccountAssignment, { organization: owned.id }),
-                        transaction.count(OrgMembership, { account }),
+                        transaction.count(Membership, { account }),
                         transaction.count(ProjectAccountAssignment, { membership: { id: membership.id } }),
                     ]),
                 ),
@@ -82,10 +82,10 @@ describe("AccountService integration", () => {
         it("rejects cleanup while ownership is being transferred to the account", async () => {
             const account = randomUUID();
             const organization = await suite.fixtures().createOrganization();
-            const membership = await suite.fixtures().createOrgMembership({ organization, account });
+            const membership = await suite.fixtures().createMembership({ organization, account });
             await suite.transaction(async (transaction) => {
                 const entity = await transaction.findOneOrFail(Organization, organization.id);
-                const candidate = await transaction.findOneOrFail(OrgMembership, membership.id);
+                const candidate = await transaction.findOneOrFail(Membership, membership.id);
                 entity.beginTransfer(candidate);
             });
 
@@ -94,7 +94,7 @@ describe("AccountService integration", () => {
             ).rejects.toThrow("services.account.TRANSFER_PENDING");
 
             await expect(
-                suite.transaction((transaction) => transaction.count(OrgMembership, { id: membership.id })),
+                suite.transaction((transaction) => transaction.count(Membership, { id: membership.id })),
             ).resolves.toBe(1);
             await expect(
                 suite.transaction((transaction) => transaction.count(Organization, { id: organization.id })),

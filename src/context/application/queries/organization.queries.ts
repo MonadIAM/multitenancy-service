@@ -1,7 +1,7 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 
-import { OrgMembershipStatus, PermissionCode, QueryMode } from "~context/enums";
 import { ORGANIZATION_REPOSITORY } from "~context/infrastructure/repositories";
+import { MembershipStatus, PermissionCode, QueryMode } from "~context/enums";
 
 @Injectable({ scope: Scope.DEFAULT })
 export class OrganizationQueries implements Queries.Organization.Contract {
@@ -61,7 +61,7 @@ export class OrganizationQueries implements Queries.Organization.Contract {
             ? {}
             : {
                   memberships: {
-                      status: { $in: [OrgMembershipStatus.ACTIVE, OrgMembershipStatus.SUSPENDED] },
+                      status: { $in: [MembershipStatus.ACTIVE, MembershipStatus.SUSPENDED] },
                       account: props.actor,
                   },
               };

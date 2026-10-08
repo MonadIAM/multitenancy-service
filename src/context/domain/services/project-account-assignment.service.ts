@@ -1,10 +1,10 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
 
-import { ProjectStatus, OrgMembershipStatus } from "~context/enums";
+import { ProjectStatus, MembershipStatus } from "~context/enums";
 import { Exception } from "~common/exceptions";
 import {
     PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY,
-    ORG_MEMBERSHIP_REPOSITORY,
+    MEMBERSHIP_REPOSITORY,
     PROJECT_REPOSITORY,
 } from "~context/infrastructure/repositories";
 
@@ -17,8 +17,8 @@ export class ProjectAccountAssignmentService implements Services.ProjectAccountA
     public constructor(
         @Inject(PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY)
         private readonly assignmentRepository: Repositories.ProjectAccountAssignment.Contract,
-        @Inject(ORG_MEMBERSHIP_REPOSITORY)
-        private readonly membershipRepository: Repositories.OrgMembership.Contract,
+        @Inject(MEMBERSHIP_REPOSITORY)
+        private readonly membershipRepository: Repositories.Membership.Contract,
         @Inject(PROJECT_REPOSITORY)
         private readonly projectRepository: Repositories.Project.Contract,
     ) {}
@@ -31,7 +31,7 @@ export class ProjectAccountAssignmentService implements Services.ProjectAccountA
             this.membershipRepository.findUniqueOrThrow({
                 where: {
                     id: input.membership,
-                    status: OrgMembershipStatus.ACTIVE,
+                    status: MembershipStatus.ACTIVE,
                 },
                 transaction,
             }),

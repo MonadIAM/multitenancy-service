@@ -153,13 +153,13 @@ declare global {
         };
 
         type Database = {
-            "multitenancy.org_membership": Columns<Entities.OrgMembership>;
-            "multitenancy.department_closure": Columns<Entities.DepartmentClosure>;
-            "multitenancy.organization": Omit<Columns<Entities.Organization>, "realm"> & { realm_id: string };
-            "multitenancy.department": Columns<Entities.Department>;
-            "multitenancy.project": Columns<Entities.Project>;
-            "multitenancy.invite": Columns<Entities.Invite>;
-            "multitenancy.team": Columns<Entities.Team>;
+            "organization.membership": Columns<Entities.Membership>;
+            "organization.department_closure": Columns<Entities.DepartmentClosure>;
+            "organization.organization": Omit<Columns<Entities.Organization>, "realm"> & { realm_id: string };
+            "organization.department": Columns<Entities.Department>;
+            "organization.project": Columns<Entities.Project>;
+            "organization.invite": Columns<Entities.Invite>;
+            "organization.team": Columns<Entities.Team>;
             "system.inbox": Columns<SystemEntities.Inbox>;
             "system.audit_log": AuditLogColumns;
             "system.change_log": ChangeLogColumns;

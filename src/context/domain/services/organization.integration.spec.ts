@@ -1,17 +1,17 @@
 import { describe, expect, it } from "@jest/globals";
 import { randomUUID } from "node:crypto";
 
-import { OrgMembershipIntegrationHelpers } from "~testing/integration/domain-service/org-membership.helpers";
 import { OrganizationIntegrationHelpers } from "~testing/integration/domain-service/organization.helpers";
+import { MembershipIntegrationHelpers } from "~testing/integration/domain-service/membership.helpers";
 import { AccountIntegrationHelpers } from "~testing/integration/domain-service/account.helpers";
 import { ConcurrencyIntegrationHelpers } from "~testing/integration/concurrency.helpers";
-import { RealmType, OrganizationStatus, OrgMembershipStatus } from "~context/enums";
+import { RealmType, OrganizationStatus, MembershipStatus } from "~context/enums";
 import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import {
     ProjectAccountAssignment,
     Organization,
-    OrgMembership,
+    Membership,
     Department,
     Project,
     Invite,
@@ -24,7 +24,7 @@ describe("OrganizationService integration", () => {
     const suite = postgresSuite({
         repository: (context) => ({
             ...helpers.service(context),
-            ...new OrgMembershipIntegrationHelpers().service(context),
+            ...new MembershipIntegrationHelpers().service(context),
             ...new AccountIntegrationHelpers().service(context),
             concurrency: new ConcurrencyIntegrationHelpers(context),
         }),
@@ -50,7 +50,7 @@ describe("OrganizationService integration", () => {
             ).resolves.toBe(1);
             await expect(
                 suite.transaction((transaction) =>
-                    transaction.count(OrgMembership, {
+                    transaction.count(Membership, {
                         id: result.membership.id,
                         account: actor,
                     }),
@@ -105,19 +105,19 @@ describe("OrganizationService integration", () => {
             const [organization, membership] = await suite.transaction((transaction) =>
                 Promise.all([
                     transaction.findOneOrFail(Organization, result.organization.id),
-                    transaction.findOneOrFail(OrgMembership, result.membership.id),
+                    transaction.findOneOrFail(Membership, result.membership.id),
                 ]),
             );
             expect(organization.status).toBe(OrganizationStatus.ACTIVE);
             expect(organization.process).toBeNull();
-            expect(membership.status).toBe(OrgMembershipStatus.ACTIVE);
+            expect(membership.status).toBe(MembershipStatus.ACTIVE);
         });
     });
 
     describe("transferOwnership / confirmTransfer", () => {
         it("keeps the previous owner until transfer confirmation", async () => {
             const organization = await suite.fixtures().createOrganization();
-            const membership = await suite.fixtures().createOrgMembership({ organization });
+            const membership = await suite.fixtures().createMembership({ organization });
             const started = await suite.transaction((transaction) =>
                 suite.repository().organizationService.transferOwnership({
                     realm: organization.realm,
@@ -188,7 +188,7 @@ describe("OrganizationService integration", () => {
             "rejects %s after a concurrent transfer reserves the next owner",
             async (operation) => {
                 const organization = await suite.fixtures().createOrganization();
-                const membership = await suite.fixtures().createOrgMembership({ organization });
+                const membership = await suite.fixtures().createMembership({ organization });
                 const { organizationService, membershipService, concurrency } = suite.repository();
 
                 const result = await concurrency.run({
@@ -214,29 +214,29 @@ describe("OrganizationService integration", () => {
                 expect(result.second).toEqual({
                     status: "rejected",
                     reason: expect.objectContaining({
-                        message: "services.org-membership.OWNER_ACCESS_REQUIRED",
+                        message: "services.membership.OWNER_ACCESS_REQUIRED",
                     }),
                 });
                 const loaded = await suite.transaction((transaction) =>
-                    transaction.findOneOrFail(OrgMembership, membership.id),
+                    transaction.findOneOrFail(Membership, membership.id),
                 );
-                expect(loaded.status).toBe(OrgMembershipStatus.ACTIVE);
+                expect(loaded.status).toBe(MembershipStatus.ACTIVE);
                 expect(result.first.organization.pendingOwner).toBe(membership.id);
             },
         );
 
         it.each([
-            { operation: "leave" as const, status: OrgMembershipStatus.LEFT },
-            { operation: "block" as const, status: OrgMembershipStatus.BLOCKED },
+            { operation: "leave" as const, status: MembershipStatus.LEFT },
+            { operation: "block" as const, status: MembershipStatus.BLOCKED },
             {
                 operation: "suspend" as const,
-                status: OrgMembershipStatus.SUSPENDED,
+                status: MembershipStatus.SUSPENDED,
             },
         ])(
             "rejects transfer after concurrent $operation changes the candidate membership",
             async ({ operation, status }) => {
                 const organization = await suite.fixtures().createOrganization();
-                const membership = await suite.fixtures().createOrgMembership({ organization });
+                const membership = await suite.fixtures().createMembership({ organization });
                 const { organizationService, membershipService, concurrency } = suite.repository();
 
                 const result = await concurrency.run({
@@ -248,7 +248,7 @@ describe("OrganizationService integration", () => {
                             transaction,
                         }),
                     second: async (transaction) => {
-                        await transaction.findOneOrFail(OrgMembership, membership.id);
+                        await transaction.findOneOrFail(Membership, membership.id);
 
                         return organizationService.transferOwnership({
                             realm: organization.realm,
@@ -263,7 +263,7 @@ describe("OrganizationService integration", () => {
                 const [loaded, candidate] = await suite.transaction((transaction) =>
                     Promise.all([
                         transaction.findOneOrFail(Organization, organization.id),
-                        transaction.findOneOrFail(OrgMembership, membership.id),
+                        transaction.findOneOrFail(Membership, membership.id),
                     ]),
                 );
                 expect(loaded.owner.id).toBe(organization.owner.id);
@@ -277,7 +277,7 @@ describe("OrganizationService integration", () => {
             "checks owner protection after concurrent %s finishes",
             async (operation) => {
                 const organization = await suite.fixtures().createOrganization();
-                const membership = await suite.fixtures().createOrgMembership({ organization });
+                const membership = await suite.fixtures().createMembership({ organization });
                 const { organizationService, membershipService, concurrency } = suite.repository();
                 const started = await suite.transaction((transaction) =>
                     organizationService.transferOwnership({
@@ -316,21 +316,21 @@ describe("OrganizationService integration", () => {
                 const [loaded, candidate] = await suite.transaction((transaction) =>
                     Promise.all([
                         transaction.findOneOrFail(Organization, organization.id),
-                        transaction.findOneOrFail(OrgMembership, membership.id),
+                        transaction.findOneOrFail(Membership, membership.id),
                     ]),
                 );
                 expect(loaded.pendingOwner).toBeNull();
                 expect(loaded.process).toBeNull();
                 expect(loaded.owner.id).toBe(operation === "confirmTransfer" ? membership.id : organization.owner.id);
                 expect(candidate.status).toBe(
-                    operation === "confirmTransfer" ? OrgMembershipStatus.ACTIVE : OrgMembershipStatus.LEFT,
+                    operation === "confirmTransfer" ? MembershipStatus.ACTIVE : MembershipStatus.LEFT,
                 );
             },
         );
 
         it("rejects account purge after a concurrent transfer reserves the next owner", async () => {
             const organization = await suite.fixtures().createOrganization();
-            const membership = await suite.fixtures().createOrgMembership({ organization });
+            const membership = await suite.fixtures().createMembership({ organization });
             const { organizationService, accountService, concurrency } = suite.repository();
 
             const result = await concurrency.run({
@@ -354,14 +354,12 @@ describe("OrganizationService integration", () => {
                     message: "services.account.TRANSFER_PENDING",
                 }),
             });
-            await expect(suite.transaction((transaction) => transaction.count(OrgMembership, membership.id))).resolves.toBe(
-                1,
-            );
+            await expect(suite.transaction((transaction) => transaction.count(Membership, membership.id))).resolves.toBe(1);
         });
 
         it("rejects transfer after a concurrent account purge removes the candidate", async () => {
             const organization = await suite.fixtures().createOrganization();
-            const membership = await suite.fixtures().createOrgMembership({ organization });
+            const membership = await suite.fixtures().createMembership({ organization });
             const { organizationService, accountService, concurrency } = suite.repository();
 
             const result = await concurrency.run({
@@ -385,9 +383,7 @@ describe("OrganizationService integration", () => {
             );
             expect(loaded.pendingOwner).toBeNull();
             expect(loaded.owner.id).toBe(organization.owner.id);
-            await expect(suite.transaction((transaction) => transaction.count(OrgMembership, membership.id))).resolves.toBe(
-                0,
-            );
+            await expect(suite.transaction((transaction) => transaction.count(Membership, membership.id))).resolves.toBe(0);
         });
     });
 
@@ -512,14 +508,14 @@ describe("OrganizationService integration", () => {
                 suite.transaction((transaction) =>
                     Promise.all([
                         transaction.count(Organization, organization.id),
-                        transaction.count(OrgMembership, { organization: organization.id }),
+                        transaction.count(Membership, { organization: organization.id }),
                         transaction.count(Project, { organization: organization.id }),
                         transaction.count(ProjectAccountAssignment, { organization: organization.id }),
                         transaction.count(Department, { organization: organization.id }),
                         transaction.count(Team, { organization: organization.id }),
                         transaction.count(Invite, { organization: organization.id }),
                         transaction.count(Organization, foreign.id),
-                        transaction.count(OrgMembership, foreign.owner.id),
+                        transaction.count(Membership, foreign.owner.id),
                     ]),
                 ),
             ).resolves.toEqual([0, 0, 0, 0, 0, 0, 0, 1, 1]);
@@ -538,11 +534,11 @@ describe("OrganizationService integration", () => {
 
         it("still rejects deleting a membership with project assignments", async () => {
             const organization = await suite.fixtures().createOrganization();
-            const membership = await suite.fixtures().createOrgMembership({ organization });
+            const membership = await suite.fixtures().createMembership({ organization });
             const project = await suite.fixtures().createProject({ organization });
             const assignment = await suite.fixtures().createProjectAccountAssignment({ membership, project });
 
-            const result = suite.transaction((transaction) => transaction.nativeDelete(OrgMembership, membership.id));
+            const result = suite.transaction((transaction) => transaction.nativeDelete(Membership, membership.id));
 
             await expect(result).rejects.toThrow();
             await expect(

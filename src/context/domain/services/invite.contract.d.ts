@@ -16,7 +16,7 @@ declare namespace Services {
         namespace ConfirmJoin {
             type Props = Topics.Realm.MembershipJoinConfirmedMessage["payload"] & { transaction: ORM.EntityManager };
 
-            type Result = Services.OrgMembership.ConfirmJoin.Result;
+            type Result = Services.Membership.ConfirmJoin.Result;
 
             type Signature = (props: Props) => Result;
         }
@@ -58,7 +58,7 @@ declare namespace Services {
             };
 
             type Result = Promise<{
-                membership: Entities.OrgMembership;
+                membership: Entities.Membership;
                 invite: Entities.Invite;
             }>;
 

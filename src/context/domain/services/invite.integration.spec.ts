@@ -4,8 +4,8 @@ import { randomUUID } from "node:crypto";
 import { InviteIntegrationHelpers } from "~testing/integration/domain-service/invite.helpers";
 import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
-import { InviteStatus, OrgMembershipStatus } from "~context/enums";
-import { Invite, OrgMembership } from "~context/domain/entities";
+import { InviteStatus, MembershipStatus } from "~context/enums";
+import { Invite, Membership } from "~context/domain/entities";
 
 const helpers = new InviteIntegrationHelpers();
 
@@ -33,7 +33,7 @@ describe("InviteService integration", () => {
                 async (transaction) =>
                     await Promise.all([
                         transaction.findOneOrFail(Invite, { id: invite.id }),
-                        transaction.count(OrgMembership, { id: result.membership.id, account: invitee }),
+                        transaction.count(Membership, { id: result.membership.id, account: invitee }),
                     ]),
             );
 
@@ -65,7 +65,7 @@ describe("InviteService integration", () => {
             ).resolves.toBe(1);
             await expect(
                 suite.transaction((transaction) =>
-                    transaction.count(OrgMembership, { id: result.membership.id, status: OrgMembershipStatus.ACTIVE }),
+                    transaction.count(Membership, { id: result.membership.id, status: MembershipStatus.ACTIVE }),
                 ),
             ).resolves.toBe(1);
         });

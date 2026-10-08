@@ -42,7 +42,7 @@ describe("OrganizationService", () => {
             const organization = helpers.createOrganization({
                 id: ORGANIZATION_ID,
             });
-            const membership = helpers.createOrgMembership({
+            const membership = helpers.createMembership({
                 id: MEMBERSHIP_ID,
                 organization,
             });

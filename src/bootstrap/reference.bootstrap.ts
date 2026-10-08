@@ -9,7 +9,7 @@ import { NodeEnv } from "~common/enums";
 
 const PAGE_TITLE = "MonadIAM | API Docs";
 const SECURITY_SCHEME = "identity";
-const DOCUMENT_SLUG = "multitenancy";
+const DOCUMENT_SLUG = "organization";
 const DOCUMENT_ROUTE = "/openapi.json";
 const REFERENCE_ROUTE = "/docs";
 
@@ -79,7 +79,7 @@ export abstract class BootstrapReference {
         return [
             { slug: "access-control", title: "AccessControl", origin: process.env.ACCESS_CONTROL_SERVICE_URL },
             { slug: "notification", title: "Notification", origin: process.env.NOTIFICATION_SERVICE_URL },
-            { slug: "multitenancy", title: "Multitenancy", origin: process.env.MULTITENANCY_SERVICE_URL },
+            { slug: "organization", title: "Organization", origin: process.env.ORGANIZATION_SERVICE_URL },
             { slug: "identity", title: "Identity", origin: process.env.IDENTITY_SERVICE_URL },
         ].map(({ slug, title, origin }) =>
             slug === DOCUMENT_SLUG

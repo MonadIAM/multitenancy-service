@@ -12,7 +12,7 @@ import { KafkaTopic } from "~context/enums";
 export class AccountConsumer implements OnModuleInit, Consumers.Account.Contract {
     private readonly incomingMapper = new KafkaIncomingMapper();
     private readonly logger = new Logger(AccountConsumer.name);
-    private readonly consumerKey = "multitenancy.account.v1";
+    private readonly consumerKey = "organization.account.v1";
 
     public constructor(
         @Inject(ACCOUNT_COMMANDS)

@@ -1,8 +1,8 @@
 import { ClassProvider } from "@nestjs/common";
 
 import { ProjectAccountAssignmentService } from "./project-account-assignment.service";
-import { OrgMembershipService } from "./org-membership.service";
 import { OrganizationService } from "./organization.service";
+import { MembershipService } from "./membership.service";
 import { DepartmentService } from "./department.service";
 import { ChangeLogService } from "./change-log.service";
 import { AuditLogService } from "./audit-log.service";
@@ -13,8 +13,8 @@ import { InviteService } from "./invite.service";
 import { TeamService } from "./team.service";
 import {
     PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
-    ORG_MEMBERSHIP_SERVICE,
     ORGANIZATION_SERVICE,
+    MEMBERSHIP_SERVICE,
     DEPARTMENT_SERVICE,
     CHANGE_LOG_SERVICE,
     AUDIT_LOG_SERVICE,
@@ -31,12 +31,12 @@ export const DOMAIN_SERVICES: ClassProvider[] = [
         useClass: ProjectAccountAssignmentService,
     },
     {
-        provide: ORG_MEMBERSHIP_SERVICE,
-        useClass: OrgMembershipService,
-    },
-    {
         provide: ORGANIZATION_SERVICE,
         useClass: OrganizationService,
+    },
+    {
+        provide: MEMBERSHIP_SERVICE,
+        useClass: MembershipService,
     },
     {
         provide: DEPARTMENT_SERVICE,
@@ -74,8 +74,8 @@ export const DOMAIN_SERVICES: ClassProvider[] = [
 
 export {
     PROJECT_ACCOUNT_ASSIGNMENT_SERVICE,
-    ORG_MEMBERSHIP_SERVICE,
     ORGANIZATION_SERVICE,
+    MEMBERSHIP_SERVICE,
     DEPARTMENT_SERVICE,
     CHANGE_LOG_SERVICE,
     AUDIT_LOG_SERVICE,

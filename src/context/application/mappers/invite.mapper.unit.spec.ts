@@ -11,7 +11,7 @@ describe("InviteMapper", () => {
     describe("joinPayload", () => {
         it.each(["selected-role", undefined])("maps invitation acceptance with role %s", (role) => {
             const invite = helpers.createInvite({ role });
-            const membership = helpers.createOrgMembership({ organization: invite.organization, account: invite.invitee });
+            const membership = helpers.createMembership({ organization: invite.organization, account: invite.invitee });
             membership.beginJoin();
 
             const payload = mapper.joinPayload({ invite, membership });

@@ -11,7 +11,7 @@ import { KAFKA_METRICS_RECORDER } from "~observability/metrics/tokens";
 export class AccessCacheConsumer implements Consumers.AccessCache.Contract, OnModuleInit {
     private readonly incomingMapper = new KafkaIncomingMapper();
     private readonly logger = new Logger(AccessCacheConsumer.name);
-    private readonly consumerKey = "multitenancy.access-cache.v1";
+    private readonly consumerKey = "organization.access-cache.v1";
 
     public constructor(
         @Inject(ACCESS_CACHE_SERVICE)

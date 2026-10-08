@@ -12,7 +12,7 @@ import { KafkaTopic } from "~context/enums";
 export class RealmConsumer implements OnModuleInit, Consumers.Realm.Contract {
     private readonly incomingMapper = new KafkaIncomingMapper();
     private readonly logger = new Logger(RealmConsumer.name);
-    private readonly consumerKey = "multitenancy.realm.v1";
+    private readonly consumerKey = "organization.realm.v1";
 
     public constructor(
         @Inject(ORGANIZATION_COMMANDS)

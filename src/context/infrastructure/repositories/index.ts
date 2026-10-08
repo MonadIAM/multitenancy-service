@@ -2,8 +2,8 @@ import { ClassProvider } from "@nestjs/common";
 
 import { ProjectAccountAssignmentRepository } from "./project-account-assignment.repository";
 import { DepartmentClosureRepository } from "./department-closure.repository";
-import { OrgMembershipRepository } from "./org-membership.repository";
 import { OrganizationRepository } from "./organization.repository";
+import { MembershipRepository } from "./membership.repository";
 import { DepartmentRepository } from "./department.repository";
 import { ChangeLogRepository } from "./change-log.repository";
 import { AuditLogRepository } from "./audit-log.repository";
@@ -13,8 +13,8 @@ import { TeamRepository } from "./team.repository";
 import {
     PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY,
     DEPARTMENT_CLOSURE_REPOSITORY,
-    ORG_MEMBERSHIP_REPOSITORY,
     ORGANIZATION_REPOSITORY,
+    MEMBERSHIP_REPOSITORY,
     DEPARTMENT_REPOSITORY,
     CHANGE_LOG_REPOSITORY,
     AUDIT_LOG_REPOSITORY,
@@ -33,12 +33,12 @@ export const REPOSITORIES: ClassProvider[] = [
         useClass: DepartmentClosureRepository,
     },
     {
-        provide: ORG_MEMBERSHIP_REPOSITORY,
-        useClass: OrgMembershipRepository,
-    },
-    {
         provide: ORGANIZATION_REPOSITORY,
         useClass: OrganizationRepository,
+    },
+    {
+        provide: MEMBERSHIP_REPOSITORY,
+        useClass: MembershipRepository,
     },
     {
         provide: DEPARTMENT_REPOSITORY,
@@ -69,8 +69,8 @@ export const REPOSITORIES: ClassProvider[] = [
 export {
     PROJECT_ACCOUNT_ASSIGNMENT_REPOSITORY,
     DEPARTMENT_CLOSURE_REPOSITORY,
-    ORG_MEMBERSHIP_REPOSITORY,
     ORGANIZATION_REPOSITORY,
+    MEMBERSHIP_REPOSITORY,
     DEPARTMENT_REPOSITORY,
     CHANGE_LOG_REPOSITORY,
     AUDIT_LOG_REPOSITORY,

@@ -10,7 +10,7 @@ import { KafkaTopic } from "~context/enums";
 @Controller()
 export class ReauthenticationConsumer implements Consumers.Reauthentication.Contract, OnModuleInit {
     private readonly incomingMapper: Kafka.IncomingMapper.Contract = new KafkaIncomingMapper();
-    private readonly consumerKey = "multitenancy.reauthentication.v1";
+    private readonly consumerKey = "organization.reauthentication.v1";
 
     public constructor(
         @Inject(REAUTHENTICATION_CACHE_SERVICE)

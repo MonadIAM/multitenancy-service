@@ -101,3 +101,17 @@ targetRules = [
 paths = [
   '''tests/fixtures/.*''',
 ]
+
+
+[[allowlists]]
+description = "Organization consumer identifier used by transaction-manager tests"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "secret"
+paths = [
+  '''^src/common/transaction-manager/entities/inbox\.unit\.spec\.ts$''',
+  '''^src/common/transaction-manager/services/(inbox\.service\.integration|transactional\.integration|transactional\.service\.unit)\.spec\.ts$''',
+]
+regexes = [
+  '''^organization\.placeholder\.v1$''',
+]

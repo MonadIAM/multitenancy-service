@@ -26,7 +26,7 @@ export class OutboxUnitHelpers extends DomainServiceCoreUnitHelpers implements U
         const registry = props.registry ?? this.schemaRegistry();
         const service = new OutboxService(
             registry.service,
-            this.config({ values: { SERVICE_NAME: "multitenancy-service" } }),
+            this.config({ values: { SERVICE_NAME: "organization-service" } }),
         );
 
         return { service, registry };

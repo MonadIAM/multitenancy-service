@@ -6,7 +6,7 @@
     "ALREADY_REVOKED": "Organization is already revoked",
     "ALREADY_ACTIVE": "Organization is already active"
   },
-  "org-membership": {
+  "membership": {
     "CANNOT_SUSPEND": "Only an active membership can be suspended",
     "CANNOT_ACTIVATE": "Only a suspended or left membership can be activated",
     "CANNOT_LEAVE": "Only an active or suspended membership can be left",

@@ -53,7 +53,7 @@ export type I18nTranslations = {
             "BULK_RESTORED_COUNT": string;
             "BULK_PURGED_COUNT": string;
         };
-        "org-membership": {
+        "membership": {
             "SUSPENDED": string;
             "RESUMED": string;
             "LEFT": string;
@@ -99,7 +99,7 @@ export type I18nTranslations = {
             "ALREADY_REVOKED": string;
             "ALREADY_ACTIVE": string;
         };
-        "org-membership": {
+        "membership": {
             "CANNOT_SUSPEND": string;
             "CANNOT_ACTIVATE": string;
             "CANNOT_LEAVE": string;
@@ -197,7 +197,7 @@ export type I18nTranslations = {
         "team": {
             "TEAMS_NOT_FOUND": string;
         };
-        "org-membership": {
+        "membership": {
             "MEMBERSHIP_ALREADY_EXISTS": string;
             "MEMBERSHIPS_NOT_FOUND": string;
             "OWNER_ACCESS_REQUIRED": string;

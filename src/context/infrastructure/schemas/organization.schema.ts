@@ -1,13 +1,13 @@
 import { DeferMode, EntitySchema } from "@mikro-orm/postgresql";
 
-import { OrgMembership } from "~context/domain/entities/org-membership.entity";
+import { Membership } from "~context/domain/entities/membership.entity";
 import { Organization } from "~context/domain/entities/organization.entity";
 import { OrganizationStatus } from "~context/enums";
 
 export const OrganizationSchema = new EntitySchema<Organization>({
     class: Organization,
     tableName: "organization",
-    schema: "multitenancy",
+    schema: "organization",
 
     uniques: [
         {
@@ -20,7 +20,7 @@ export const OrganizationSchema = new EntitySchema<Organization>({
         {
             name: "organization_title_trgm_idx",
             expression:
-                'CREATE INDEX "organization_title_trgm_idx" ON "multitenancy"."organization" USING gin ("title" gin_trgm_ops)',
+                'CREATE INDEX "organization_title_trgm_idx" ON "organization"."organization" USING gin ("title" gin_trgm_ops)',
         },
         {
             name: "organization_owner_idx",
@@ -33,12 +33,12 @@ export const OrganizationSchema = new EntitySchema<Organization>({
 
         memberships: {
             kind: "1:m",
-            entity: () => OrgMembership,
+            entity: () => Membership,
             mappedBy: "organization",
         },
         owner: {
             kind: "m:1",
-            entity: () => OrgMembership,
+            entity: () => Membership,
             joinColumns: ["owner_id", "id"],
             columnTypes: ["uuid", "uuid"],
             referencedColumnNames: ["id", "organization_id"],

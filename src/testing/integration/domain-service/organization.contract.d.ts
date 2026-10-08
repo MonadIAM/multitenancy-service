@@ -5,7 +5,7 @@ declare namespace Integration.Domain.Organization {
         type Context = {
             organizationService: Services.Organization.Contract;
             organizations: Repositories.Organization.Contract;
-            memberships: Repositories.OrgMembership.Contract;
+            memberships: Repositories.Membership.Contract;
         };
 
         type Signature = (context: Postgres.Suite.FactoryContext) => Context;

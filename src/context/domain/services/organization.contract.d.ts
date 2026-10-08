@@ -76,8 +76,8 @@ declare namespace Services {
             };
 
             type Result = {
-                membership: Entities.OrgMembership;
                 organization: Entities.Organization;
+                membership: Entities.Membership;
             };
 
             type Signature = (props: Props) => Result;

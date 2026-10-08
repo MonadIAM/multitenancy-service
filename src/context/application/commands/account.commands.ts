@@ -40,7 +40,7 @@ export class AccountCommands implements Commands.Account.Contract {
                 },
             ],
             audit: {
-                entityType: EntityType.ORG_MEMBERSHIP,
+                entityType: EntityType.MEMBERSHIP,
                 actionType: ActionType.DELETE,
                 actor: SYSTEM_ACCOUNT_ID,
                 context: CONSUMER_META,

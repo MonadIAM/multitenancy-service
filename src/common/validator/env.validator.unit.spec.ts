@@ -7,7 +7,7 @@ import { validateEnv } from "./env.validator";
 // Synthetic configuration: never reads local environment files or credentials.
 const config = {
     ACCESS_CONTROL_GRPC_URL: "test",
-    MULTITENANCY_SERVICE_URL: "test",
+    ORGANIZATION_SERVICE_URL: "test",
     ACCESS_CACHE_TTL: "1s",
     SERVICE_NAME: "test",
     NODE_ENV: "local",
