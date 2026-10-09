@@ -71,6 +71,9 @@ export class EnvironmentVariablesDTO {
     @Validator.IsString()
     declare public ORGANIZATION_SERVICE_URL: string;
 
+    @Validator.IsString()
+    declare public HR_SERVICE_URL: string;
+
     @Validator.IsUUID("4")
     declare public DOCS_OAUTH_CLIENT_ID: string;
 
