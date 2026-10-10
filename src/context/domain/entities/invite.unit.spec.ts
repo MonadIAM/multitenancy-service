@@ -111,7 +111,7 @@ describe("Invite Entity", () => {
         it("rejects completion of an invitation that is not being accepted", () => {
             const invite = createInvite();
 
-            expect(() => invite.confirmAccept()).toThrow("OPERATION_CONFLICT");
+            expect(() => invite.confirmAccept()).toThrow("entities.invite.OPERATION_CONFLICT");
 
             expect(invite.status).toBe(InviteStatus.PENDING);
         });
@@ -123,7 +123,7 @@ describe("Invite Entity", () => {
             invite.beginAccept("process");
             invite.confirmAccept();
 
-            expect(() => invite.rejectAccept("late rejection")).toThrow("OPERATION_CONFLICT");
+            expect(() => invite.rejectAccept("late rejection")).toThrow("entities.invite.OPERATION_CONFLICT");
 
             expect(invite.status).toBe(InviteStatus.ACCEPTED);
         });

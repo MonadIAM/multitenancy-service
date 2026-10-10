@@ -99,6 +99,32 @@ export class RealmConsumer implements OnModuleInit, Consumers.Realm.Contract {
         const { incoming, message, error } = props;
         this.logger.warn(`Rejected realm event: ${String(error)}`);
 
+        const decoded = await this.schemaRegistry.decode<Consumers.Realm.Message>({
+            topic: KafkaTopic.REALM,
+            value: message,
+        });
+
+        this.schemaRegistry.validate({ topic: KafkaTopic.REALM, value: decoded });
+
+        if (
+            decoded.actionType === RealmTopicAction.BOOTSTRAP_CONFIRMED &&
+            decoded.payload.input.type === RealmType.ORGANIZATION
+        ) {
+            await this.organizationCommands.rejectBootstrap({
+                incoming,
+                ...decoded.payload,
+                input: {
+                    ...decoded.payload.input,
+                    reason: String(error),
+                },
+            });
+        } else if (
+            decoded.actionType === RealmTopicAction.BOOTSTRAP_REJECTED &&
+            decoded.payload.input.type === RealmType.ORGANIZATION
+        ) {
+            throw error;
+        }
+
         await lastValueFrom(
             this.kafkaClient.emit(KafkaTopic.REALM_DEAD, {
                 key: incoming.event,

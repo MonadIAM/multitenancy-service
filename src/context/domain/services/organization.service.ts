@@ -3,7 +3,7 @@ import { Inject, Injectable, Scope } from "@nestjs/common";
 import { LockMode } from "@mikro-orm/core";
 
 import { MEMBERSHIP_REPOSITORY, ORGANIZATION_REPOSITORY, PROJECT_REPOSITORY } from "~context/infrastructure/repositories";
-import { MembershipStatus, OrganizationStatus, ProjectStatus } from "~context/enums";
+import { MembershipStatus, OrganizationStatus, PlatformService, ProjectStatus } from "~context/enums";
 import { Exception } from "~common/exceptions";
 
 import { Membership, Organization } from "../entities";
@@ -38,10 +38,11 @@ export class OrganizationService implements Services.Organization.Contract {
 
         if (organization) {
             if (organization.process !== input.process || organization.status !== OrganizationStatus.PROVISIONING) {
-                throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+                return { realms: [] };
             } else {
-                organization.owner.confirmJoin(new Date());
-                organization.confirmBootstrap();
+                if (organization.confirmBootstrap(input.service ?? PlatformService.ACCESS_CONTROL_SERVICE)) {
+                    organization.owner.confirmJoin(new Date());
+                }
 
                 return { realms: [] };
             }
@@ -67,12 +68,13 @@ export class OrganizationService implements Services.Organization.Contract {
 
         if (organization) {
             if (organization.process !== input.process || organization.status !== OrganizationStatus.PROVISIONING) {
-                throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+                return { realms: [] };
             } else {
-                organization.owner.rejectJoin(input.reason);
-                organization.rejectBootstrap(input.reason);
+                transaction.remove(organization);
             }
         }
+
+        return { realms: [{ realm }] };
     }
 
     public async confirmTransfer(
@@ -133,7 +135,6 @@ export class OrganizationService implements Services.Organization.Contract {
             if (organization.process !== input.process || !organization.pendingOwner) {
                 throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
             } else {
-                organization.failure = input.reason;
                 organization.finishTransfer();
             }
         }

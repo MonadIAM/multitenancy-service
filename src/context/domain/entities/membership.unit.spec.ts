@@ -108,7 +108,7 @@ describe("Membership Entity", () => {
             const membership = createMembership();
             membership.block();
 
-            expect(() => membership.beginJoin()).toThrow("OPERATION_CONFLICT");
+            expect(() => membership.beginJoin()).toThrow("entities.membership.OPERATION_CONFLICT");
 
             expect(membership.status).toBe(MembershipStatus.BLOCKED);
             expect(membership.process).toBeUndefined();
@@ -118,7 +118,7 @@ describe("Membership Entity", () => {
             const membership = createMembership();
             membership.beginJoin("current");
 
-            expect(() => membership.beginJoin("competing")).toThrow("OPERATION_CONFLICT");
+            expect(() => membership.beginJoin("competing")).toThrow("entities.membership.OPERATION_CONFLICT");
 
             expect(membership.process).toBe("current");
             expect(membership.status).toBe(MembershipStatus.JOINING);
@@ -131,7 +131,7 @@ describe("Membership Entity", () => {
             membership.beginJoin();
             membership.confirmJoin(new Date());
 
-            expect(() => membership.rejectJoin("late rejection")).toThrow("OPERATION_CONFLICT");
+            expect(() => membership.rejectJoin("late rejection")).toThrow("entities.membership.OPERATION_CONFLICT");
 
             expect(membership.status).toBe(MembershipStatus.ACTIVE);
         });

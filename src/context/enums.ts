@@ -64,7 +64,6 @@ export enum CleanupJob {
 export enum OrganizationStatus {
     /* eslint-disable prettier/prettier */
     PROVISIONING = "PROVISIONING",
-    FAILED       = "FAILED",
     ACTIVE       = "ACTIVE",
     REVOKED      = "REVOKED",
     /* eslint-enable prettier/prettier */

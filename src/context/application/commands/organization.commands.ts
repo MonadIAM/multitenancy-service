@@ -58,6 +58,11 @@ export class OrganizationCommands implements Commands.Organization.Contract {
         await this.transactionalService.consume({
             incoming,
             resource: this.resource,
+            outbox: {
+                payloadMapper: this.mapper.compensationPayload,
+                actionType: RealmTopicAction.SYSTEM_PURGE,
+                destinationTopic: KafkaTopic.REALM,
+            },
             audit: {
                 entityType: EntityType.ORGANIZATION,
                 actionType: ActionType.CREATE,
@@ -65,7 +70,11 @@ export class OrganizationCommands implements Commands.Organization.Contract {
                 ...request,
             },
             changeLog: true,
-            execute: (transaction) => this.organizationService.rejectBootstrap({ ...request, transaction }),
+            execute: async (transaction) => {
+                const result = await this.organizationService.rejectBootstrap({ ...request, transaction });
+
+                return { ...result, actor: request.actor };
+            },
         });
     }
 

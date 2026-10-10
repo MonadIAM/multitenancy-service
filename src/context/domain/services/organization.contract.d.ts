@@ -44,7 +44,7 @@ declare namespace Services {
         namespace RejectBootstrap {
             type Props = Topics.Realm.BootstrapRejectedMessage["payload"] & { transaction: ORM.EntityManager };
 
-            type Result = Promise<void>;
+            type Result = Promise<{ realms: { realm: string }[] }>;
 
             type Signature = (props: Props) => Result;
         }

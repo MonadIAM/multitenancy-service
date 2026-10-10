@@ -1,7 +1,7 @@
 import { Collection } from "@mikro-orm/core";
 import { randomUUID } from "node:crypto";
 
-import { OrganizationStatus } from "~context/enums";
+import { OrganizationStatus, PlatformService } from "~context/enums";
 import { Exception } from "~common/exceptions";
 
 export class Organization implements Entities.Organization.Contract {
@@ -13,7 +13,7 @@ export class Organization implements Entities.Organization.Contract {
     public revokedAt?: Date;
     public version: number = 1;
     public process?: string;
-    public failure?: string;
+    public bootstrapPending: PlatformService[] = [];
 
     public status: OrganizationStatus;
     public description: string;
@@ -103,7 +103,7 @@ export class Organization implements Entities.Organization.Contract {
 
     public canPurge(): void {
         if (this.process) {
-            throw Exception.invariantViolation({ messageKey: "services.workflow.OPERATION_PENDING" });
+            throw Exception.invariantViolation({ messageKey: `${Organization.dictionaryPath}.OPERATION_PENDING` });
         } else if (this.status === OrganizationStatus.ACTIVE) {
             throw Exception.invariantViolation({
                 messageKey: `${Organization.dictionaryPath}.CANNOT_PURGE_ACTIVE`,
@@ -113,39 +113,37 @@ export class Organization implements Entities.Organization.Contract {
 
     public beginBootstrap(): void {
         if (this.process || this.status !== OrganizationStatus.ACTIVE) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Organization.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.process = randomUUID();
             this.status = OrganizationStatus.PROVISIONING;
-            this.failure = undefined;
+            this.bootstrapPending = [PlatformService.ACCESS_CONTROL_SERVICE, PlatformService.HR_SERVICE];
         }
     }
 
-    public confirmBootstrap(): void {
+    public confirmBootstrap(service: PlatformService): boolean {
         if (!this.process || this.status !== OrganizationStatus.PROVISIONING) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
-        } else {
+            throw Exception.conflict({ messageKey: `${Organization.dictionaryPath}.OPERATION_CONFLICT` });
+        } else if (this.bootstrapPending.includes(service)) {
+            this.bootstrapPending = this.bootstrapPending.filter((pending) => pending !== service);
+
+            if (this.bootstrapPending.length) {
+                return false;
+            }
+
             this.status = OrganizationStatus.ACTIVE;
-            this.process = undefined;
-            this.failure = undefined;
             this.updatedAt = new Date();
-        }
-    }
+            this.process = undefined;
 
-    public rejectBootstrap(reason: string): void {
-        if (!this.process || this.status !== OrganizationStatus.PROVISIONING) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            return true;
         } else {
-            this.status = OrganizationStatus.FAILED;
-            this.process = undefined;
-            this.failure = reason;
-            this.updatedAt = new Date();
+            return false;
         }
     }
 
     public assertReady(): void {
-        if (this.process || this.status === OrganizationStatus.FAILED) {
-            throw Exception.invariantViolation({ messageKey: "services.workflow.OPERATION_PENDING" });
+        if (this.process || this.status === OrganizationStatus.PROVISIONING) {
+            throw Exception.invariantViolation({ messageKey: `${Organization.dictionaryPath}.OPERATION_PENDING` });
         }
     }
 
@@ -153,18 +151,17 @@ export class Organization implements Entities.Organization.Contract {
         this.assertReady();
 
         if (this.status !== OrganizationStatus.ACTIVE || membership.id === this.owner.id) {
-            throw Exception.invariantViolation({ messageKey: "services.workflow.TRANSFER_NOT_ALLOWED" });
+            throw Exception.invariantViolation({ messageKey: `${Organization.dictionaryPath}.TRANSFER_NOT_ALLOWED` });
         } else {
             this.process = randomUUID();
             this.pendingOwner = membership.id;
-            this.failure = undefined;
             this.updatedAt = new Date();
         }
     }
 
     public finishTransfer(): void {
         if (!this.process || !this.pendingOwner || this.status !== OrganizationStatus.ACTIVE) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Organization.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.pendingOwner = undefined;
             this.process = undefined;

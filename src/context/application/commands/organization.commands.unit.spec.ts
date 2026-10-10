@@ -134,14 +134,24 @@ describe("OrganizationCommands", () => {
                 realm: REALM,
                 input: { type: RealmType.ORGANIZATION as const, resource: ID, process: "process-id", reason: "Rejected" },
             };
-            organizationService.rejectBootstrap.mockResolvedValue(undefined);
+            organizationService.rejectBootstrap.mockResolvedValue({ realms: [{ realm: REALM }] });
 
             await commands.rejectBootstrap({ ...request, incoming: INCOMING });
 
             expect(organizationService.rejectBootstrap.mock.calls).toEqual([
                 [{ ...request, transaction: transaction.entityManager }],
             ]);
-            expect(consume.mock.calls).toEqual([[expect.objectContaining({ incoming: INCOMING })]]);
+            expect(consume.mock.calls).toEqual([
+                [
+                    expect.objectContaining({
+                        incoming: INCOMING,
+                        outbox: expect.objectContaining({
+                            actionType: RealmTopicAction.SYSTEM_PURGE,
+                            destinationTopic: KafkaTopic.REALM,
+                        }),
+                    }),
+                ],
+            ]);
         });
     });
 

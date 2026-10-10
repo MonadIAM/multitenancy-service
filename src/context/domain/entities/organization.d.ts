@@ -1,4 +1,4 @@
-import { OrganizationStatus } from "~context/enums";
+import { OrganizationStatus, PlatformService } from "~context/enums";
 
 declare global {
     namespace Entities {
@@ -12,7 +12,7 @@ declare global {
                 revokedAt?: Date;
                 version: number;
                 process?: string;
-                failure?: string;
+                bootstrapPending: PlatformService[];
 
                 status: OrganizationStatus;
                 description: string;
@@ -26,9 +26,8 @@ declare global {
 
                 transferOwnership(props: TransferOwnership.Props): void;
                 beginTransfer(membership: Entities.Membership): void;
-                rejectBootstrap(reason: string): void;
+                confirmBootstrap(service: PlatformService): boolean;
                 update(props: ChangeDataProps): void;
-                confirmBootstrap(): void;
                 finishTransfer(): void;
                 beginBootstrap(): void;
                 assertReady(): void;

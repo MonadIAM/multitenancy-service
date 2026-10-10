@@ -98,12 +98,16 @@ export type I18nTranslations = {
             "CANNOT_PURGE_ACTIVE": string;
             "ALREADY_REVOKED": string;
             "ALREADY_ACTIVE": string;
+            "OPERATION_PENDING": string;
+            "OPERATION_CONFLICT": string;
+            "TRANSFER_NOT_ALLOWED": string;
         };
         "membership": {
             "CANNOT_SUSPEND": string;
             "CANNOT_ACTIVATE": string;
             "CANNOT_LEAVE": string;
             "CANNOT_BLOCK": string;
+            "OPERATION_CONFLICT": string;
         };
         "project": {
             "NO_CHANGES_DETECTED": string;
@@ -111,6 +115,8 @@ export type I18nTranslations = {
             "CANNOT_PURGE_ACTIVE": string;
             "ALREADY_ARCHIVED": string;
             "ALREADY_ACTIVE": string;
+            "OPERATION_PENDING": string;
+            "OPERATION_CONFLICT": string;
         };
         "department": {
             "NO_CHANGES_DETECTED": string;
@@ -118,6 +124,7 @@ export type I18nTranslations = {
             "CANNOT_PURGE_ACTIVE": string;
             "ALREADY_ARCHIVED": string;
             "ALREADY_ACTIVE": string;
+            "OPERATION_CONFLICT": string;
         };
         "team": {
             "NO_CHANGES_DETECTED": string;
@@ -125,6 +132,7 @@ export type I18nTranslations = {
             "CANNOT_PURGE_ACTIVE": string;
             "ALREADY_ARCHIVED": string;
             "ALREADY_ACTIVE": string;
+            "OPERATION_CONFLICT": string;
         };
         "invite": {
             "CANNOT_ACCEPT_INACTIVE": string;
@@ -137,6 +145,7 @@ export type I18nTranslations = {
             "CANNOT_INVALIDATE_EXPIRED": string;
             "CANNOT_EXPIRE_INACTIVE": string;
             "CANNOT_EXPIRE_UNDUE": string;
+            "OPERATION_CONFLICT": string;
         };
         "project-account-assignment": {
             "ALREADY_REVOKED": string;
@@ -213,7 +222,6 @@ export type I18nTranslations = {
         "workflow": {
             "OPERATION_CONFLICT": string;
             "OPERATION_PENDING": string;
-            "TRANSFER_NOT_ALLOWED": string;
         };
         "account": {
             "TRANSFER_PENDING": string;

@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, jest } from "@jest/globals";
 import { LockMode } from "@mikro-orm/core";
 
+import { OrganizationStatus, MembershipStatus, PlatformService, RealmType } from "~context/enums";
 import { OrganizationUnitHelpers } from "~testing/unit/domain-service/organization.helpers";
-import { OrganizationStatus } from "~context/enums";
 
 /* eslint-disable prettier/prettier */
 const ORGANIZATION_ID = "00000000-0000-4000-8000-100000000001";
@@ -34,6 +34,116 @@ describe("OrganizationService", () => {
             expect(result.membership.account).toBe(ACTOR_ID);
             expect(transaction.persist).toHaveBeenNthCalledWith(1, result.organization);
             expect(transaction.persist).toHaveBeenNthCalledWith(2, result.membership);
+        });
+    });
+
+    describe("bootstrap responses", () => {
+        it.each([
+            [PlatformService.ACCESS_CONTROL_SERVICE, PlatformService.HR_SERVICE],
+            [PlatformService.HR_SERVICE, PlatformService.ACCESS_CONTROL_SERVICE],
+        ] as const)("waits for both services when %s confirms first", async (first, second) => {
+            const { service, repositories, transaction } = helpers.service();
+            const { organization, membership } = service.create({
+                input: { title: "Pending", description: "Description" },
+                transaction: transaction.entityManager,
+                actor: ACTOR_ID,
+            });
+            repositories.organizations.findUnique.mockImplementation(() => Promise.resolve(organization));
+            const request = {
+                actor: ACTOR_ID,
+                realm: organization.realm,
+                transaction: transaction.entityManager,
+                input: {
+                    type: RealmType.ORGANIZATION as const,
+                    resource: organization.id,
+                    process: organization.process!,
+                },
+            };
+
+            await confirm(first);
+            await confirm(first);
+
+            expect(organization.status).toBe(OrganizationStatus.PROVISIONING);
+            expect(membership.status).toBe(MembershipStatus.JOINING);
+            expect(organization.bootstrapPending).toEqual([second]);
+
+            await confirm(second);
+            expect(organization.status).toBe(OrganizationStatus.ACTIVE);
+            expect(membership.status).toBe(MembershipStatus.ACTIVE);
+            expect(organization.process).toBeUndefined();
+            expect(organization.bootstrapPending).toEqual([]);
+            await expect(confirm(first)).resolves.toEqual({ realms: [] });
+
+            function confirm(
+                participant: PlatformService.ACCESS_CONTROL_SERVICE | PlatformService.HR_SERVICE,
+            ): Services.Organization.ConfirmBootstrap.Result {
+                return service.confirmBootstrap({
+                    ...request,
+                    input: { ...request.input, service: participant },
+                });
+            }
+        });
+
+        it.each([PlatformService.ACCESS_CONTROL_SERVICE, PlatformService.HR_SERVICE] as const)(
+            "removes the organization and requests cleanup after %s succeeded and the other failed",
+            async (participant) => {
+                const { service, repositories, transaction } = helpers.service();
+                const { organization } = service.create({
+                    input: { title: "Pending", description: "Description" },
+                    transaction: transaction.entityManager,
+                    actor: ACTOR_ID,
+                });
+                repositories.organizations.findUnique.mockImplementation(() => Promise.resolve(organization));
+                const request = {
+                    actor: ACTOR_ID,
+                    realm: organization.realm,
+                    transaction: transaction.entityManager,
+                    input: {
+                        type: RealmType.ORGANIZATION as const,
+                        resource: organization.id,
+                        process: organization.process!,
+                    },
+                };
+                await service.confirmBootstrap({ ...request, input: { ...request.input, service: participant } });
+
+                await expect(
+                    service.rejectBootstrap({ ...request, input: { ...request.input, reason: "Rejected" } }),
+                ).resolves.toEqual({ realms: [{ realm: organization.realm }] });
+                expect(transaction.remove).toHaveBeenCalledWith(organization);
+
+                repositories.organizations.findUnique.mockImplementation(() => Promise.resolve(null));
+                await expect(service.confirmBootstrap(request)).resolves.toEqual({
+                    realms: [{ realm: organization.realm }],
+                });
+                expect(organization.status).toBe(OrganizationStatus.PROVISIONING);
+            },
+        );
+
+        it("ignores a response from another process without changing either local entity", async () => {
+            const { service, repositories, transaction } = helpers.service();
+            const { organization, membership } = service.create({
+                input: { title: "Pending", description: "Description" },
+                transaction: transaction.entityManager,
+                actor: ACTOR_ID,
+            });
+            repositories.organizations.findUnique.mockImplementation(() => Promise.resolve(organization));
+            const request = {
+                actor: ACTOR_ID,
+                realm: organization.realm,
+                transaction: transaction.entityManager,
+                input: {
+                    type: RealmType.ORGANIZATION as const,
+                    resource: organization.id,
+                    process: "stale",
+                    reason: "Rejected",
+                },
+            };
+
+            await expect(service.confirmBootstrap(request)).resolves.toEqual({ realms: [] });
+            await expect(service.rejectBootstrap(request)).resolves.toEqual({ realms: [] });
+            expect(organization.bootstrapPending).toHaveLength(2);
+            expect(membership.status).toBe(MembershipStatus.JOINING);
+            expect(transaction.remove).not.toHaveBeenCalled();
         });
     });
 

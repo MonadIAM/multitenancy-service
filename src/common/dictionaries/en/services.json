@@ -45,8 +45,7 @@
   },
   "workflow": {
     "OPERATION_CONFLICT": "The operation conflicts with the current resource state.",
-    "OPERATION_PENDING": "The operation is pending or has failed",
-    "TRANSFER_NOT_ALLOWED": "Ownership transfer is not allowed"
+    "OPERATION_PENDING": "The operation is pending or has failed"
   },
   "account": {
     "TRANSFER_PENDING": "Account cleanup is waiting for ownership transfer"

@@ -109,7 +109,7 @@ export class Department implements Entities.Department.Contract {
 
     public assertReady(): void {
         if (this.process) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Department.dictionaryPath}.OPERATION_CONFLICT` });
         }
     }
 

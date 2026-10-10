@@ -91,7 +91,7 @@ export class Invite implements Entities.Invite.Contract {
 
     public confirmAccept(): void {
         if (!this.process || this.status !== InviteStatus.ACCEPTING) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Invite.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.status = InviteStatus.ACCEPTED;
             this.process = undefined;
@@ -101,7 +101,7 @@ export class Invite implements Entities.Invite.Contract {
 
     public rejectAccept(reason: string): void {
         if (!this.process || this.status !== InviteStatus.ACCEPTING) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Invite.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.status =
                 this.expiresAt && this.expiresAt.getTime() <= Date.now() ? InviteStatus.EXPIRED : InviteStatus.PENDING;

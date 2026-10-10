@@ -3,9 +3,9 @@ import { randomUUID } from "node:crypto";
 
 import { OrganizationIntegrationHelpers } from "~testing/integration/domain-service/organization.helpers";
 import { MembershipIntegrationHelpers } from "~testing/integration/domain-service/membership.helpers";
+import { RealmType, OrganizationStatus, MembershipStatus, PlatformService } from "~context/enums";
 import { AccountIntegrationHelpers } from "~testing/integration/domain-service/account.helpers";
 import { ConcurrencyIntegrationHelpers } from "~testing/integration/concurrency.helpers";
-import { RealmType, OrganizationStatus, MembershipStatus } from "~context/enums";
 import { postgresSuite } from "~testing/integration/containers/postgres.suite";
 import { CoreFixture } from "~testing/integration/repositories/core.fixture";
 import {
@@ -88,7 +88,7 @@ describe("OrganizationService integration", () => {
                         transaction,
                     }),
                 ),
-            ).rejects.toThrow("services.workflow.OPERATION_CONFLICT");
+            ).resolves.toEqual({ realms: [] });
 
             const pending = await suite.transaction((transaction) =>
                 transaction.findOneOrFail(Organization, result.organization.id),
@@ -102,6 +102,14 @@ describe("OrganizationService integration", () => {
                 }),
             );
 
+            await suite.transaction((transaction) =>
+                suite.repository().organizationService.confirmBootstrap({
+                    ...request,
+                    input: { ...request.input, service: PlatformService.HR_SERVICE },
+                    transaction,
+                }),
+            );
+
             const [organization, membership] = await suite.transaction((transaction) =>
                 Promise.all([
                     transaction.findOneOrFail(Organization, result.organization.id),
@@ -111,6 +119,98 @@ describe("OrganizationService integration", () => {
             expect(organization.status).toBe(OrganizationStatus.ACTIVE);
             expect(organization.process).toBeNull();
             expect(membership.status).toBe(MembershipStatus.ACTIVE);
+        });
+    });
+
+    describe("bootstrap concurrency and rollback", () => {
+        it("preserves both concurrent confirmations", async () => {
+            const { organizationService, concurrency } = suite.repository();
+            const actor = randomUUID();
+            const { organization, membership } = await suite.transaction((transaction) =>
+                Promise.resolve(
+                    organizationService.create({
+                        actor,
+                        input: { title: "Pending", description: "Description" },
+                        transaction,
+                    }),
+                ),
+            );
+            const request = {
+                actor,
+                realm: organization.realm,
+                input: { type: RealmType.ORGANIZATION as const, process: organization.process!, resource: organization.id },
+            };
+
+            const result = await concurrency.run({
+                first: (transaction) => organizationService.confirmBootstrap({ ...request, transaction }),
+                second: (transaction) =>
+                    organizationService.confirmBootstrap({
+                        ...request,
+                        input: { ...request.input, service: PlatformService.HR_SERVICE },
+                        transaction,
+                    }),
+            });
+
+            expect(result.second.status).toBe("fulfilled");
+
+            const loaded = await suite.transaction((transaction) =>
+                transaction.findOneOrFail(Organization, organization.id),
+            );
+
+            expect(loaded.status).toBe(OrganizationStatus.ACTIVE);
+            expect(loaded.bootstrapPending).toEqual([]);
+
+            const owner = await suite.transaction((transaction) => transaction.findOneOrFail(Membership, membership.id));
+
+            expect(owner.status).toBe(MembershipStatus.ACTIVE);
+        });
+
+        it("deletes the provisional organization and owner together and compensates a late confirmation", async () => {
+            const { organizationService } = suite.repository();
+            const actor = randomUUID();
+            const { organization, membership } = await suite.transaction((transaction) =>
+                Promise.resolve(
+                    organizationService.create({
+                        actor,
+                        input: { title: "Pending", description: "Description" },
+                        transaction,
+                    }),
+                ),
+            );
+            const request = {
+                actor,
+                realm: organization.realm,
+                input: { type: RealmType.ORGANIZATION as const, process: organization.process!, resource: organization.id },
+            };
+
+            await suite.transaction((transaction) => organizationService.confirmBootstrap({ ...request, transaction }));
+
+            await expect(
+                suite.transaction((transaction) =>
+                    organizationService.rejectBootstrap({
+                        ...request,
+                        input: { ...request.input, reason: "HR rejected" },
+                        transaction,
+                    }),
+                ),
+            ).resolves.toEqual({ realms: [{ realm: organization.realm }] });
+            await expect(
+                suite.transaction((transaction) =>
+                    Promise.all([
+                        transaction.count(Organization, organization.id),
+                        transaction.count(Membership, membership.id),
+                    ]),
+                ),
+            ).resolves.toEqual([0, 0]);
+            await expect(
+                suite.transaction((transaction) =>
+                    organizationService.confirmBootstrap({
+                        ...request,
+                        input: { ...request.input, service: PlatformService.HR_SERVICE },
+                        transaction,
+                    }),
+                ),
+            ).resolves.toEqual({ realms: [{ realm: organization.realm }] });
         });
     });
 

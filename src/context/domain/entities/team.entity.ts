@@ -111,7 +111,7 @@ export class Team implements Entities.Team.Contract {
 
     public assertReady(): void {
         if (this.process) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Team.dictionaryPath}.OPERATION_CONFLICT` });
         }
     }
 

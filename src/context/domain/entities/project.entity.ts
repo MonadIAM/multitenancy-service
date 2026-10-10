@@ -113,7 +113,7 @@ export class Project implements Entities.Project.Contract {
 
     public canPurge(): void {
         if (this.process) {
-            throw Exception.invariantViolation({ messageKey: "services.workflow.OPERATION_PENDING" });
+            throw Exception.invariantViolation({ messageKey: `${Project.dictionaryPath}.OPERATION_PENDING` });
         } else if (this.status === ProjectStatus.ACTIVE) {
             throw Exception.invariantViolation({
                 messageKey: `${Project.dictionaryPath}.CANNOT_PURGE_ACTIVE`,
@@ -123,7 +123,7 @@ export class Project implements Entities.Project.Contract {
 
     public beginBootstrap(): void {
         if (this.process || this.status !== ProjectStatus.ACTIVE) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Project.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.process = randomUUID();
             this.status = ProjectStatus.PROVISIONING;
@@ -133,7 +133,7 @@ export class Project implements Entities.Project.Contract {
 
     public confirmBootstrap(): void {
         if (!this.process || this.status !== ProjectStatus.PROVISIONING) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Project.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.status = ProjectStatus.ACTIVE;
             this.process = undefined;
@@ -144,7 +144,7 @@ export class Project implements Entities.Project.Contract {
 
     public rejectBootstrap(reason: string): void {
         if (!this.process || this.status !== ProjectStatus.PROVISIONING) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Project.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.status = ProjectStatus.FAILED;
             this.process = undefined;
@@ -155,7 +155,7 @@ export class Project implements Entities.Project.Contract {
 
     public assertReady(): void {
         if (this.process || this.status === ProjectStatus.FAILED) {
-            throw Exception.invariantViolation({ messageKey: "services.workflow.OPERATION_PENDING" });
+            throw Exception.invariantViolation({ messageKey: `${Project.dictionaryPath}.OPERATION_PENDING` });
         }
     }
 }

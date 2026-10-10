@@ -4,34 +4,42 @@
     "EMPTY_UPDATE_PATCH": "Organization update patch is empty",
     "CANNOT_PURGE_ACTIVE": "An active organization cannot be deleted",
     "ALREADY_REVOKED": "Organization is already revoked",
-    "ALREADY_ACTIVE": "Organization is already active"
+    "ALREADY_ACTIVE": "Organization is already active",
+    "OPERATION_PENDING": "An organization operation is still pending",
+    "OPERATION_CONFLICT": "The operation conflicts with the current organization state",
+    "TRANSFER_NOT_ALLOWED": "Organization ownership cannot be transferred in the current state"
   },
   "membership": {
     "CANNOT_SUSPEND": "Only an active membership can be suspended",
     "CANNOT_ACTIVATE": "Only a suspended or left membership can be activated",
     "CANNOT_LEAVE": "Only an active or suspended membership can be left",
-    "CANNOT_BLOCK": "Only an active, suspended or left membership can be blocked"
+    "CANNOT_BLOCK": "Only an active, suspended or left membership can be blocked",
+    "OPERATION_CONFLICT": "The operation conflicts with the current membership state"
   },
   "project": {
     "NO_CHANGES_DETECTED": "No project changes were detected",
     "EMPTY_UPDATE_PATCH": "Project update patch is empty",
     "CANNOT_PURGE_ACTIVE": "An active project cannot be deleted",
     "ALREADY_ARCHIVED": "Project is already archived",
-    "ALREADY_ACTIVE": "Project is already active"
+    "ALREADY_ACTIVE": "Project is already active",
+    "OPERATION_PENDING": "A project operation is pending or has failed",
+    "OPERATION_CONFLICT": "The operation conflicts with the current project state"
   },
   "department": {
     "NO_CHANGES_DETECTED": "No department changes were detected",
     "EMPTY_UPDATE_PATCH": "Department update patch is empty",
     "CANNOT_PURGE_ACTIVE": "An active department cannot be deleted",
     "ALREADY_ARCHIVED": "Department is already archived",
-    "ALREADY_ACTIVE": "Department is already active"
+    "ALREADY_ACTIVE": "Department is already active",
+    "OPERATION_CONFLICT": "A department operation is still pending"
   },
   "team": {
     "NO_CHANGES_DETECTED": "No team changes were detected",
     "EMPTY_UPDATE_PATCH": "Team update patch is empty",
     "CANNOT_PURGE_ACTIVE": "An active team cannot be deleted",
     "ALREADY_ARCHIVED": "Team is already archived",
-    "ALREADY_ACTIVE": "Team is already active"
+    "ALREADY_ACTIVE": "Team is already active",
+    "OPERATION_CONFLICT": "A team operation is still pending"
   },
   "invite": {
     "CANNOT_ACCEPT_INACTIVE": "Only a pending invite can be accepted",
@@ -43,7 +51,8 @@
     "CANNOT_INVALIDATE_INACTIVE": "Only a pending invite can be invalidated",
     "CANNOT_INVALIDATE_EXPIRED": "An expired invite cannot be invalidated",
     "CANNOT_EXPIRE_INACTIVE": "Only a pending invite can expire",
-    "CANNOT_EXPIRE_UNDUE": "Invite expiration deadline has not been reached"
+    "CANNOT_EXPIRE_UNDUE": "Invite expiration deadline has not been reached",
+    "OPERATION_CONFLICT": "The operation conflicts with the current invite state"
   },
   "project-account-assignment": {
     "ALREADY_REVOKED": "Project assignment is already revoked",

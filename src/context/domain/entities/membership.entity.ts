@@ -86,7 +86,7 @@ export class Membership implements Entities.Membership.Contract {
 
     public beginJoin(process: string = randomUUID()): void {
         if (this.process || ![MembershipStatus.ACTIVE, MembershipStatus.LEFT].includes(this.status)) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Membership.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.status = MembershipStatus.JOINING;
             this.process = process;
@@ -99,7 +99,7 @@ export class Membership implements Entities.Membership.Contract {
 
     public confirmJoin(joinedAt: Date): void {
         if (!this.process || this.status !== MembershipStatus.JOINING) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Membership.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.status = MembershipStatus.ACTIVE;
             this.process = undefined;
@@ -110,7 +110,7 @@ export class Membership implements Entities.Membership.Contract {
 
     public rejectJoin(reason: string): void {
         if (!this.process || this.status !== MembershipStatus.JOINING) {
-            throw Exception.conflict({ messageKey: "services.workflow.OPERATION_CONFLICT" });
+            throw Exception.conflict({ messageKey: `${Membership.dictionaryPath}.OPERATION_CONFLICT` });
         } else {
             this.status = MembershipStatus.LEFT;
             this.process = undefined;

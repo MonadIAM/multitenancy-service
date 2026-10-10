@@ -117,7 +117,7 @@ describe("Project Entity", () => {
             project.beginBootstrap();
             const process = project.process;
 
-            expect(() => project.beginBootstrap()).toThrow("OPERATION_CONFLICT");
+            expect(() => project.beginBootstrap()).toThrow("entities.project.OPERATION_CONFLICT");
 
             expect(project.process).toBe(process);
             expect(project.status).toBe(ProjectStatus.PROVISIONING);
@@ -130,7 +130,7 @@ describe("Project Entity", () => {
             project.beginBootstrap();
             project.confirmBootstrap();
 
-            expect(() => project.rejectBootstrap("late rejection")).toThrow("OPERATION_CONFLICT");
+            expect(() => project.rejectBootstrap("late rejection")).toThrow("entities.project.OPERATION_CONFLICT");
 
             expect(project.status).toBe(ProjectStatus.ACTIVE);
         });
